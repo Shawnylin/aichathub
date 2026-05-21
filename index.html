@@ -132,7 +132,7 @@
     transition: background 0.12s, padding 0.25s, gap 0.25s, color 0.12s;
   }
   .tab-item:hover { background:var(--hover-tab); color:var(--text-tab-active); }
-  .tab-item.active { background:var(--active-tab-bg); color:#111; font-weight:500; }
+  .tab-item.active { color:#111; font-weight:500; background:var(--active-tab-bg); }
   #sidebar.collapsed .tab-item { padding:9px 0; justify-content:center; gap:0; position:relative; }
   .tab-item .favicon,
   .tab-item .favicon-placeholder { width:22px; height:22px; border-radius:5px; object-fit:contain; flex-shrink:0; }
@@ -248,6 +248,39 @@
   body.dark .site-tag.mm  { background:#1a2a33; color:#38bdf8; }
   body.dark .site-tag.db  { background:#1e1f2e; color:#818cf8; }
   body.dark .site-tag.km  { background:#2a2a2a; color:#999; }
+
+  /* ========== ABOUT MODAL ========== */
+  #about-overlay {
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); z-index:200;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition: opacity 0.2s;
+  }
+  #about-overlay.show { opacity:1; pointer-events:auto; }
+  #about-dialog {
+    background:var(--bg-content); border-radius:12px;
+    padding:28px 32px; width:380px; max-width:90vw;
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+    transition: background 0.3s;
+  }
+  #about-dialog h2 { font-size:18px; font-weight:600; color:var(--text-tab-active); margin-bottom:16px; }
+  #about-dialog .about-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0; font-size:13px; color:var(--text-tab);
+    border-bottom:1px solid var(--border-nav);
+  }
+  #about-dialog .about-row:last-child { border-bottom:none; }
+  #about-dialog .about-label { font-weight:500; color:var(--text-dim); }
+  #about-dialog .about-value { color:var(--text-tab-active); font-weight:500; user-select:all; }
+  #about-dialog .about-value a { color:#4d6bfe; text-decoration:none; }
+  #about-dialog .about-value a:hover { text-decoration:underline; }
+  #about-dialog .about-close {
+    margin-top:18px; width:100%; padding:8px; border-radius:7px; border:1px solid var(--border-btn);
+    background:transparent; color:var(--text-tab); cursor:pointer; font-size:13px;
+    transition: background 0.12s;
+  }
+  #about-dialog .about-close:hover { background:var(--hover-navbtn); }
 </style>
 </head>
 <body>
@@ -314,6 +347,9 @@
     </div>
 
     <div class="sidebar-footer">
+      <button class="theme-btn" id="info-btn" title="关于">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M423.5-703.5Q400-727 400-760t23.5-56.5Q447-840 480-840t56.5 23.5Q560-793 560-760t-23.5 56.5Q513-680 480-680t-56.5-23.5ZM420-120v-480h120v480H420Z" fill="var(--text-dim)"/></svg>
+      </button>
       <button class="theme-btn" id="theme-toggle" title="切换主题">
         <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><g stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></g></svg>
       </button>
@@ -348,6 +384,16 @@
   </div>
 </div>
 
+<div id="about-overlay">
+  <div id="about-dialog">
+    <h2>关于 AI Chat Hub</h2>
+    <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.0.0</span></div>
+    <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
+    <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="about-repo-link">github.com/Shawnylin/aichathub</a></span></div>
+    <button class="about-close" id="about-close">关闭</button>
+  </div>
+</div>
+
 <script>
   const sidebar = document.getElementById('sidebar');
   const collapseBtn = document.getElementById('collapse-btn');
@@ -369,6 +415,15 @@
     const isDark = document.body.classList.toggle('dark');
     themeToggle.innerHTML = isDark ? iconMoon : iconSun;
     localStorage.setItem('aihub-theme', isDark ? 'dark' : 'light');
+  });
+
+  const aboutOverlay = document.getElementById('about-overlay');
+  document.getElementById('info-btn').addEventListener('click', () => aboutOverlay.classList.add('show'));
+  document.getElementById('about-close').addEventListener('click', () => aboutOverlay.classList.remove('show'));
+  aboutOverlay.addEventListener('click', (e) => { if (e.target === aboutOverlay) aboutOverlay.classList.remove('show'); });
+  document.getElementById('about-repo-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.app.openExternal('https://github.com/Shawnylin/aichathub');
   });
 
   const tabItems = document.querySelectorAll('.tab-item');
