@@ -22,7 +22,8 @@
   :root { --sidebar-w: 260px; --collapsed-w: 56px; }
 
   body {
-    font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-family: var(--font-family);
     height: 100vh;
     display: flex; flex-direction: column;
     overflow: hidden;
@@ -162,11 +163,7 @@
     transition: background 0.12s;
   }
   .theme-btn svg { width:18px; height:18px; }
-  .theme-btn .icon-sun { fill:var(--text-dim); stroke:var(--text-dim); stroke-width:1.5; }
-  .theme-btn .icon-moon { fill:var(--text-dim); }
   .theme-btn:hover { background:var(--btn-hover); }
-  .footer-info { font-size:11px; color:var(--footer-text); white-space:nowrap; transition: opacity 0.15s, color 0.3s; }
-  #sidebar.collapsed .footer-info { display:none; }
 
   /* ========== CONTENT ========== */
   #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; }
@@ -249,38 +246,99 @@
   body.dark .site-tag.db  { background:#1e1f2e; color:#818cf8; }
   body.dark .site-tag.km  { background:#2a2a2a; color:#999; }
 
-  /* ========== ABOUT MODAL ========== */
-  #about-overlay {
+  /* ========== SETTINGS MODAL ========== */
+  #settings-overlay {
     position:fixed; top:0; left:0; width:100%; height:100%;
     background:rgba(0,0,0,0.5); z-index:200;
     display:flex; align-items:center; justify-content:center;
     opacity:0; pointer-events:none;
     transition: opacity 0.2s;
   }
-  #about-overlay.show { opacity:1; pointer-events:auto; }
-  #about-dialog {
+  #settings-overlay.show { opacity:1; pointer-events:auto; }
+  #settings-dialog {
     background:var(--bg-content); border-radius:12px;
-    padding:28px 32px; width:380px; max-width:90vw;
+    padding:28px 20px 28px 28px; width:400px; max-width:92vw; max-height:85vh;
+    overflow-y:auto;
     box-shadow:0 8px 32px rgba(0,0,0,0.3);
     transition: background 0.3s;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
   }
-  #about-dialog h2 { font-size:18px; font-weight:600; color:var(--text-tab-active); margin-bottom:16px; }
-  #about-dialog .about-row {
+  #settings-dialog:hover { scrollbar-color: var(--border-btn) transparent; }
+  #settings-dialog::-webkit-scrollbar { width:5px; }
+  #settings-dialog::-webkit-scrollbar-track { background:transparent; }
+  #settings-dialog::-webkit-scrollbar-thumb { background:transparent; border-radius:4px; }
+  #settings-dialog:hover::-webkit-scrollbar-thumb { background:var(--border-btn); }
+  #settings-dialog:hover::-webkit-scrollbar-thumb:hover { background:var(--text-dim); }
+  #settings-dialog h2 { font-size:18px; font-weight:600; color:var(--text-tab-active); margin-bottom:20px; }
+  #settings-dialog .setting-section { margin-bottom:18px; }
+  #settings-dialog .setting-section:last-of-type { margin-bottom:0; }
+  #settings-dialog .setting-label { font-size:11px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:block; }
+  .setting-divider { height:1px; background:var(--border-nav); margin:18px 0; }
+
+  .radio-options { display:flex; flex-direction:column; gap:6px; }
+  .radio-option {
+    display:flex; align-items:center; gap:10px;
+    padding:11px 14px; border-radius:8px; border:2px solid var(--border-btn);
+    cursor:pointer; background:transparent;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .radio-option:hover { background:var(--hover-navbtn); }
+  .radio-option.selected { border-color:#4d6bfe; background:rgba(77,107,254,0.06); }
+  .radio-option .radio-circle {
+    width:18px; height:18px; border-radius:50%; border:2px solid var(--border-btn);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition: border-color 0.15s;
+  }
+  .radio-option.selected .radio-circle { border-color:#4d6bfe; }
+  .radio-option.selected .radio-circle::after {
+    content:''; width:10px; height:10px; border-radius:50%; background:#4d6bfe;
+  }
+  .radio-option .option-info { flex:1; }
+  .radio-option .option-name { font-size:13px; font-weight:500; color:var(--text-tab-active); }
+  .radio-option .option-desc { font-size:11px; color:var(--text-dim); margin-top:1px; }
+
+  .toggle-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; border-radius:8px; border:1px solid var(--border-btn);
+  }
+  .toggle-row .toggle-label { font-size:13px; font-weight:500; color:var(--text-tab-active); }
+  .toggle-switch {
+    width:44px; height:26px; border-radius:13px; border:none;
+    background:#ccc; cursor:pointer; position:relative; flex-shrink:0;
+    transition: background 0.2s;
+  }
+  .toggle-switch.on { background:#4d6bfe; }
+  .toggle-switch::after {
+    content:''; position:absolute; top:3px; left:3px;
+    width:20px; height:20px; border-radius:50%; background:#fff;
+    transition: transform 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-switch.on::after { transform:translateX(18px); }
+
+  .shortcut-list { font-size:12px; color:var(--text-dim); padding:4px 14px; line-height:1.8; }
+  .shortcut-list kbd {
+    display:inline-block; padding:1px 6px; border-radius:4px; border:1px solid var(--border-btn);
+    background:var(--bg-urlbar); font-family:inherit; font-size:11px;
+  }
+
+  .about-row {
     display:flex; justify-content:space-between; align-items:center;
-    padding:8px 0; font-size:13px; color:var(--text-tab);
+    padding:8px 14px; font-size:13px;
     border-bottom:1px solid var(--border-nav);
   }
-  #about-dialog .about-row:last-child { border-bottom:none; }
-  #about-dialog .about-label { font-weight:500; color:var(--text-dim); }
-  #about-dialog .about-value { color:var(--text-tab-active); font-weight:500; user-select:all; }
-  #about-dialog .about-value a { color:#4d6bfe; text-decoration:none; }
-  #about-dialog .about-value a:hover { text-decoration:underline; }
-  #about-dialog .about-close {
-    margin-top:18px; width:100%; padding:8px; border-radius:7px; border:1px solid var(--border-btn);
-    background:transparent; color:var(--text-tab); cursor:pointer; font-size:13px;
+  .about-row:last-child { border-bottom:none; }
+  .about-label { font-weight:500; color:var(--text-dim); }
+  .about-value { color:var(--text-tab-active); font-weight:500; user-select:all; }
+  .about-value a { color:#4d6bfe; text-decoration:none; }
+  .about-value a:hover { text-decoration:underline; }
+
+  #settings-close {
+    margin-top:18px; width:100%; padding:10px; border-radius:7px; border:1px solid var(--border-btn);
+    background:transparent; color:var(--text-tab); cursor:pointer; font-size:13px; font-family:inherit;
     transition: background 0.12s;
   }
-  #about-dialog .about-close:hover { background:var(--hover-navbtn); }
+  #settings-close:hover { background:var(--hover-navbtn); }
 </style>
 </head>
 <body>
@@ -347,13 +405,9 @@
     </div>
 
     <div class="sidebar-footer">
-      <button class="theme-btn" id="info-btn" title="关于">
-        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M423.5-703.5Q400-727 400-760t23.5-56.5Q447-840 480-840t56.5 23.5Q560-793 560-760t-23.5 56.5Q513-680 480-680t-56.5-23.5ZM420-120v-480h120v480H420Z" fill="var(--text-dim)"/></svg>
+      <button class="theme-btn" id="settings-btn" title="设置">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" fill="var(--text-dim)"/></svg>
       </button>
-      <button class="theme-btn" id="theme-toggle" title="切换主题">
-        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><g stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></g></svg>
-      </button>
-      <span class="footer-info">Ctrl+1~5 切换</span>
     </div>
   </div>
 
@@ -384,13 +438,78 @@
   </div>
 </div>
 
-<div id="about-overlay">
-  <div id="about-dialog">
-    <h2>关于 AI Chat Hub</h2>
-    <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.0.0</span></div>
-    <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
-    <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="about-repo-link">github.com/Shawnylin/aichathub</a></span></div>
-    <button class="about-close" id="about-close">关闭</button>
+<div id="settings-overlay">
+  <div id="settings-dialog">
+    <h2>设置</h2>
+
+    <div class="setting-section">
+      <span class="setting-label">字体方案</span>
+      <div class="radio-options" id="font-options">
+        <div class="radio-option selected" data-font="system">
+          <div class="radio-circle"></div>
+          <div class="option-info">
+            <div class="option-name">系统默认</div>
+            <div class="option-desc">PingFang SC / Microsoft YaHei — 清晰锐利</div>
+          </div>
+        </div>
+        <div class="radio-option" data-font="alihealth">
+          <div class="radio-circle"></div>
+          <div class="option-info">
+            <div class="option-name">阿里健康体</div>
+            <div class="option-desc">阿里巴巴健康体 2.0 — 圆润温和</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <div class="setting-section">
+      <span class="setting-label">主题</span>
+      <div class="radio-options" id="theme-options">
+        <div class="radio-option selected" data-theme="light">
+          <div class="radio-circle"></div>
+          <div class="option-info">
+            <div class="option-name">浅色模式</div>
+            <div class="option-desc">亮色界面，适合日间使用</div>
+          </div>
+        </div>
+        <div class="radio-option" data-theme="dark">
+          <div class="radio-circle"></div>
+          <div class="option-info">
+            <div class="option-name">深色模式</div>
+            <div class="option-desc">暗色界面，减少眼部疲劳</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <div class="setting-section">
+      <span class="setting-label">快捷键</span>
+      <div class="toggle-row">
+        <span class="toggle-label">启用快捷键</span>
+        <button class="toggle-switch on" id="shortcut-toggle"></button>
+      </div>
+      <div class="shortcut-list" id="shortcut-list">
+        <div><kbd>Ctrl+1~5</kbd> 切换标签页</div>
+        <div><kbd>Ctrl+R</kbd> 刷新当前页</div>
+        <div><kbd>Ctrl+B</kbd> 收起/展开侧栏</div>
+        <div><kbd>Ctrl+D</kbd> 切换深色模式</div>
+      </div>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <div class="setting-section">
+      <span class="setting-label">关于</span>
+      <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.1.0</span></div>
+      <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
+      <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
+    </div>
+
+    <button id="settings-close">关闭</button>
   </div>
 </div>
 
@@ -403,25 +522,51 @@
     localStorage.setItem('aihub-sidebar-collapsed', c ? '1' : '0');
   });
 
-  const themeToggle = document.getElementById('theme-toggle');
-  const iconSun  = '<svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><g stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></g></svg>';
-  const iconMoon = '<svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 13.5A9 9 0 0 1 10.5 3 7 7 0 1 0 21 13.5z"/></svg>';
+  // ======== 设置面板 ========
+  const settingsOverlay = document.getElementById('settings-overlay');
+  let shortcutsEnabled = localStorage.getItem('aihub-shortcuts') !== '0';
 
-  if (localStorage.getItem('aihub-theme') === 'dark') {
-    document.body.classList.add('dark');
-    themeToggle.innerHTML = iconMoon;
+  document.getElementById('settings-btn').addEventListener('click', () => settingsOverlay.classList.add('show'));
+  document.getElementById('settings-close').addEventListener('click', () => settingsOverlay.classList.remove('show'));
+  settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.classList.remove('show'); });
+
+  // 字体方案
+  const fontOptions = document.querySelectorAll('#font-options .radio-option');
+  function applyFont(font) {
+    localStorage.setItem('aihub-font', font);
+    if (font === 'alihealth') {
+      document.body.style.setProperty('--font-family', "'AliHealth', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif");
+    } else {
+      document.body.style.setProperty('--font-family', "system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif");
+    }
+    fontOptions.forEach(o => o.classList.toggle('selected', o.dataset.font === font));
   }
-  themeToggle.addEventListener('click', () => {
-    const isDark = document.body.classList.toggle('dark');
-    themeToggle.innerHTML = isDark ? iconMoon : iconSun;
-    localStorage.setItem('aihub-theme', isDark ? 'dark' : 'light');
-  });
+  fontOptions.forEach(opt => opt.addEventListener('click', () => applyFont(opt.dataset.font)));
+  if (localStorage.getItem('aihub-font') === 'alihealth') applyFont('alihealth');
 
-  const aboutOverlay = document.getElementById('about-overlay');
-  document.getElementById('info-btn').addEventListener('click', () => aboutOverlay.classList.add('show'));
-  document.getElementById('about-close').addEventListener('click', () => aboutOverlay.classList.remove('show'));
-  aboutOverlay.addEventListener('click', (e) => { if (e.target === aboutOverlay) aboutOverlay.classList.remove('show'); });
-  document.getElementById('about-repo-link').addEventListener('click', (e) => {
+  // 主题
+  const themeOptions = document.querySelectorAll('#theme-options .radio-option');
+  function applyTheme(theme) {
+    localStorage.setItem('aihub-theme', theme);
+    document.body.classList.toggle('dark', theme === 'dark');
+    themeOptions.forEach(o => o.classList.toggle('selected', o.dataset.theme === theme));
+  }
+  themeOptions.forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
+  if (localStorage.getItem('aihub-theme') === 'dark') applyTheme('dark');
+
+  // 快捷键开关
+  const shortcutToggle = document.getElementById('shortcut-toggle');
+  const shortcutList = document.getElementById('shortcut-list');
+  function updateShortcutUI() {
+    shortcutToggle.classList.toggle('on', shortcutsEnabled);
+    shortcutList.style.opacity = shortcutsEnabled ? '1' : '0.35';
+    localStorage.setItem('aihub-shortcuts', shortcutsEnabled ? '1' : '0');
+  }
+  updateShortcutUI();
+  shortcutToggle.addEventListener('click', () => { shortcutsEnabled = !shortcutsEnabled; updateShortcutUI(); });
+
+  // GitHub 链接
+  document.getElementById('repo-link').addEventListener('click', (e) => {
     e.preventDefault();
     window.app.openExternal('https://github.com/Shawnylin/aichathub');
   });
@@ -550,12 +695,13 @@
   });
 
   document.addEventListener('keydown', e => {
+    if (!shortcutsEnabled) return;
     if (e.ctrlKey && e.key >= '1' && e.key <= '5') {
       e.preventDefault(); switchTab(SITE_ORDER[parseInt(e.key)-1]);
     }
     if (e.ctrlKey && e.key === 'r') { e.preventDefault(); getActiveWebview().reload(); }
     if (e.ctrlKey && e.key === 'b') { e.preventDefault(); collapseBtn.click(); }
-    if (e.ctrlKey && e.key === 'd') { e.preventDefault(); themeToggle.click(); }
+    if (e.ctrlKey && e.key === 'd') { e.preventDefault(); applyTheme(document.body.classList.contains('dark') ? 'light' : 'dark'); }
   });
 
   document.getElementById('btn-min').addEventListener('click', () => window.app.minimize());
