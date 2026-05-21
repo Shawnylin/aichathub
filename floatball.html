@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100px; height:100px; overflow:hidden; background:transparent; user-select:none; }
+  .ball {
+    width:44px; height:44px; border-radius:50%;
+    margin:28px; position:relative;
+    background:linear-gradient(135deg,#4d6bfe,#6c8cff);
+    box-shadow:0 2px 12px rgba(77,107,254,0.45), 0 0 0 0 rgba(77,107,254,0);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.3s;
+    cursor:pointer;
+  }
+  .ball:hover { transform:scale(1.08); box-shadow:0 4px 20px rgba(77,107,254,0.55), 0 0 24px 4px rgba(108,140,255,0.25); }
+  .ball.popping {
+    animation:pop 0.4s cubic-bezier(0.1,0.8,0.3,1) forwards;
+    pointer-events:none;
+  }
+  @keyframes pop {
+    0%   { transform:scale(1.08); opacity:1; }
+    30%  { transform:scale(1.25); opacity:1; }
+    100% { transform:scale(0); opacity:0; }
+  }
+  .glow {
+    position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%;
+    pointer-events:none; opacity:0;
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.25) 0%, transparent 60%);
+    transition:opacity 0.25s;
+  }
+  .ball:hover .glow { opacity:1; }
+  .ball.popping .glow { opacity:1; }
+  svg { position:relative; z-index:1; pointer-events:none; }
+</style></head>
+<body>
+<div class="ball" id="ball">
+  <div class="glow" id="glow"></div>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+</div>
+<script>
+(function() {
+  const ball = document.getElementById('ball');
+  const glow = document.getElementById('glow');
+  let startX, startY, lastX, lastY, moved = false, pointerId = null;
+
+  ball.addEventListener('pointerdown', function(e) {
+    if (ball.classList.contains('popping')) return;
+    startX = e.screenX; startY = e.screenY;
+    lastX = e.screenX; lastY = e.screenY;
+    moved = false;
+    pointerId = e.pointerId;
+    ball.setPointerCapture(e.pointerId);
+    ball.style.transform = 'scale(0.92)';
+    ball.style.transition = 'transform 0.08s';
+  });
+
+  ball.addEventListener('pointermove', function(e) {
+    const rect = ball.getBoundingClientRect();
+    const cx = ((e.clientX - rect.left) / rect.width) * 100;
+    const cy = ((e.clientY - rect.top) / rect.height) * 100;
+    glow.style.background = `radial-gradient(circle at ${cx}% ${cy}%, rgba(255,255,255,0.3) 0%, transparent 60%)`;
+
+    if (pointerId === null) return;
+    const dx = e.screenX - lastX;
+    const dy = e.screenY - lastY;
+    lastX = e.screenX; lastY = e.screenY;
+    const dist = Math.abs(e.screenX - startX) + Math.abs(e.screenY - startY);
+    if (!moved && dist > 3) moved = true;
+    if (moved && isFinite(dx) && isFinite(dy)) window.float.onDrag(dx, dy);
+  });
+
+  ball.addEventListener('pointerleave', function() {
+    glow.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.25) 0%, transparent 60%)';
+  });
+
+  ball.addEventListener('pointerup', function(e) {
+    ball.releasePointerCapture(pointerId);
+    pointerId = null;
+    if (!moved) {
+      ball.classList.add('popping');
+    } else {
+      ball.style.transform = '';
+      ball.style.transition = 'transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.3s';
+    }
+  });
+
+  ball.addEventListener('pointercancel', function(e) {
+    ball.releasePointerCapture(pointerId);
+    pointerId = null;
+  });
+
+  ball.addEventListener('animationend', function() {
+    if (ball.classList.contains('popping')) {
+      window.float.onClick();
+    }
+  });
+})();
+</script>
+</body>
+</html>

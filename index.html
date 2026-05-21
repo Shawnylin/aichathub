@@ -145,6 +145,7 @@
   .tab-item .indicator { width:6px; height:6px; border-radius:50%; flex-shrink:0; opacity:0; transition: opacity 0.15s; }
   .tab-item.active .indicator { opacity:1; }
   #sidebar.collapsed .tab-item .indicator { opacity:0; }
+  .tab-item.dragging { opacity:0.5; }
 
   .sidebar-footer {
     padding:10px 14px;
@@ -207,6 +208,7 @@
   .site-tag.mm  { background:#f0f9ff; color:#0ea5e9; }
   .site-tag.db  { background:#eef2ff; color:#6366f1; }
   .site-tag.km  { background:#f0f0f0; color:#1a1a1a; }
+  .site-tag.qw  { background:#f0edff; color:#6b5ce7; }
 
   #webview-container { flex:1; position:relative; background:var(--bg-webview); transition: background 0.3s; }
   webview { width:100%; height:100%; display:none; position:absolute; top:0; left:0; }
@@ -244,6 +246,7 @@
   body.dark .site-tag.mm  { background:#1a2a33; color:#38bdf8; }
   body.dark .site-tag.db  { background:#1e1f2e; color:#818cf8; }
   body.dark .site-tag.km  { background:#2a2a2a; color:#999; }
+  body.dark .site-tag.qw  { background:#1f1b33; color:#8b7cf8; }
 
   /* ========== SETTINGS MODAL ========== */
   #settings-overlay {
@@ -401,6 +404,14 @@
         <span class="tab-text">MiniMax</span>
         <span class="indicator" style="background:#0ea5e9"></span>
       </button>
+
+      <button class="tab-item" data-site="tongyi" title="千问">
+        <img src="https://www.tongyi.com/favicon.ico" class="favicon" alt=""
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="favicon-placeholder" style="display:none;background:#6b5ce7">QW</span>
+        <span class="tab-text">千问</span>
+        <span class="indicator" style="background:#6b5ce7"></span>
+      </button>
     </div>
 
     <div class="sidebar-footer">
@@ -433,6 +444,7 @@
       <webview id="wv-doubao"   src="https://www.doubao.com/chat/"     partition="persist:doubao"></webview>
       <webview id="wv-kimi"     src="https://www.kimi.com/"            partition="persist:kimi"></webview>
       <webview id="wv-minimax"  src="https://agent.minimaxi.com/"      partition="persist:minimax"></webview>
+      <webview id="wv-tongyi"   src="https://www.tongyi.com/"          partition="persist:tongyi"></webview>
     </div>
   </div>
 </div>
@@ -492,10 +504,20 @@
         <button class="toggle-switch on" id="shortcut-toggle"></button>
       </div>
       <div class="shortcut-list" id="shortcut-list">
-        <div><kbd>Ctrl+1~5</kbd> 切换标签页</div>
+        <div><kbd>Ctrl+1~6</kbd> 切换标签页</div>
         <div><kbd>Ctrl+R</kbd> 刷新当前页</div>
         <div><kbd>Ctrl+B</kbd> 收起/展开侧栏</div>
         <div><kbd>Ctrl+D</kbd> 切换深色模式</div>
+      </div>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <div class="setting-section">
+      <span class="setting-label">悬浮球</span>
+      <div class="toggle-row">
+        <span class="toggle-label">窗口隐藏时显示悬浮球</span>
+        <button class="toggle-switch on" id="floatball-toggle"></button>
       </div>
     </div>
 
@@ -564,14 +586,24 @@
   updateShortcutUI();
   shortcutToggle.addEventListener('click', () => { shortcutsEnabled = !shortcutsEnabled; updateShortcutUI(); });
 
+  // 悬浮球开关
+  const floatballToggle = document.getElementById('floatball-toggle');
+  let floatBallEnabled = localStorage.getItem('aihub-floatball') !== '0';
+  floatballToggle.classList.toggle('on', floatBallEnabled);
+  floatballToggle.addEventListener('click', () => {
+    floatBallEnabled = !floatBallEnabled;
+    floatballToggle.classList.toggle('on', floatBallEnabled);
+    localStorage.setItem('aihub-floatball', floatBallEnabled ? '1' : '0');
+    window.app.setFloatBall(floatBallEnabled);
+  });
+  window.app.setFloatBall(floatBallEnabled);
+
   // GitHub 链接
   document.getElementById('repo-link').addEventListener('click', (e) => {
     e.preventDefault();
     window.app.openExternal('https://github.com/Shawnylin/aichathub');
   });
 
-  const tabItems = document.querySelectorAll('.tab-item');
-  const webviews = document.querySelectorAll('webview');
   const urlBar = document.getElementById('url-bar');
   const siteTag = document.getElementById('site-tag');
 
@@ -580,10 +612,29 @@
     yuanbao: {name:'腾讯元宝',     domain:'yuanbao.tencent.com',   url:'https://yuanbao.tencent.com/chat/', cls:'yb'},
     doubao:  {name:'豆包',        domain:'www.doubao.com',        url:'https://www.doubao.com/chat/',      cls:'db'},
     kimi:    {name:'Kimi',        domain:'www.kimi.com',          url:'https://www.kimi.com/',             cls:'km'},
-    minimax: {name:'MiniMax',     domain:'agent.minimaxi.com',    url:'https://agent.minimaxi.com/',       cls:'mm'}
+    minimax: {name:'MiniMax',     domain:'agent.minimaxi.com',    url:'https://agent.minimaxi.com/',       cls:'mm'},
+    tongyi:  {name:'千问',        domain:'www.tongyi.com',        url:'https://www.tongyi.com/',           cls:'qw'}
   };
-  const SITE_ORDER = ['deepseek','yuanbao','doubao','kimi','minimax'];
+  let SITE_ORDER = JSON.parse(localStorage.getItem('aihub-site-order') ||
+    '["deepseek","yuanbao","doubao","kimi","minimax","tongyi"]');
   let activeSite = 'deepseek';
+
+  // 按 SITE_ORDER 重排 DOM
+  (function reorderDOM(order) {
+    const nav = document.querySelector('.sidebar-nav');
+    order.forEach(site => {
+      const btn = document.querySelector(`.tab-item[data-site="${site}"]`);
+      if (btn) nav.appendChild(btn);
+    });
+    const container = document.getElementById('webview-container');
+    order.slice().reverse().forEach(site => {
+      const wv = document.getElementById('wv-' + site);
+      if (wv) container.insertBefore(wv, container.firstChild);
+    });
+  })(SITE_ORDER);
+
+  const tabItems = document.querySelectorAll('.tab-item');
+  const webviews = document.querySelectorAll('webview');
 
   function getActiveWebview() { return document.getElementById('wv-'+activeSite); }
 
@@ -598,6 +649,52 @@
     updateNavState();
   }
   tabItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.site)));
+  window.app.onSwitchSite((site) => { switchTab(site); });
+
+  // 拖拽排序
+  let dragSite = null;
+  tabItems.forEach(btn => {
+    btn.setAttribute('draggable', 'true');
+    btn.addEventListener('dragstart', (e) => {
+      dragSite = btn.dataset.site;
+      btn.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    btn.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (btn.dataset.site === dragSite) return;
+      const rect = btn.getBoundingClientRect();
+      const mid = (rect.top + rect.bottom) / 2;
+      btn.style.borderTop = e.clientY < mid ? '2px solid #4d6bfe' : '';
+      btn.style.borderBottom = e.clientY >= mid ? '2px solid #4d6bfe' : '';
+    });
+    btn.addEventListener('dragleave', () => {
+      btn.style.borderTop = '';
+      btn.style.borderBottom = '';
+    });
+    btn.addEventListener('drop', (e) => {
+      e.preventDefault();
+      btn.style.borderTop = '';
+      btn.style.borderBottom = '';
+      if (btn.dataset.site === dragSite) return;
+      const rect = btn.getBoundingClientRect();
+      const mid = (rect.top + rect.bottom) / 2;
+      const dragged = document.querySelector(`.tab-item[data-site="${dragSite}"]`);
+      if (e.clientY < mid) {
+        btn.parentNode.insertBefore(dragged, btn);
+      } else {
+        btn.parentNode.insertBefore(dragged, btn.nextSibling);
+      }
+      SITE_ORDER = Array.from(document.querySelectorAll('.tab-item')).map(b => b.dataset.site);
+      localStorage.setItem('aihub-site-order', JSON.stringify(SITE_ORDER));
+      window.app.updateSiteOrder(SITE_ORDER);
+    });
+    btn.addEventListener('dragend', () => {
+      btn.classList.remove('dragging');
+      document.querySelectorAll('.tab-item').forEach(b => { b.style.borderTop = ''; b.style.borderBottom = ''; });
+    });
+  });
 
   const navBack = document.getElementById('nav-back');
   const navFwd  = document.getElementById('nav-fwd');
@@ -691,11 +788,29 @@
         return { action: 'deny' };
       });
     } catch(e) {}
+
+    wv.addEventListener('context-menu', (e) => {
+      e.preventDefault();
+      window.app.showContextMenu();
+    });
+  });
+
+  window.app.onContextMenuAction((action) => {
+    const wv = getActiveWebview();
+    if (!wv) return;
+    switch(action) {
+      case 'back': wv.goBack(); break;
+      case 'forward': wv.goForward(); break;
+      case 'reload': wv.reload(); break;
+      case 'copy': wv.copy(); break;
+      case 'paste': wv.paste(); break;
+      case 'selectAll': wv.selectAll(); break;
+    }
   });
 
   document.addEventListener('keydown', e => {
     if (!shortcutsEnabled) return;
-    if (e.ctrlKey && e.key >= '1' && e.key <= '5') {
+    if (e.ctrlKey && e.key >= '1' && e.key <= '6') {
       e.preventDefault(); switchTab(SITE_ORDER[parseInt(e.key)-1]);
     }
     if (e.ctrlKey && e.key === 'r') { e.preventDefault(); getActiveWebview().reload(); }

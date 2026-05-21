@@ -22,6 +22,8 @@
       "main.js",
       "preload.js",
       "index.html",
+      "floatball.html",
+      "floatball-preload.js",
       "fonts/**/*",
       "assets/icon.png"
     ],
