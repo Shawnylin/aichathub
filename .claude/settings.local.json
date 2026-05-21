@@ -25,7 +25,11 @@
       "Bash(Get-Process -Name \"AI Chat Hub\" -ErrorAction SilentlyContinue)",
       "Bash(Stop-Process -Force)",
       "Bash(Start-Sleep -Seconds 1)",
-      "PowerShell(Get-Process *)"
+      "PowerShell(Get-Process *)",
+      "Bash(node *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $exe = 'F:\\\\mycode\\\\aichathub\\\\dist\\\\win-unpacked\\\\AI Chat Hub.exe'; $ico = [System.Drawing.Icon]::ExtractAssociatedIcon\\($exe\\); $bmp = $ico.ToBitmap\\(\\); $bmp.Save\\('F:\\\\mycode\\\\aichathub\\\\dist\\\\extracted-icon.png', [System.Drawing.Imaging.ImageFormat]::Png\\); Write-Output \"Saved extracted icon to dist/extracted-icon.png \\($\\($bmp.Width\\)x$\\($bmp.Height\\)\\)\")",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $exe = 'F:\\\\mycode\\\\aichathub\\\\dist\\\\win-unpacked\\\\AI Chat Hub.exe'; $ico = [System.Drawing.Icon]::ExtractAssociatedIcon\\($exe\\); $bmp = $ico.ToBitmap\\(\\); $bmp.Save\\('F:\\\\mycode\\\\aichathub\\\\dist\\\\extracted-icon2.png', [System.Drawing.Imaging.ImageFormat]::Png\\); Write-Output \"Size=$\\($bmp.Width\\)x$\\($bmp.Height\\)\")"
     ]
   }
 }

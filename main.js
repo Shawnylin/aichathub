@@ -36,7 +36,7 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.png'));
+  mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
   mainWindow.on('maximize', () => mainWindow.webContents.send('maximize-change', true));
   mainWindow.on('unmaximize', () => mainWindow.webContents.send('maximize-change', false));

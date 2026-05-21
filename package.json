@@ -26,6 +26,7 @@
       "floatball-preload.js",
       "fonts/**/*",
       "svg/**/*",
+      "assets/icon.ico",
       "assets/icon.png",
       "assets/icon-512.png",
       "assets/tray-icon.png"
@@ -37,11 +38,13 @@
       }
     ],
     "win": {
-      "icon": "assets/icon.png",
+      "icon": "assets/icon.ico",
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "signAndEditExecutable": false
@@ -53,7 +56,10 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "AI Chat Hub",
-      "installerLanguages": ["zh_CN", "en_US"],
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
       "language": "2052",
       "deleteAppDataOnUninstall": false
     }
@@ -61,6 +67,7 @@
   "devDependencies": {
     "electron": "^42.2.0",
     "electron-builder": "^26.8.1",
+    "png-to-ico": "^3.0.1",
     "sharp": "^0.34.5"
   }
 }
