@@ -6,10 +6,13 @@ const rcedit = path.join(__dirname, '..', 'node_modules', 'electron-winstaller',
 const unpackedExe = path.join(__dirname, '..', 'dist', 'win-unpacked', 'AI Chat Hub.exe');
 const iconFile = path.join(__dirname, '..', 'assets', 'icon.ico');
 
-console.log('[1/3] Building app...');
+console.log('[0/4] Generating icons...');
+execSync('node scripts/make-icon.js', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+
+console.log('[1/4] Building app...');
 execSync('npx electron-builder --dir', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
 
-console.log('[2/3] Embedding icon...');
+console.log('[2/4] Embedding icon...');
 if (fs.existsSync(rcedit) && fs.existsSync(unpackedExe) && fs.existsSync(iconFile)) {
   execSync(`"${rcedit}" "${unpackedExe}" --set-icon "${iconFile}"`, { stdio: 'inherit' });
   console.log('Icon embedded successfully.');
@@ -17,7 +20,7 @@ if (fs.existsSync(rcedit) && fs.existsSync(unpackedExe) && fs.existsSync(iconFil
   console.error('rcedit or exe or icon not found, skipping icon embedding.');
 }
 
-console.log('[3/3] Building NSIS installer...');
+console.log('[3/4] Building NSIS installer...');
 execSync('npx electron-builder --win --prepackaged dist/win-unpacked', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
 
 console.log('Build complete: dist/AI Chat Hub Setup 1.2.0.exe');
