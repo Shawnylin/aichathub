@@ -1,0 +1,61 @@
+{
+  "name": "AIchatHub",
+  "version": "1.0.0",
+  "description": "AI Chat Hub - 多平台 AI 助手聚合客户端",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "icon": "node scripts/make-icon.js"
+  },
+  "keywords": [],
+  "author": "AI Chat Hub",
+  "license": "ISC",
+  "type": "commonjs",
+  "build": {
+    "appId": "com.aichathub.app",
+    "productName": "AI Chat Hub",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "fonts/**/*",
+      "assets/icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "fonts",
+        "to": "fonts"
+      }
+    ],
+    "win": {
+      "icon": "assets/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AI Chat Hub",
+      "installerLanguages": ["zh_CN", "en_US"],
+      "language": "2052",
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1",
+    "sharp": "^0.34.5"
+  }
+}
