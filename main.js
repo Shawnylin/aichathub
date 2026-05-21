@@ -36,6 +36,7 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
   mainWindow.setMenuBarVisibility(false);
+  mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.png'));
 
   mainWindow.on('maximize', () => mainWindow.webContents.send('maximize-change', true));
   mainWindow.on('unmaximize', () => mainWindow.webContents.send('maximize-change', false));
@@ -157,8 +158,8 @@ function destroyFloatBall() {
 }
 
 function createTray() {
-  const iconPath = path.join(__dirname, 'assets', 'logo-32.png');
-  const trayIcon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+  const iconPath = path.join(__dirname, 'assets', 'tray-icon.png');
+  const trayIcon = nativeImage.createFromPath(iconPath);
   tray = new Tray(trayIcon);
   tray.setToolTip('AI Chat Hub');
 
