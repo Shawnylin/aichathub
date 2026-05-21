@@ -93,10 +93,7 @@
   #sidebar.collapsed .sidebar-header .logo-area { display:none; }
   .sidebar-header .logo-icon {
     width:28px; height:28px; flex-shrink:0;
-    background:linear-gradient(135deg, #4d6bfe, #6c8cff);
-    border-radius:7px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:15px;
+    border-radius:7px; object-fit:contain;
   }
   .sidebar-header .logo-text { font-size:14px; font-weight:600; color:var(--text-tab-active); }
   .collapse-btn {
@@ -356,7 +353,7 @@
   <div id="sidebar">
     <div class="sidebar-header">
       <div class="logo-area">
-        <span class="logo-icon">&#9670;</span>
+        <img src="svg/logo.svg" class="logo-icon" alt="">
         <span class="logo-text">AI Chat Hub</span>
       </div>
       <button class="collapse-btn" id="collapse-btn" title="收起侧栏">&#x2630;</button>
@@ -525,7 +522,7 @@
 
     <div class="setting-section">
       <span class="setting-label">关于</span>
-      <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.2.0</span></div>
+      <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.2.1</span></div>
       <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
       <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
     </div>
