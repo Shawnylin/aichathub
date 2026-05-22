@@ -6,24 +6,12 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' https: data:; font-src 'self'; connect-src 'self';">
 <title>AI Chat Hub</title>
 <style>
-  @font-face {
-    font-family: 'AliHealth';
-    src: url('fonts/阿里健康体-v2.0/阿里健康体 2.0 中文/AlibabaHealthFont2.0CN-45R.ttf') format('truetype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'AliHealth';
-    src: url('fonts/阿里健康体-v2.0/阿里健康体 2.0 中文/AlibabaHealthFont2.0CN-85B.ttf') format('truetype');
-    font-weight: 700;
-  }
-
   * { margin:0; padding:0; box-sizing:border-box; }
 
   :root { --sidebar-w: 260px; --collapsed-w: 56px; }
 
   body {
-    --font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    font-family: var(--font-family);
+    font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     height: 100vh;
     display: flex; flex-direction: column;
     overflow: hidden;
@@ -143,19 +131,12 @@
   .tab-item .indicator {
     width:6px; height:6px; border-radius:50%; flex-shrink:0;
     opacity:0; transition: opacity 0.15s, transform 0.2s;
-    display:flex; align-items:center; justify-content:center;
-    color:transparent; cursor:pointer;
-    font-size:8px; font-weight:700; font-family:inherit; line-height:1;
-  }
-  .tab-item .indicator::after {
-    content: '\00D7';
-    font-size:7px; font-weight:700; line-height:1;
+    cursor:pointer;
   }
   .tab-item .indicator.loaded { opacity:1; }
   .tab-item .indicator:hover {
-    transform:scale(2.4);
-    background:#e02f2f !important;
-    color:#fff;
+    transform:scale(3);
+    background:url('svg/close-btn.svg') no-repeat center / contain !important;
   }
   #sidebar.collapsed .tab-item .indicator { opacity:0; }
   .tab-item.dragging { opacity:0.5; }
@@ -213,9 +194,18 @@
 
   .site-tag {
     padding:4px 10px; border-radius:5px; font-size:11px; font-weight:600;
-    white-space:nowrap; flex-shrink:0;
-    transition: background 0.3s, color 0.3s;
+    white-space:nowrap; flex-shrink:0; cursor:pointer; position:relative;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
   }
+  .site-tag::before {
+    content: '\00D7';
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:13px; font-weight:700; color:#e02f2f;
+    opacity:0; transition: opacity 0.15s; line-height:1;
+  }
+  .site-tag:hover { background:transparent !important; box-shadow:inset 0 0 0 1.5px #e02f2f; color:transparent !important; }
+  .site-tag:hover::before { opacity:1; }
+  body.dark .site-tag:hover { background:transparent !important; box-shadow:inset 0 0 0 1.5px #e02f2f; color:transparent !important; }
   .site-tag.ds  { background:#eef1ff; color:#4d6bfe; }
   .site-tag.yb  { background:#e6f9f5; color:#00b894; }
   .site-tag.mm  { background:#f0f9ff; color:#0ea5e9; }
@@ -260,6 +250,7 @@
   body.dark .site-tag.db  { background:#1e1f2e; color:#818cf8; }
   body.dark .site-tag.km  { background:#2a2a2a; color:#999; }
   body.dark .site-tag.qw  { background:#1f1b33; color:#8b7cf8; }
+  body.dark .tab-item[data-site="kimi"] .indicator { background:#999 !important; }
 
   /* ========== SETTINGS MODAL ========== */
   #settings-overlay {
@@ -501,28 +492,6 @@
     <h2>设置</h2>
 
     <div class="setting-section">
-      <span class="setting-label">字体方案</span>
-      <div class="radio-options" id="font-options">
-        <div class="radio-option selected" data-font="system">
-          <div class="radio-circle"></div>
-          <div class="option-info">
-            <div class="option-name">系统默认</div>
-            <div class="option-desc">PingFang SC / Microsoft YaHei — 清晰锐利</div>
-          </div>
-        </div>
-        <div class="radio-option" data-font="alihealth">
-          <div class="radio-circle"></div>
-          <div class="option-info">
-            <div class="option-name">阿里健康体</div>
-            <div class="option-desc">阿里巴巴健康体 2.0 — 圆润温和</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="setting-divider"></div>
-
-    <div class="setting-section">
       <span class="setting-label">主题</span>
       <div class="radio-options" id="theme-options">
         <div class="radio-option selected" data-theme="light">
@@ -582,7 +551,7 @@
 
     <div class="setting-section">
       <span class="setting-label">关于</span>
-      <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.2.1</span></div>
+      <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.2.2</span></div>
       <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
       <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
     </div>
@@ -622,19 +591,6 @@
   document.getElementById('settings-close').addEventListener('click', () => settingsOverlay.classList.remove('show'));
   settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.classList.remove('show'); });
 
-  // 字体方案
-  const fontOptions = document.querySelectorAll('#font-options .radio-option');
-  function applyFont(font) {
-    localStorage.setItem('aihub-font', font);
-    if (font === 'alihealth') {
-      document.body.style.setProperty('--font-family', "'AliHealth', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif");
-    } else {
-      document.body.style.setProperty('--font-family', "system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif");
-    }
-    fontOptions.forEach(o => o.classList.toggle('selected', o.dataset.font === font));
-  }
-  fontOptions.forEach(opt => opt.addEventListener('click', () => applyFont(opt.dataset.font)));
-  if (localStorage.getItem('aihub-font') === 'alihealth') applyFont('alihealth');
 
   // 主题
   const themeOptions = document.querySelectorAll('#theme-options .radio-option');
@@ -677,6 +633,9 @@
 
   const urlBar = document.getElementById('url-bar');
   const siteTag = document.getElementById('site-tag');
+  siteTag.addEventListener('click', () => {
+    if (activeSite) unloadWebview(activeSite);
+  });
 
   const SITES = {
     deepseek:{name:'DeepSeek',    domain:'chat.deepseek.com',     url:'https://chat.deepseek.com/',        cls:'ds'},

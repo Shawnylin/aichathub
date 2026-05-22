@@ -1,6 +1,6 @@
 {
   "name": "AIchatHub",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "AI Chat Hub - 多平台 AI 助手聚合客户端",
   "main": "main.js",
   "scripts": {
@@ -24,18 +24,11 @@
       "index.html",
       "floatball.html",
       "floatball-preload.js",
-      "fonts/**/*",
       "svg/**/*",
       "assets/icon.ico",
       "assets/icon.png",
       "assets/icon-512.png",
       "assets/tray-icon.png"
-    ],
-    "extraResources": [
-      {
-        "from": "fonts",
-        "to": "fonts"
-      }
     ],
     "win": {
       "icon": "assets/icon.ico",
