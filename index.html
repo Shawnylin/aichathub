@@ -68,6 +68,7 @@
     font-size:14px; transition: background 0.12s, color 0.12s;
   }
   .win-btn:hover { background:var(--win-hover); color:#333; }
+  #btn-close { padding-bottom:1px; }
   #btn-close:hover { background:#e02f2f; color:#fff; }
 
   #app { display:flex; flex:1; overflow:hidden; }
@@ -139,8 +140,23 @@
   }
   .tab-item .tab-text { flex:1; overflow:hidden; transition: opacity 0.15s, width 0.25s; }
   #sidebar.collapsed .tab-item .tab-text { opacity:0; width:0; flex:0; }
-  .tab-item .indicator { width:6px; height:6px; border-radius:50%; flex-shrink:0; opacity:0; transition: opacity 0.15s; }
-  .tab-item.active .indicator { opacity:1; }
+  .tab-item .indicator {
+    width:6px; height:6px; border-radius:50%; flex-shrink:0;
+    opacity:0; transition: opacity 0.15s, transform 0.2s;
+    display:flex; align-items:center; justify-content:center;
+    color:transparent; cursor:pointer;
+    font-size:8px; font-weight:700; font-family:inherit; line-height:1;
+  }
+  .tab-item .indicator::after {
+    content: '\00D7';
+    font-size:7px; font-weight:700; line-height:1;
+  }
+  .tab-item .indicator.loaded { opacity:1; }
+  .tab-item .indicator:hover {
+    transform:scale(2.4);
+    background:#e02f2f !important;
+    color:#fff;
+  }
   #sidebar.collapsed .tab-item .indicator { opacity:0; }
   .tab-item.dragging { opacity:0.5; }
 
@@ -338,6 +354,41 @@
     transition: background 0.12s;
   }
   #settings-close:hover { background:var(--hover-navbtn); }
+
+  /* ========== CLOSE DIALOG ========== */
+  #close-overlay {
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); z-index:250;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition: opacity 0.2s;
+  }
+  #close-overlay.show { opacity:1; pointer-events:auto; }
+  #close-dialog {
+    background:var(--bg-content); border-radius:12px;
+    padding:24px 28px; width:340px; max-width:90vw;
+    box-shadow:0 8px 32px rgba(0,0,0,0.3);
+    transition: background 0.3s;
+  }
+  #close-dialog h3 {
+    font-size:15px; font-weight:600; color:var(--text-tab-active);
+    margin:0 0 20px; text-align:center;
+  }
+  #close-dialog .close-btns {
+    display:flex; gap:10px; margin-bottom:16px;
+  }
+  #close-dialog .close-btns button {
+    flex:1; padding:10px 8px; border-radius:7px; border:1.5px solid var(--border-btn);
+    background:transparent; color:var(--text-tab); cursor:pointer;
+    font-size:12px; font-family:inherit; transition: all 0.12s;
+  }
+  #close-dialog .close-btns button:hover { background:var(--hover-navbtn); }
+  #close-hide-btn:hover { border-color:#4d6bfe !important; color:#4d6bfe !important; }
+  #close-quit-btn:hover { background:#e02f2f20 !important; color:#e02f2f !important; border-color:#e02f2f !important; }
+  #close-dialog .close-check {
+    display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-dim);
+    cursor:pointer; justify-content:center;
+  }
 </style>
 </head>
 <body>
@@ -436,12 +487,11 @@
     </div>
 
     <div id="webview-container">
-      <webview id="wv-deepseek" src="https://chat.deepseek.com/"        partition="persist:deepseek" class="visible"></webview>
-      <webview id="wv-yuanbao"  src="https://yuanbao.tencent.com/chat/" partition="persist:yuanbao"></webview>
-      <webview id="wv-doubao"   src="https://www.doubao.com/chat/"     partition="persist:doubao"></webview>
-      <webview id="wv-kimi"     src="https://www.kimi.com/"            partition="persist:kimi"></webview>
-      <webview id="wv-minimax"  src="https://agent.minimaxi.com/"      partition="persist:minimax"></webview>
-      <webview id="wv-tongyi"   src="https://www.tongyi.com/"          partition="persist:tongyi"></webview>
+      <webview id="wv-deepseek" src="https://chat.deepseek.com/" partition="persist:deepseek" class="visible"></webview>
+      <div id="no-page-placeholder" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; flex-direction:column; align-items:center; justify-content:center; color:var(--text-dim);">
+        <div style="font-size:40px; margin-bottom:12px; opacity:0.25; line-height:1;">—</div>
+        <div style="font-size:13px;">点击左侧标签打开 AI 助手</div>
+      </div>
     </div>
   </div>
 </div>
@@ -521,13 +571,37 @@
     <div class="setting-divider"></div>
 
     <div class="setting-section">
+      <span class="setting-label">关闭行为</span>
+      <div class="toggle-row">
+        <span class="toggle-label">关闭窗口时显示确认对话框</span>
+        <button class="toggle-switch on" id="close-confirm-toggle"></button>
+      </div>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <div class="setting-section">
       <span class="setting-label">关于</span>
-      <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.2.0</span></div>
+      <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.2.1</span></div>
       <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
       <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
     </div>
 
     <button id="settings-close">关闭</button>
+  </div>
+</div>
+
+<div id="close-overlay">
+  <div id="close-dialog">
+    <h3>关闭窗口</h3>
+    <div class="close-btns">
+      <button id="close-hide-btn">最小化到托盘</button>
+      <button id="close-quit-btn">完全退出</button>
+    </div>
+    <label class="close-check">
+      <input type="checkbox" id="close-remember">
+      <span>不再提示</span>
+    </label>
   </div>
 </div>
 
@@ -631,14 +705,110 @@
   })(SITE_ORDER);
 
   const tabItems = document.querySelectorAll('.tab-item');
-  const webviews = document.querySelectorAll('webview');
+  const loadedWebviews = new Set(['deepseek']);
 
   function getActiveWebview() { return document.getElementById('wv-'+activeSite); }
 
+  function setupWebviewListeners(wv, siteId) {
+    ['did-navigate','did-navigate-in-page'].forEach(ev =>
+      wv.addEventListener(ev, () => {
+        if (wv.classList.contains('visible')) { updateUrl(); updateNavState(); }
+      })
+    );
+    wv.addEventListener('did-start-loading', () => {
+      if (wv.classList.contains('visible')) {
+        urlBar.innerHTML = '';
+        urlBar.style.opacity = '0.5';
+        urlBar.textContent = '加载中...';
+      }
+    });
+    wv.addEventListener('did-stop-loading', () => {
+      if (wv.classList.contains('visible')) { updateUrl(); updateNavState(); }
+    });
+    wv.addEventListener('page-favicon-updated', (e) => {
+      const favs = e.favicons;
+      if (favs && favs.length > 0) {
+        const tabBtn = document.querySelector(`.tab-item[data-site="${siteId}"]`);
+        if (tabBtn) {
+          const img = tabBtn.querySelector('.favicon');
+          if (img) {
+            img.src = favs[0];
+            img.style.display = '';
+            img.nextElementSibling.style.display = 'none';
+            try { localStorage.setItem('aihub-favicon-' + siteId, favs[0]); } catch(e) {}
+          }
+        }
+      }
+    });
+    wv.addEventListener('new-window', e => {
+      e.preventDefault();
+      wv.loadURL(e.url);
+    });
+    try {
+      wv.setWindowOpenHandler(({ url }) => {
+        wv.loadURL(url);
+        return { action: 'deny' };
+      });
+    } catch(e) {}
+    wv.addEventListener('context-menu', (e) => {
+      e.preventDefault();
+      window.app.showContextMenu();
+    });
+  }
+
+  function getOrCreateWebview(site) {
+    let wv = document.getElementById('wv-' + site);
+    if (!wv) {
+      const info = SITES[site];
+      wv = document.createElement('webview');
+      wv.id = 'wv-' + site;
+      wv.setAttribute('src', info.url);
+      wv.setAttribute('partition', 'persist:' + site);
+      document.getElementById('webview-container').appendChild(wv);
+      setupWebviewListeners(wv, site);
+      loadedWebviews.add(site);
+      updateIndicators();
+    }
+    return wv;
+  }
+
+  function unloadWebview(site) {
+    const wv = document.getElementById('wv-' + site);
+    if (!wv) return;
+    wv.remove();
+    loadedWebviews.delete(site);
+    updateIndicators();
+    if (site === activeSite) {
+      const others = [...loadedWebviews];
+      if (others.length > 0) {
+        switchTab(others[0]);
+      } else {
+        activeSite = null;
+        document.querySelectorAll('webview').forEach(w => w.classList.remove('visible'));
+        document.getElementById('no-page-placeholder').style.display = 'flex';
+        tabItems.forEach(b => b.classList.remove('active'));
+        siteTag.textContent = '';
+        siteTag.className = 'site-tag';
+        urlBar.innerHTML = '<span style="color:var(--text-dim)">没有打开的页面</span>';
+      }
+    }
+  }
+
+  function updateIndicators() {
+    tabItems.forEach(btn => {
+      const indicator = btn.querySelector('.indicator');
+      if (indicator) {
+        indicator.classList.toggle('loaded', loadedWebviews.has(btn.dataset.site));
+      }
+    });
+  }
+
   function switchTab(site) {
+    document.getElementById('no-page-placeholder').style.display = 'none';
     activeSite = site;
     tabItems.forEach(b => b.classList.toggle('active', b.dataset.site === site));
-    webviews.forEach(wv => wv.classList.toggle('visible', wv.id === 'wv-'+site));
+    getOrCreateWebview(site);
+    document.querySelectorAll('webview').forEach(w => w.classList.toggle('visible', w.id === 'wv-' + site));
     const info = SITES[site];
     siteTag.textContent = info.name;
     siteTag.className = 'site-tag ' + info.cls;
@@ -647,6 +817,41 @@
   }
   tabItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.site)));
   window.app.onSwitchSite((site) => { switchTab(site); });
+
+  // 指示点悬停放大关闭 + 右键菜单
+  let contextMenuSite = null;
+  const tabCtxMenu = document.createElement('div');
+  tabCtxMenu.style.cssText = 'display:none;position:fixed;z-index:300;background:var(--bg-content);border:1px solid var(--border-nav);border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,0.3);min-width:130px;';
+  tabCtxMenu.innerHTML = '<div id="ctx-unload" style="padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text-tab);white-space:nowrap;">关闭此页</div>';
+  document.body.appendChild(tabCtxMenu);
+
+  tabItems.forEach(btn => {
+    const indicator = btn.querySelector('.indicator');
+    if (indicator) {
+      indicator.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const site = btn.dataset.site;
+        if (loadedWebviews.has(site)) unloadWebview(site);
+      });
+    }
+    btn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      contextMenuSite = btn.dataset.site;
+      const unloadable = loadedWebviews.has(contextMenuSite);
+      const item = document.getElementById('ctx-unload');
+      item.style.opacity = unloadable ? '1' : '0.35';
+      item.style.pointerEvents = unloadable ? 'auto' : 'none';
+      tabCtxMenu.style.display = 'block';
+      tabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 140) + 'px';
+      tabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 40) + 'px';
+    });
+  });
+
+  document.addEventListener('click', () => { tabCtxMenu.style.display = 'none'; });
+  document.getElementById('ctx-unload').addEventListener('click', () => {
+    if (contextMenuSite) unloadWebview(contextMenuSite);
+    tabCtxMenu.style.display = 'none';
+  });
 
   // 拖拽排序
   let dragSite = null;
@@ -707,12 +912,14 @@
 
   function updateNavState() {
     const wv = getActiveWebview();
+    if (!wv) return;
     navBack.classList.toggle('disabled', !wv.canGoBack());
     navFwd.classList.toggle('disabled', !wv.canGoForward());
   }
 
   function updateUrl() {
     const wv = getActiveWebview();
+    if (!wv) return;
     urlBar.style.opacity = '';
     try {
       const u = wv.getURL();
@@ -739,58 +946,7 @@
     urlBar.appendChild(host);
   }
 
-  webviews.forEach(wv => {
-    const siteId = wv.id.replace('wv-','');
-
-    ['did-navigate','did-navigate-in-page'].forEach(ev =>
-      wv.addEventListener(ev, () => {
-        if (wv.classList.contains('visible')) { updateUrl(); updateNavState(); }
-      })
-    );
-    wv.addEventListener('did-start-loading', () => {
-      if (wv.classList.contains('visible')) {
-        urlBar.innerHTML = '';
-        urlBar.style.opacity = '0.5';
-        urlBar.textContent = '加载中...';
-      }
-    });
-    wv.addEventListener('did-stop-loading', () => {
-      if (wv.classList.contains('visible')) { updateUrl(); updateNavState(); }
-    });
-
-    // 提取页面 favicon → 更新侧栏图标
-    wv.addEventListener('page-favicon-updated', (e) => {
-      const favs = e.favicons;
-      if (favs && favs.length > 0) {
-        const tabBtn = document.querySelector(`.tab-item[data-site="${siteId}"]`);
-        if (tabBtn) {
-          const img = tabBtn.querySelector('.favicon');
-          if (img) {
-            img.src = favs[0];
-            img.style.display = '';
-            img.nextElementSibling.style.display = 'none';
-          }
-        }
-      }
-    });
-
-    // 新窗口/弹出窗口 → 在当前 webview 内跳转
-    wv.addEventListener('new-window', e => {
-      e.preventDefault();
-      wv.loadURL(e.url);
-    });
-    try {
-      wv.setWindowOpenHandler(({ url }) => {
-        wv.loadURL(url);
-        return { action: 'deny' };
-      });
-    } catch(e) {}
-
-    wv.addEventListener('context-menu', (e) => {
-      e.preventDefault();
-      window.app.showContextMenu();
-    });
-  });
+  setupWebviewListeners(document.getElementById('wv-deepseek'), 'deepseek');
 
   window.app.onContextMenuAction((action) => {
     const wv = getActiveWebview();
@@ -817,7 +973,46 @@
 
   document.getElementById('btn-min').addEventListener('click', () => window.app.minimize());
   document.getElementById('btn-max').addEventListener('click', () => window.app.maximize());
-  document.getElementById('btn-close').addEventListener('click', () => window.app.close());
+  // 关闭确认弹窗
+  const closeOverlay = document.getElementById('close-overlay');
+  function showCloseDialog() {
+    document.getElementById('close-remember').checked = false;
+    closeOverlay.classList.add('show');
+  }
+  document.getElementById('btn-close').addEventListener('click', () => {
+    const saved = localStorage.getItem('aihub-close-remember');
+    if (saved === 'hide') { window.app.close(); }
+    else if (saved === 'quit') { window.app.quit(); }
+    else { showCloseDialog(); }
+  });
+  closeOverlay.addEventListener('click', (e) => {
+    if (e.target === closeOverlay) closeOverlay.classList.remove('show');
+  });
+  document.getElementById('close-hide-btn').addEventListener('click', () => {
+    if (document.getElementById('close-remember').checked) {
+      localStorage.setItem('aihub-close-remember', 'hide');
+    }
+    closeOverlay.classList.remove('show');
+    window.app.close();
+  });
+  document.getElementById('close-quit-btn').addEventListener('click', () => {
+    if (document.getElementById('close-remember').checked) {
+      localStorage.setItem('aihub-close-remember', 'quit');
+    }
+    closeOverlay.classList.remove('show');
+    window.app.quit();
+  });
+
+  // 关闭确认设置开关
+  const closeConfirmToggle = document.getElementById('close-confirm-toggle');
+  const closeConfirmEnabled = localStorage.getItem('aihub-close-confirm') !== '0';
+  closeConfirmToggle.classList.toggle('on', closeConfirmEnabled);
+  closeConfirmToggle.addEventListener('click', () => {
+    const on = !closeConfirmToggle.classList.contains('on');
+    closeConfirmToggle.classList.toggle('on', on);
+    localStorage.setItem('aihub-close-confirm', on ? '1' : '0');
+    if (on) localStorage.removeItem('aihub-close-remember');
+  });
   window.app.isMaximized().then(v => {
     if (v) document.getElementById('btn-max').innerHTML = '&#x2B1C;';
   });
@@ -825,6 +1020,21 @@
     document.getElementById('btn-max').innerHTML = v ? '&#x2B1C;' : '&#x25A1;';
   });
 
+  // 从缓存恢复图标
+  tabItems.forEach(btn => {
+    const site = btn.dataset.site;
+    const saved = localStorage.getItem('aihub-favicon-' + site);
+    if (saved) {
+      const img = btn.querySelector('.favicon');
+      if (img) {
+        img.src = saved;
+        img.style.display = '';
+        img.nextElementSibling.style.display = 'none';
+      }
+    }
+  });
+
+  updateIndicators();
   updateUrl();
 </script>
 </body>

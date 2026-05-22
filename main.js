@@ -1,5 +1,36 @@
 const { app, BrowserWindow, session, ipcMain, shell, Tray, Menu, nativeImage, screen } = require('electron');
 const path = require('path');
+const { execSync } = require('child_process');
+
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=128');
+
+function checkForegroundFullscreen() {
+  try {
+    const script = `
+      Add-Type -AssemblyName System.Windows.Forms;
+      $src = @"
+        using System;
+        using System.Runtime.InteropServices;
+        public class FS {
+          [DllImport("user32.dll")]
+          public static extern IntPtr GetForegroundWindow();
+          [DllImport("user32.dll")]
+          public static extern bool GetWindowRect(IntPtr h, out RECT r);
+        }
+        public struct RECT { public int L,T,R,B; }
+"@;
+      Add-Type -TypeDefinition $src;
+      $r = New-Object RECT;
+      [FS]::GetWindowRect([FS]::GetForegroundWindow(), [ref]$r);
+      $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds;
+      ($r.L -le 0) -and ($r.T -le 0) -and ($r.R -ge $b.Width) -and ($r.B -ge $b.Height)
+    `.replace(/\n/g, ' ');
+    const out = execSync(`powershell -NoProfile -Command "${script}"`, {
+      encoding: 'utf8', timeout: 1500, windowsHide: true
+    });
+    return out.includes('True');
+  } catch { return false; }
+}
 
 let mainWindow = null;
 let tray = null;
@@ -61,6 +92,10 @@ function createWindow() {
     mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
   });
   ipcMain.on('window-close', () => mainWindow.hide());
+  ipcMain.on('app-quit', () => {
+    isQuitting = true;
+    app.quit();
+  });
   ipcMain.handle('window-is-maximized', () => mainWindow.isMaximized());
   ipcMain.handle('open-external', (_, url) => {
     try {
@@ -140,6 +175,27 @@ ipcMain.on('float-ball-click', () => {
   }
 });
 
+ipcMain.on('float-ball-close', () => {
+  floatBallEnabled = false;
+  destroyFloatBall();
+  if (tray) buildTrayMenu();
+});
+
+ipcMain.on('float-ball-context-menu', () => {
+  if (!floatBall) return;
+  const menu = Menu.buildFromTemplate([
+    {
+      label: '关闭悬浮窗',
+      click: () => {
+        floatBallEnabled = false;
+        destroyFloatBall();
+        if (tray) buildTrayMenu();
+      }
+    }
+  ]);
+  menu.popup({ window: floatBall });
+});
+
 ipcMain.on('float-ball-drag', (_, dx, dy) => {
   if (floatBall && Number.isFinite(dx) && Number.isFinite(dy)) {
     const [x, y] = floatBall.getPosition();
@@ -198,6 +254,20 @@ function buildTrayMenu() {
       }
     },
     {
+      label: floatBallEnabled ? '关闭悬浮窗' : '开启悬浮窗',
+      click: () => {
+        if (floatBallEnabled) {
+          floatBallEnabled = false;
+          destroyFloatBall();
+        } else {
+          floatBallEnabled = true;
+          if (mainWindow && !mainWindow.isVisible()) createFloatBall();
+        }
+        buildTrayMenu();
+      }
+    },
+    { type: 'separator' },
+    {
       label: '完全退出',
       click: () => {
         isQuitting = true;
@@ -221,6 +291,21 @@ app.whenReady().then(() => {
 
   createWindow();
   createTray();
+
+  // 全屏检测：前台窗口全屏时隐藏悬浮球
+  let fullscreenHidden = false;
+  setInterval(() => {
+    const fs = checkForegroundFullscreen();
+    if (fs && !fullscreenHidden) {
+      fullscreenHidden = true;
+      destroyFloatBall();
+    } else if (!fs && fullscreenHidden) {
+      fullscreenHidden = false;
+      if (floatBallEnabled && mainWindow && !mainWindow.isVisible()) {
+        createFloatBall();
+      }
+    }
+  }, 2000);
 
   // 监听悬浮球关闭事件 → 恢复主窗口
   app.on('browser-window-blur', () => {});

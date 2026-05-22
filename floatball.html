@@ -31,8 +31,18 @@
   .ball:hover .glow { opacity:1; }
   .ball.popping .glow { opacity:1; }
   svg { position:relative; z-index:1; pointer-events:none; }
+  .tip {
+    position:absolute; top:2px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.78); color:#fff;
+    font-size:11px; padding:5px 10px; border-radius:5px;
+    white-space:nowrap; font-family:system-ui,sans-serif;
+    pointer-events:none; opacity:0;
+    transition:opacity 0.35s; letter-spacing:0.3px;
+  }
+  .tip.show { opacity:1; }
 </style></head>
 <body>
+<div class="tip" id="tip">双击可关闭悬浮球</div>
 <div class="ball" id="ball">
   <div class="glow" id="glow"></div>
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
@@ -41,9 +51,30 @@
 </div>
 <script>
 (function() {
-  const ball = document.getElementById('ball');
-  const glow = document.getElementById('glow');
-  let startX, startY, lastX, lastY, moved = false, pointerId = null;
+  var ball = document.getElementById('ball');
+  var glow = document.getElementById('glow');
+  var tip = document.getElementById('tip');
+  var startX, startY, lastX, lastY, moved = false, pointerId = null;
+  var clickTime = 0;
+
+  // 首次提示
+  if (!localStorage.getItem('fb-tip-shown')) {
+    tip.classList.add('show');
+    localStorage.setItem('fb-tip-shown', '1');
+    setTimeout(function() { tip.classList.remove('show'); }, 3500);
+  }
+
+  // 双击关闭
+  ball.addEventListener('dblclick', function(e) {
+    e.preventDefault();
+    window.float.closeFloat();
+  });
+
+  // 右键菜单
+  ball.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    window.float.showContextMenu();
+  });
 
   ball.addEventListener('pointerdown', function(e) {
     if (ball.classList.contains('popping')) return;
@@ -57,16 +88,16 @@
   });
 
   ball.addEventListener('pointermove', function(e) {
-    const rect = ball.getBoundingClientRect();
-    const cx = ((e.clientX - rect.left) / rect.width) * 100;
-    const cy = ((e.clientY - rect.top) / rect.height) * 100;
-    glow.style.background = `radial-gradient(circle at ${cx}% ${cy}%, rgba(255,255,255,0.3) 0%, transparent 60%)`;
+    var rect = ball.getBoundingClientRect();
+    var cx = ((e.clientX - rect.left) / rect.width) * 100;
+    var cy = ((e.clientY - rect.top) / rect.height) * 100;
+    glow.style.background = 'radial-gradient(circle at ' + cx + '% ' + cy + '%, rgba(255,255,255,0.3) 0%, transparent 60%)';
 
     if (pointerId === null) return;
-    const dx = e.screenX - lastX;
-    const dy = e.screenY - lastY;
+    var dx = e.screenX - lastX;
+    var dy = e.screenY - lastY;
     lastX = e.screenX; lastY = e.screenY;
-    const dist = Math.abs(e.screenX - startX) + Math.abs(e.screenY - startY);
+    var dist = Math.abs(e.screenX - startX) + Math.abs(e.screenY - startY);
     if (!moved && dist > 3) moved = true;
     if (moved && isFinite(dx) && isFinite(dy)) window.float.onDrag(dx, dy);
   });
@@ -86,7 +117,7 @@
     }
   });
 
-  ball.addEventListener('pointercancel', function(e) {
+  ball.addEventListener('pointercancel', function() {
     ball.releasePointerCapture(pointerId);
     pointerId = null;
   });
