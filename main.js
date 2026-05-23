@@ -4,6 +4,19 @@ const { execSync } = require('child_process');
 
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=128');
 
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+}
+
 function checkForegroundFullscreen() {
   try {
     const script = `
@@ -56,6 +69,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     frame: false,
+    show: false,
     backgroundColor: '#0a0a0a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -68,6 +82,10 @@ function createWindow() {
   mainWindow.loadFile('index.html');
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
 
   mainWindow.on('maximize', () => mainWindow.webContents.send('maximize-change', true));
   mainWindow.on('unmaximize', () => mainWindow.webContents.send('maximize-change', false));
@@ -169,7 +187,8 @@ function createFloatBall() {
 }
 
 ipcMain.on('float-ball-click', () => {
-  if (mainWindow && !mainWindow.isVisible()) {
+  if (mainWindow) {
+    destroyFloatBall();
     mainWindow.show();
     mainWindow.focus();
   }
@@ -307,7 +326,6 @@ app.whenReady().then(() => {
     }
   }, 2000);
 
-  // 监听悬浮球关闭事件 → 恢复主窗口
   app.on('browser-window-blur', () => {});
 });
 

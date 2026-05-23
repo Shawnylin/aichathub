@@ -5,23 +5,15 @@
   html, body { width:100px; height:100px; overflow:hidden; background:transparent; user-select:none; }
   .ball {
     width:44px; height:44px; border-radius:50%;
-    margin:28px; position:relative;
+    margin:28px; position:relative; opacity:1;
     background:linear-gradient(135deg,#4d6bfe,#6c8cff);
-    box-shadow:0 2px 12px rgba(77,107,254,0.45), 0 0 0 0 rgba(77,107,254,0);
+    box-shadow:0 2px 12px rgba(77,107,254,0.45);
     display:flex; align-items:center; justify-content:center;
-    transition:transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.3s;
+    transition:transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.3s, opacity 0.2s;
     cursor:pointer;
   }
+  .ball.fade-out { opacity:0 !important; pointer-events:none; }
   .ball:hover { transform:scale(1.08); box-shadow:0 4px 20px rgba(77,107,254,0.55), 0 0 24px 4px rgba(108,140,255,0.25); }
-  .ball.popping {
-    animation:pop 0.4s cubic-bezier(0.1,0.8,0.3,1) forwards;
-    pointer-events:none;
-  }
-  @keyframes pop {
-    0%   { transform:scale(1.08); opacity:1; }
-    30%  { transform:scale(1.25); opacity:1; }
-    100% { transform:scale(0); opacity:0; }
-  }
   .glow {
     position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%;
     pointer-events:none; opacity:0;
@@ -29,7 +21,6 @@
     transition:opacity 0.25s;
   }
   .ball:hover .glow { opacity:1; }
-  .ball.popping .glow { opacity:1; }
   svg { position:relative; z-index:1; pointer-events:none; }
   .tip {
     position:absolute; top:2px; left:50%; transform:translateX(-50%);
@@ -55,29 +46,24 @@
   var glow = document.getElementById('glow');
   var tip = document.getElementById('tip');
   var startX, startY, lastX, lastY, moved = false, pointerId = null;
-  var clickTime = 0;
 
-  // 首次提示
   if (!localStorage.getItem('fb-tip-shown')) {
     tip.classList.add('show');
     localStorage.setItem('fb-tip-shown', '1');
     setTimeout(function() { tip.classList.remove('show'); }, 3500);
   }
 
-  // 双击关闭
   ball.addEventListener('dblclick', function(e) {
     e.preventDefault();
     window.float.closeFloat();
   });
 
-  // 右键菜单
   ball.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     window.float.showContextMenu();
   });
 
   ball.addEventListener('pointerdown', function(e) {
-    if (ball.classList.contains('popping')) return;
     startX = e.screenX; startY = e.screenY;
     lastX = e.screenX; lastY = e.screenY;
     moved = false;
@@ -109,23 +95,17 @@
   ball.addEventListener('pointerup', function(e) {
     ball.releasePointerCapture(pointerId);
     pointerId = null;
+    ball.style.transform = '';
+    ball.style.transition = 'transform 0.25s cubic-bezier(0.2,0,0,1), box-shadow 0.3s, opacity 0.2s';
     if (!moved) {
-      ball.classList.add('popping');
-    } else {
-      ball.style.transform = '';
-      ball.style.transition = 'transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.3s';
+      setTimeout(function() { ball.classList.add('fade-out'); }, 200);
+      setTimeout(function() { window.float.onClick(); }, 430);
     }
   });
 
   ball.addEventListener('pointercancel', function() {
     ball.releasePointerCapture(pointerId);
     pointerId = null;
-  });
-
-  ball.addEventListener('animationend', function() {
-    if (ball.classList.contains('popping')) {
-      window.float.onClick();
-    }
   });
 })();
 </script>
