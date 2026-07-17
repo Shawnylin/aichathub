@@ -33,4 +33,4 @@ if (fs.existsSync(rcedit) && fs.existsSync(unpackedExe) && fs.existsSync(iconFil
 console.log('[3/4] Building NSIS installer...');
 run('npx electron-builder --win --prepackaged dist/win-unpacked', { cwd: path.join(__dirname, '..') });
 
-console.log('Build complete: dist/AI Chat Hub Setup 1.2.5.exe');
+console.log('Build complete: dist/AI Chat Hub Setup 1.2.7.exe');
