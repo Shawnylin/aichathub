@@ -227,8 +227,13 @@ function createWindow() {
     },
   });
 
-  // 使用 file:// URL 而非 loadFile（Electron 42 在某些 Windows 版本上 loadFile 会挂起）
-  mainWindow.loadURL(`file:///${__dirname.replace(/\\/g, '/')}/index.html`);
+  const pageUrl = `file:///${__dirname.replace(/\\/g, '/')}/index.html`;
+  log.info(`Loading: ${pageUrl}`);
+  mainWindow.loadURL(pageUrl);
+  mainWindow.webContents.on('did-start-loading', () => log.info('[page] start'));
+  mainWindow.webContents.on('did-stop-loading', () => log.info('[page] stop'));
+  mainWindow.webContents.on('dom-ready', () => log.info('[page] dom-ready'));
+  mainWindow.webContents.on('did-fail-load', (_e, code, desc, url) => log.warn(`[page] fail: ${code} ${desc} (${url})`));
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 

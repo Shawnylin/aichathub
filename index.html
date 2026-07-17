@@ -164,9 +164,6 @@
   .theme-btn svg { width:18px; height:18px; }
   .theme-btn:hover { background:var(--btn-hover); }
 
-  /* ========== CONTENT ========== */
-  #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; position:relative; }
-
   /* ========== TAB BAR (标签页模式) ========== */
   #tab-bar {
     height:44px; background:var(--bg-navbar);
@@ -187,10 +184,10 @@
   .tab-bar-inner::-webkit-scrollbar-thumb { background:transparent; border-radius:2px; }
   .tab-bar-inner:hover::-webkit-scrollbar-thumb { background:var(--border-btn); }
   #tab-bar .tab-item {
-    display:inline-flex; align-items:center; gap:6px;
-    padding:6px 12px; border-radius:6px;
+    display:inline-flex; align-items:center; gap:4px;
+    padding:5px 8px; border-radius:6px;
     cursor:pointer; white-space:nowrap;
-    color:var(--text-tab); font-size:12px; font-weight:450;
+    color:var(--text-tab); font-size:11px; font-weight:500;
     border:none; background:none;
     font-family:inherit; flex-shrink:0;
     transition:background 0.12s, color 0.12s;
@@ -198,7 +195,7 @@
   #tab-bar .tab-item:hover { background:var(--hover-tab); color:var(--text-tab-active); }
   #tab-bar .tab-item.active { color:var(--text-tab-active); font-weight:500; background:var(--active-tab-bg); }
   #tab-bar .tab-item .favicon,
-  #tab-bar .tab-item .favicon-placeholder { width:18px; height:18px; border-radius:4px; object-fit:contain; flex-shrink:0; }
+  #tab-bar .tab-item .favicon-placeholder { width:16px; height:16px; border-radius:3px; object-fit:contain; flex-shrink:0; }
   #tab-bar .tab-item .favicon-placeholder {
     display:flex; align-items:center; justify-content:center;
     font-size:9px; font-weight:700; color:#fff;
@@ -214,6 +211,8 @@
   .tab-bar-settings svg { width:16px; height:16px; }
   .tab-bar-settings:hover { background:var(--btn-hover); color:var(--text-tab-active); }
 
+  /* ========== CONTENT ========== */
+  #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; position:relative; }
   #navbar {
     height:42px; background:var(--bg-navbar);
     border-bottom:1px solid var(--border-nav);
@@ -575,7 +574,7 @@
     color:#fff;
     transition: height 0.3s cubic-bezier(0.4,0,0.2,1);
   }
-  #update-bar.show { height:44px; overflow:visible; }
+  #update-bar.show { height:44px; }
   #update-bar .update-icon { font-size:16px; }
   #update-bar .update-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #update-bar .update-progress {
@@ -691,53 +690,7 @@
     display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-dim);
     cursor:pointer; justify-content:center;
   }
-
-  /* ========== FLOATBALL CUSTOM OVERLAY ========== */
-  #fb-custom-overlay {
-    position:fixed; top:0; left:0; width:100%; height:100%;
-    background:rgba(0,0,0,0.5); z-index:210;
-    display:flex; align-items:center; justify-content:center;
-    opacity:0; pointer-events:none;
-    transition: opacity 0.2s;
-  }
-  #fb-custom-overlay.show { opacity:1; pointer-events:auto; }
-  #fb-custom-dialog {
-    background:var(--bg-content); border-radius:14px;
-    padding:0; width:380px; max-width:92vw;
-    box-shadow:0 8px 32px rgba(0,0,0,0.3);
-    transition: background 0.3s;
-    overflow:hidden;
-  }
-  .fb-custom-header {
-    display:flex; align-items:center; justify-content:space-between;
-    padding:16px 20px 0;
-  }
-  .fb-custom-header h3 {
-    font-size:16px; font-weight:600; color:var(--text-tab-active); margin:0;
-  }
-  #fb-custom-close {
-    width:28px; height:28px; border:none; border-radius:6px;
-    background:transparent; color:var(--text-dim); cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    transition:background 0.12s, color 0.12s;
-  }
-  #fb-custom-close svg { width:16px; height:16px; }
-  #fb-custom-close:hover { background:var(--btn-hover); color:var(--text-tab-active); }
-  .fb-custom-body {
-    padding:4px 20px 16px;
-  }
-  #fb-custom-back {
-    width:100%; padding:12px; border:none;
-    border-top:1px solid var(--border-nav);
-    background:var(--bg-urlbar); color:var(--text-tab); cursor:pointer;
-    font-size:13px; font-family:inherit; font-weight:500;
-    transition:background 0.12s, color 0.12s;
-  }
-  #fb-custom-back:hover { background:var(--hover-navbtn); color:var(--text-tab-active); }
-  #fb-custom-overlay .fb-preview-wrap {
-    padding:18px 0 14px;
-  }
-
+</style>
 </head>
 <body>
 
@@ -863,7 +816,7 @@
       <webview id="wv-deepseek" src="https://chat.deepseek.com/" partition="persist:deepseek" class="visible"></webview>
       <div id="no-page-placeholder" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; flex-direction:column; align-items:center; justify-content:center; color:var(--text-dim);">
         <div style="font-size:40px; margin-bottom:12px; opacity:0.25; line-height:1;">—</div>
-        <div style="font-size:13px;">点击标签打开 AI 助手</div>
+        <div style="font-size:13px;">点击左侧标签打开 AI 助手</div>
       </div>
     </div>
 
@@ -956,11 +909,38 @@
         <span class="toggle-label">窗口隐藏时显示悬浮球</span>
         <button class="toggle-switch on" id="floatball-toggle"></button>
       </div>
-      <div style="margin-top:8px;">
-        <button id="fb-custom-btn" style="width:100%;padding:9px 14px;border-radius:8px;border:1.5px solid var(--border-btn);background:var(--bg-urlbar);color:var(--text-tab);cursor:pointer;font-size:12px;font-family:inherit;transition:background 0.12s,border-color 0.12s;display:flex;align-items:center;justify-content:center;gap:6px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          自定义外观
-        </button>
+      <div style="margin-top:4px;" id="fb-custom-section">
+        <div class="fb-preview-wrap">
+          <div class="fb-preview-ball" id="fb-preview">
+            <div class="fb-preview-glow"></div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="fb-color-options" id="fb-color-options">
+          <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
+          <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
+          <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
+          <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
+          <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
+          <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
+        </div>
+        <div class="fb-slider-row">
+          <label>大小</label>
+          <input type="range" id="fb-size" min="32" max="80" value="44">
+          <span class="fb-slider-val" id="fb-size-val">44</span>
+        </div>
+        <div class="fb-slider-row">
+          <label>光晕</label>
+          <input type="range" id="fb-glow" min="0" max="100" value="100">
+          <span class="fb-slider-val" id="fb-glow-val">100</span>
+        </div>
+        <div class="fb-slider-row">
+          <label>高光</label>
+          <input type="range" id="fb-highlight" min="0" max="100" value="100">
+          <span class="fb-slider-val" id="fb-highlight-val">100</span>
+        </div>
       </div>
     </div>
 
@@ -997,7 +977,7 @@
 
     <div class="setting-section">
       <span class="setting-label">关于</span>
-      <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.2.7</span></div>
+      <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.2.6</span></div>
       <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
       <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
       <div style="margin-top:10px; display:flex; align-items:center; gap:10px; padding:0 14px;">
@@ -1026,55 +1006,7 @@
 
 
 
-<!-- 悬浮球自定义二级页面 -->
-<div id="fb-custom-overlay">
-  <div id="fb-custom-dialog">
-    <div class="fb-custom-header">
-      <h3>悬浮球自定义</h3>
-      <button id="fb-custom-close" title="关闭">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="fb-preview-wrap">
-      <div class="fb-preview-ball" id="fb-preview">
-        <div class="fb-preview-glow"></div>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-      </div>
-    </div>
-    <div class="fb-custom-body">
-      <div class="fb-color-options" id="fb-color-options" style="justify-content:center;">
-        <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
-        <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
-        <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
-        <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
-        <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
-        <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
-      </div>
-      <div class="fb-slider-row">
-        <label>大小</label>
-        <input type="range" id="fb-size" min="32" max="88" value="44">
-        <span class="fb-slider-val" id="fb-size-val">44</span>
-      </div>
-      <div class="fb-slider-row">
-        <label>光晕</label>
-        <input type="range" id="fb-glow" min="0" max="100" value="100">
-        <span class="fb-slider-val" id="fb-glow-val">100</span>
-      </div>
-      <div class="fb-slider-row">
-        <label>高光</label>
-        <input type="range" id="fb-highlight" min="0" max="100" value="100">
-        <span class="fb-slider-val" id="fb-highlight-val">100</span>
-      </div>
-    </div>
-    <button id="fb-custom-back">返回设置</button>
-  </div>
-</div>
-
 <script>
-  console.log('[aihub] Script started, version 1.2.7');
-
   const sidebar = document.getElementById('sidebar');
   const collapseBtn = document.getElementById('collapse-btn');
   if (localStorage.getItem('aihub-sidebar-collapsed') === '1') sidebar.classList.add('collapsed');
@@ -1110,7 +1042,7 @@
   function setNavMode(mode) {
     navMode = mode;
     localStorage.setItem('aihub-nav-mode', mode);
-    navModeOptions.forEach(o => o.classList.toggle('selected', o.dataset.mode === mode));
+    navModeOptions.forEach(function(o) { o.classList.toggle('selected', o.dataset.mode === mode); });
     document.body.classList.toggle('tab-mode', mode === 'tabs');
     if (mode === 'tabs') {
       buildTabBar();
@@ -1119,79 +1051,62 @@
   }
 
   function buildTabBar() {
-    const container = document.getElementById('tab-bar-inner');
+    var container = document.getElementById('tab-bar-inner');
+    if (!container) return;
     container.innerHTML = '';
     SITE_ORDER.forEach(function(siteKey) {
-      const info = SITES[siteKey];
+      var info = SITES[siteKey];
       if (!info) return;
-      const btn = document.createElement('button');
+      var btn = document.createElement('button');
       btn.className = 'tab-item' + (siteKey === activeSite ? ' active' : '');
       btn.dataset.site = siteKey;
       btn.title = info.name;
 
-      const savedFav = localStorage.getItem('aihub-favicon-' + siteKey);
+      var savedFav = localStorage.getItem('aihub-favicon-' + siteKey);
       if (savedFav) {
-        const img = document.createElement('img');
-        img.className = 'favicon';
-        img.src = savedFav;
-        img.alt = '';
+        var img = document.createElement('img');
+        img.className = 'favicon'; img.src = savedFav; img.alt = '';
         btn.appendChild(img);
       } else {
-        const ph = document.createElement('span');
+        var ph = document.createElement('span');
         ph.className = 'favicon-placeholder';
         var abbr = siteKey === 'chatglm' ? 'GLM' : info.name.slice(0, 2).toUpperCase();
-        ph.style.background = getTabColor(siteKey);
+        var colorMap = { deepseek:'#4d6bfe', yuanbao:'#00b894', doubao:'#6366f1', kimi:'#1a1a1a', minimax:'#0ea5e9', tongyi:'#6b5ce7', chatglm:'#8b5cf6' };
+        ph.style.background = colorMap[siteKey] || '#4d6bfe';
         ph.textContent = abbr;
         btn.appendChild(ph);
       }
 
-      const text = document.createElement('span');
+      var abbrMap = { deepseek:'DS', yuanbao:'元宝', doubao:'豆包', kimi:'Kimi', minimax:'Mini', tongyi:'千问', chatglm:'GLM' };
+      var text = document.createElement('span');
       text.className = 'tab-text';
-      text.textContent = info.name;
+      text.textContent = abbrMap[siteKey] || info.name.slice(0, 2);
       btn.appendChild(text);
-
       container.appendChild(btn);
 
-      btn.addEventListener('click', function() {
-        switchTab(this.dataset.site);
-        syncTabBar();
-      });
+      btn.addEventListener('click', function() { switchTab(this.dataset.site); syncTabBar(); });
       btn.addEventListener('contextmenu', function(e) {
         e.preventDefault();
         contextMenuSite = this.dataset.site;
-        const unloadable = loadedWebviews.has(contextMenuSite);
-        const item = document.getElementById('ctx-unload');
+        var unloadable = loadedWebviews.has(contextMenuSite);
+        var item = document.getElementById('ctx-unload');
         item.style.opacity = unloadable ? '1' : '0.35';
         item.style.pointerEvents = unloadable ? 'auto' : 'none';
-        tabCtxMenu.style.display = 'block';
-        tabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 140) + 'px';
-        tabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 40) + 'px';
+        if (tabCtxMenu) { tabCtxMenu.style.display = 'block'; tabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 140) + 'px'; tabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 40) + 'px'; }
       });
     });
   }
 
-  function getTabColor(site) {
-    var colors = {
-      deepseek:'#4d6bfe', yuanbao:'#00b894', doubao:'#6366f1',
-      kimi:'#1a1a1a', minimax:'#0ea5e9', tongyi:'#6b5ce7', chatglm:'#8b5cf6'
-    };
-    return colors[site] || '#4d6bfe';
-  }
-
   function syncTabBar() {
-    const tabBarItems = document.querySelectorAll('#tab-bar .tab-item');
-    tabBarItems.forEach(function(btn) {
-      btn.classList.toggle('active', btn.dataset.site === activeSite);
-    });
+    var items = document.querySelectorAll('#tab-bar .tab-item');
+    items.forEach(function(btn) { btn.classList.toggle('active', btn.dataset.site === activeSite); });
   }
 
   navModeOptions.forEach(function(opt) {
-    opt.addEventListener('click', function() {
-      setNavMode(this.dataset.mode);
-    });
+    opt.addEventListener('click', function() { setNavMode(this.dataset.mode); });
   });
 
-  // Tab bar settings button
+  // Tab bar 设置按钮
   document.getElementById('tab-bar-settings').addEventListener('click', function() {
     document.getElementById('settings-btn').click();
   });
@@ -1308,34 +1223,6 @@
     updateFBS({ highlight: parseInt(this.value) });
   });
 
-  // ======== 悬浮球自定义二级页面 ========
-  const fbCustomOverlay = document.getElementById('fb-custom-overlay');
-
-  document.getElementById('fb-custom-btn').addEventListener('click', function() {
-    // 进入二级页面时刷新预览
-    const s = loadFBS();
-    applyFBPreview(s);
-    document.getElementById('fb-size').value = s.size || 44;
-    document.getElementById('fb-size-val').textContent = s.size || 44;
-    document.getElementById('fb-glow').value = s.glow != null ? s.glow : 100;
-    document.getElementById('fb-glow-val').textContent = s.glow != null ? s.glow : 100;
-    document.getElementById('fb-highlight').value = s.highlight != null ? s.highlight : 100;
-    document.getElementById('fb-highlight-val').textContent = s.highlight != null ? s.highlight : 100;
-    fbCustomOverlay.classList.add('show');
-  });
-
-  document.getElementById('fb-custom-close').addEventListener('click', function() {
-    fbCustomOverlay.classList.remove('show');
-  });
-
-  document.getElementById('fb-custom-back').addEventListener('click', function() {
-    fbCustomOverlay.classList.remove('show');
-  });
-
-  fbCustomOverlay.addEventListener('click', function(e) {
-    if (e.target === fbCustomOverlay) fbCustomOverlay.classList.remove('show');
-  });
-
   // GitHub 链接
   document.getElementById('repo-link').addEventListener('click', (e) => {
     e.preventDefault();
@@ -1372,8 +1259,8 @@
     '["deepseek","yuanbao","doubao","kimi","minimax","tongyi","chatglm"]');
   let activeSite = 'deepseek';
 
-  // 初始化导航模式（必须在 SITES/SITE_ORDER 之后）
-  setNavMode(navMode);
+  // 导航模式初始化（必须在 SITES/SITE_ORDER 之后）
+  if (typeof setNavMode === 'function') setNavMode(navMode);
 
   // 按 SITE_ORDER 重排 DOM
   (function reorderDOM(order) {
@@ -1502,7 +1389,7 @@
     siteTag.className = 'site-tag ' + info.cls;
     updateUrl();
     updateNavState();
-    syncTabBar();
+    if (typeof syncTabBar === 'function') syncTabBar();
   }
   tabItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.site)));
   window.app.onSwitchSite((site) => { switchTab(site); });
@@ -1741,37 +1628,25 @@
   var updateProgressFill = document.getElementById('update-progress-fill');
   var updateDismiss = document.getElementById('update-dismiss');
   var updateStatusText = document.getElementById('update-status-text');
-  var updateBarEl = document.getElementById('update-bar');
 
   function showUpdateBar(text, showBtn, btnText, btnAction) {
     updateText.textContent = text;
     if (showBtn) {
       updateBtn.style.display = '';
       updateBtn.textContent = btnText || '';
-      // 先移除旧的事件监听（避免重复绑定），再添加新的事件
-      updateBtn._clickHandler && updateBtn.removeEventListener('click', updateBtn._clickHandler);
-      updateBtn._clickHandler = function(e) {
-        e.stopPropagation();
-        if (typeof btnAction === 'function') {
-          try { btnAction(); } catch(err) { console.error('Update action error:', err); }
-        }
-      };
-      updateBtn.addEventListener('click', updateBtn._clickHandler);
+      updateBtn.onclick = btnAction || null;
     } else {
       updateBtn.style.display = 'none';
     }
     updateProgress.style.display = 'none';
-    updateBarEl.classList.add('show');
+    updateBar.classList.add('show');
   }
 
   function hideUpdateBar() {
-    updateBarEl.classList.remove('show');
+    updateBar.classList.remove('show');
   }
 
-  updateDismiss.addEventListener('click', function(e) {
-    e.stopPropagation();
-    hideUpdateBar();
-  });
+  updateDismiss.addEventListener('click', hideUpdateBar);
 
   // 主更新状态处理
   window.app.onUpdateStatus(function(status, info) {
@@ -2169,6 +2044,5 @@
       buildPermissionUI();
     });
   });</script>
-
 </body>
 </html>
