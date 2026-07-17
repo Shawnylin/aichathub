@@ -228,17 +228,26 @@ function createWindow() {
   });
 
   const loadStart = Date.now();
-  mainWindow.loadFile('index.html').then(() => {
-    log.info(`Page loaded successfully in ${Date.now() - loadStart}ms`);
-  }).catch(err => {
-    log.error('Failed to load index.html:', err);
+  const indexPath = path.join(__dirname, 'index.html');
+  log.info(`Loading index.html from: ${indexPath}`);
+
+  // 先用 loadURL 测试基本渲染
+  mainWindow.loadURL(`data:text/html,<h1 style="color:white;padding:40px;font-family:sans-serif">Test: App is running</h1>`);
+  log.info(`Test page loaded, will load real page after`);
+
+  mainWindow.webContents.on('dom-ready', () => {
+    log.info(`[page] dom-ready after ${Date.now() - loadStart}ms`);
+    // DOM ready 后再切换到真实页面
+    mainWindow.loadFile(indexPath).then(() => {
+      log.info(`Real page loaded in ${Date.now() - loadStart}ms`);
+    }).catch(err => {
+      log.error('Failed to load index.html:', err);
+    });
   });
 
-  // 监控页面加载状态
   mainWindow.webContents.on('did-start-loading', () => log.info('[page] start loading'));
   mainWindow.webContents.on('did-stop-loading', () => log.info('[page] stop loading'));
   mainWindow.webContents.on('did-finish-load', () => log.info('[page] finish load'));
-  mainWindow.webContents.on('dom-ready', () => log.info('[page] dom-ready'));
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
