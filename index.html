@@ -1061,10 +1061,9 @@
     localStorage.setItem('aihub-nav-mode', mode);
     navModeOptions.forEach(function(o) { o.classList.toggle('selected', o.dataset.mode === mode); });
     document.body.classList.toggle('tab-mode', mode === 'tabs');
-    if (mode === 'tabs') {
-      buildTabBar();
-      syncTabBar();
-    }
+    // 始终构建标签栏（仅控制显示/隐藏），避免切换模式时重建
+    buildTabBar();
+    syncTabBar();
   }
 
   function buildTabBar() {
@@ -1296,7 +1295,8 @@
   let activeSite = 'deepseek';
 
   // 导航模式初始化（必须在 SITES/SITE_ORDER 之后）
-  if (typeof setNavMode === 'function') setNavMode(navMode);
+  buildTabBar();
+  setNavMode(navMode);
 
   // 按 SITE_ORDER 重排 DOM
   (function reorderDOM(order) {
