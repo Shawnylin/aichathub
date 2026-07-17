@@ -166,6 +166,54 @@
 
   /* ========== CONTENT ========== */
   #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; position:relative; }
+
+  /* ========== TAB BAR (标签页模式) ========== */
+  #tab-bar {
+    height:44px; background:var(--bg-navbar);
+    border-bottom:1px solid var(--border-nav);
+    display:none; align-items:center; padding:0 8px; gap:3px;
+    flex-shrink:0; overflow:hidden;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  body.tab-mode #sidebar { display:none; }
+  body.tab-mode #tab-bar { display:flex; }
+  .tab-bar-inner {
+    flex:1; display:flex; align-items:center; gap:3px;
+    overflow-x:auto; overflow-y:hidden;
+    scrollbar-width:thin;
+    scrollbar-color:transparent transparent;
+  }
+  .tab-bar-inner::-webkit-scrollbar { height:3px; }
+  .tab-bar-inner::-webkit-scrollbar-thumb { background:transparent; border-radius:2px; }
+  .tab-bar-inner:hover::-webkit-scrollbar-thumb { background:var(--border-btn); }
+  #tab-bar .tab-item {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 12px; border-radius:6px;
+    cursor:pointer; white-space:nowrap;
+    color:var(--text-tab); font-size:12px; font-weight:450;
+    border:none; background:none;
+    font-family:inherit; flex-shrink:0;
+    transition:background 0.12s, color 0.12s;
+  }
+  #tab-bar .tab-item:hover { background:var(--hover-tab); color:var(--text-tab-active); }
+  #tab-bar .tab-item.active { color:var(--text-tab-active); font-weight:500; background:var(--active-tab-bg); }
+  #tab-bar .tab-item .favicon,
+  #tab-bar .tab-item .favicon-placeholder { width:18px; height:18px; border-radius:4px; object-fit:contain; flex-shrink:0; }
+  #tab-bar .tab-item .favicon-placeholder {
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; font-weight:700; color:#fff;
+  }
+  #tab-bar .tab-item .indicator { display:none; }
+  .tab-bar-settings {
+    width:32px; height:32px; border:none; border-radius:6px;
+    background:transparent; color:var(--text-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; transition:background 0.12s, color 0.12s;
+    margin-left:4px;
+  }
+  .tab-bar-settings svg { width:16px; height:16px; }
+  .tab-bar-settings:hover { background:var(--btn-hover); color:var(--text-tab-active); }
+
   #navbar {
     height:42px; background:var(--bg-navbar);
     border-bottom:1px solid var(--border-nav);
@@ -781,6 +829,16 @@
   </div>
 
   <div id="content">
+    <!-- 标签页模式导航栏 -->
+    <div id="tab-bar">
+      <div class="tab-bar-inner" id="tab-bar-inner">
+        <!-- 由 JS 动态生成 -->
+      </div>
+      <button class="tab-bar-settings" id="tab-bar-settings" title="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+
     <div id="navbar">
       <button class="nav-btn" id="nav-back" title="后退">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
@@ -805,7 +863,7 @@
       <webview id="wv-deepseek" src="https://chat.deepseek.com/" partition="persist:deepseek" class="visible"></webview>
       <div id="no-page-placeholder" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; flex-direction:column; align-items:center; justify-content:center; color:var(--text-dim);">
         <div style="font-size:40px; margin-bottom:12px; opacity:0.25; line-height:1;">—</div>
-        <div style="font-size:13px;">点击左侧标签打开 AI 助手</div>
+        <div style="font-size:13px;">点击标签打开 AI 助手</div>
       </div>
     </div>
 
@@ -847,6 +905,28 @@
           <div class="option-info">
             <div class="option-name">深色模式</div>
             <div class="option-desc">暗色界面，减少眼部疲劳</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <div class="setting-section">
+      <span class="setting-label">导航模式</span>
+      <div class="radio-options" id="nav-mode-options">
+        <div class="radio-option selected" data-mode="sidebar">
+          <div class="radio-circle"></div>
+          <div class="option-info">
+            <div class="option-name">侧边栏模式</div>
+            <div class="option-desc">左侧固定侧边栏，适合宽屏显示</div>
+          </div>
+        </div>
+        <div class="radio-option" data-mode="tabs">
+          <div class="radio-circle"></div>
+          <div class="option-info">
+            <div class="option-name">标签页模式</div>
+            <div class="option-desc">顶部标签栏，减少与网站侧边栏的重复</div>
           </div>
         </div>
       </div>
@@ -974,6 +1054,101 @@
   }
   themeOptions.forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
   if (localStorage.getItem('aihub-theme') === 'dark') applyTheme('dark');
+
+  // ======== 导航模式切换 ========
+  const navModeOptions = document.querySelectorAll('#nav-mode-options .radio-option');
+  let navMode = localStorage.getItem('aihub-nav-mode') || 'sidebar';
+
+  function setNavMode(mode) {
+    navMode = mode;
+    localStorage.setItem('aihub-nav-mode', mode);
+    navModeOptions.forEach(o => o.classList.toggle('selected', o.dataset.mode === mode));
+    document.body.classList.toggle('tab-mode', mode === 'tabs');
+    if (mode === 'tabs') {
+      buildTabBar();
+      syncTabBar();
+    }
+  }
+
+  function buildTabBar() {
+    const container = document.getElementById('tab-bar-inner');
+    container.innerHTML = '';
+    SITE_ORDER.forEach(function(siteKey) {
+      const info = SITES[siteKey];
+      if (!info) return;
+      const btn = document.createElement('button');
+      btn.className = 'tab-item' + (siteKey === activeSite ? ' active' : '');
+      btn.dataset.site = siteKey;
+      btn.title = info.name;
+
+      const savedFav = localStorage.getItem('aihub-favicon-' + siteKey);
+      if (savedFav) {
+        const img = document.createElement('img');
+        img.className = 'favicon';
+        img.src = savedFav;
+        img.alt = '';
+        btn.appendChild(img);
+      } else {
+        const ph = document.createElement('span');
+        ph.className = 'favicon-placeholder';
+        var abbr = siteKey === 'chatglm' ? 'GLM' : info.name.slice(0, 2).toUpperCase();
+        ph.style.background = getTabColor(siteKey);
+        ph.textContent = abbr;
+        btn.appendChild(ph);
+      }
+
+      const text = document.createElement('span');
+      text.className = 'tab-text';
+      text.textContent = info.name;
+      btn.appendChild(text);
+
+      container.appendChild(btn);
+
+      btn.addEventListener('click', function() {
+        switchTab(this.dataset.site);
+        syncTabBar();
+      });
+      btn.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        contextMenuSite = this.dataset.site;
+        const unloadable = loadedWebviews.has(contextMenuSite);
+        const item = document.getElementById('ctx-unload');
+        item.style.opacity = unloadable ? '1' : '0.35';
+        item.style.pointerEvents = unloadable ? 'auto' : 'none';
+        tabCtxMenu.style.display = 'block';
+        tabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 140) + 'px';
+        tabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 40) + 'px';
+      });
+    });
+  }
+
+  function getTabColor(site) {
+    var colors = {
+      deepseek:'#4d6bfe', yuanbao:'#00b894', doubao:'#6366f1',
+      kimi:'#1a1a1a', minimax:'#0ea5e9', tongyi:'#6b5ce7', chatglm:'#8b5cf6'
+    };
+    return colors[site] || '#4d6bfe';
+  }
+
+  function syncTabBar() {
+    const tabBarItems = document.querySelectorAll('#tab-bar .tab-item');
+    tabBarItems.forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.site === activeSite);
+    });
+  }
+
+  // Init nav mode
+  setNavMode(navMode);
+  navModeOptions.forEach(function(opt) {
+    opt.addEventListener('click', function() {
+      setNavMode(this.dataset.mode);
+    });
+  });
+
+  // Tab bar settings button
+  document.getElementById('tab-bar-settings').addEventListener('click', function() {
+    document.getElementById('settings-btn').click();
+  });
 
   // 快捷键开关
   const shortcutToggle = document.getElementById('shortcut-toggle');
@@ -1278,6 +1453,7 @@
     siteTag.className = 'site-tag ' + info.cls;
     updateUrl();
     updateNavState();
+    syncTabBar();
   }
   tabItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.site)));
   window.app.onSwitchSite((site) => { switchTab(site); });
