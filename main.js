@@ -13,12 +13,6 @@ log.info('App starting, version:', app.getVersion());
 // ======== V8 配置 ========
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=512');
 
-// ======== 禁用硬件加速（解决某些 Windows 系统 GPU 兼容问题）=======
-app.disableHardwareAcceleration();
-
-// ======== 禁用硬件加速（解决某些 Windows 系统 GPU 兼容问题）=======
-app.disableHardwareAcceleration();
-
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
@@ -221,6 +215,7 @@ function createWindow() {
     minWidth: 480,
     minHeight: 600,
     frame: false,
+    show: false,
     backgroundColor: '#0a0a0a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -230,34 +225,13 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL(`file:///${__dirname.replace(/\\/g, '/')}/index.html`);
+  mainWindow.loadFile('index.html');
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
-  mainWindow.webContents.on('console-message', (_event, level, message) => {
-    const levelMap = { 0:'verbose', 1:'info', 2:'warning', 3:'error' };
-    log.info(`[renderer:${levelMap[level] || '?'}] ${message}`);
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
   });
-
-  mainWindow.webContents.on('render-process-gone', (_event, details) => {
-    log.error(`[renderer] process gone: ${details.reason}`);
-  });
-
-  mainWindow.webContents.on('unresponsive', () => {
-    log.error('[renderer] unresponsive');
-  });
-
-  const bounds = mainWindow.getBounds();
-  log.info(`Window created: ${bounds.width}x${bounds.height} at (${bounds.x},${bounds.y})`);
-
-  // 自动打开 DevTools（开发模式）
-  if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
-  }
-
-  // 强制立即显示
-  mainWindow.show();
-  mainWindow.focus();
 
   mainWindow.on('maximize', () => {
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('maximize-change', true);
@@ -377,28 +351,13 @@ function registerIpcHandlers() {
   });
 
   ipcMain.handle('download-update', () => {
-    if (!app.isPackaged) {
-      sendUpdateStatus('error', '开发模式无法下载更新');
-      return false;
-    }
-    try {
-      autoUpdater.downloadUpdate();
-      return true;
-    } catch (e) {
-      log.error('downloadUpdate error:', e.message);
-      sendUpdateStatus('error', e.message);
-      return false;
-    }
+    autoUpdater.downloadUpdate();
+    return true;
   });
 
   ipcMain.handle('install-update', () => {
-    try {
-      autoUpdater.quitAndInstall();
-      return true;
-    } catch (e) {
-      log.error('installUpdate error:', e.message);
-      return false;
-    }
+    autoUpdater.quitAndInstall();
+    return true;
   });
 
   ipcMain.handle('get-app-version', () => app.getVersion());
