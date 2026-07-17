@@ -2,26 +2,42 @@
 <html>
 <head><meta charset="utf-8"><style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { width:100px; height:100px; overflow:hidden; background:transparent; user-select:none; }
+  html, body { width:180px; height:180px; overflow:hidden; background:transparent; user-select:none; }
   .ball {
-    width:44px; height:44px; border-radius:50%;
-    margin:28px; position:relative; opacity:1;
-    background:linear-gradient(135deg,#4d6bfe,#6c8cff);
-    box-shadow:0 2px 12px rgba(77,107,254,0.45);
+    --fb-size: 44px;
+    --fb-margin: 68px;
+    --fb-bg: linear-gradient(135deg,rgba(77,107,254,0.65),rgba(108,140,255,0.45),rgba(255,255,255,0.15));
+    --fb-shadow: 0 2px 16px rgba(77,107,254,0.35), 0 0 0 1.5px rgba(255,255,255,0.3), 0 0 40px 6px rgba(108,140,255,0.15);
+    --fb-shadow-hover: 0 4px 24px rgba(77,107,254,0.4), 0 0 0 2px rgba(255,255,255,0.4), 0 0 50px 10px rgba(108,140,255,0.2);
+    --fb-hl-opacity: 1;
+
+    width: var(--fb-size);
+    height: var(--fb-size);
+    border-radius:50%;
+    margin: var(--fb-margin); position:relative; opacity:1;
+    background: var(--fb-bg);
+    box-shadow: var(--fb-shadow);
     display:flex; align-items:center; justify-content:center;
-    transition:transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.3s, opacity 0.2s;
+    transition:transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.3s, opacity 0.2s, background 0.4s;
     cursor:pointer;
+    backdrop-filter:blur(4px);
+  }
+  .ball::before {
+    content:''; position:absolute; top:2px; left:2px; right:40%; bottom:40%;
+    border-radius:50%;
+    background:linear-gradient(135deg,rgba(255,255,255,0.5) 0%, transparent 60%);
+    pointer-events:none;
   }
   .ball.fade-out { opacity:0 !important; pointer-events:none; }
-  .ball:hover { transform:scale(1.08); box-shadow:0 4px 20px rgba(77,107,254,0.55), 0 0 24px 4px rgba(108,140,255,0.25); }
+  .ball:hover { transform:scale(1.08); box-shadow:var(--fb-shadow-hover); }
   .glow {
     position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%;
     pointer-events:none; opacity:0;
-    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.25) 0%, transparent 60%);
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.35) 0%, transparent 60%);
     transition:opacity 0.25s;
   }
-  .ball:hover .glow { opacity:1; }
-  svg { position:relative; z-index:1; pointer-events:none; }
+  .ball:hover .glow { opacity: var(--fb-hl-opacity); }
+  svg { position:relative; z-index:1; pointer-events:none; opacity:0.9; width:calc(var(--fb-size,44px) * 0.5); height:calc(var(--fb-size,44px) * 0.5); }
   .tip {
     position:absolute; top:2px; left:50%; transform:translateX(-50%);
     background:rgba(0,0,0,0.78); color:#fff;
@@ -46,6 +62,39 @@
   var glow = document.getElementById('glow');
   var tip = document.getElementById('tip');
   var startX, startY, lastX, lastY, moved = false, pointerId = null;
+
+  var FB_COLORS = {
+    blue:{bg:'linear-gradient(135deg,rgba(77,107,254,0.65),rgba(108,140,255,0.45),rgba(255,255,255,0.15))',s:'77,107,254',se:'108,140,255'},
+    purple:{bg:'linear-gradient(135deg,rgba(147,51,234,0.65),rgba(168,85,247,0.45),rgba(255,255,255,0.15))',s:'147,51,234',se:'168,85,247'},
+    green:{bg:'linear-gradient(135deg,rgba(16,185,129,0.65),rgba(52,211,153,0.45),rgba(255,255,255,0.15))',s:'16,185,129',se:'52,211,153'},
+    orange:{bg:'linear-gradient(135deg,rgba(245,158,11,0.65),rgba(251,191,36,0.45),rgba(255,255,255,0.15))',s:'245,158,11',se:'251,191,36'},
+    pink:{bg:'linear-gradient(135deg,rgba(236,72,153,0.65),rgba(244,114,182,0.45),rgba(255,255,255,0.15))',s:'236,72,153',se:'244,114,182'},
+    cyan:{bg:'linear-gradient(135deg,rgba(6,182,212,0.65),rgba(34,211,238,0.45),rgba(255,255,255,0.15))',s:'6,182,212',se:'34,211,238'}
+  };
+  var hlBrightness = 1;
+
+  function getFBS() {
+    try { return JSON.parse(localStorage.getItem('aihub-floatball-settings')) || {}; } catch(e) { return {}; }
+  }
+
+  function applyFBS() {
+    var s = getFBS();
+    var c = FB_COLORS[s.color] || FB_COLORS.blue;
+    var gf = (s.glow != null ? s.glow : 100) / 100;
+    var hf = (s.highlight != null ? s.highlight : 100) / 100;
+    var sz = s.size || 44;
+    var mg = (180 - sz) / 2;
+
+    ball.style.setProperty('--fb-size', sz + 'px');
+    ball.style.setProperty('--fb-margin', mg + 'px');
+    ball.style.setProperty('--fb-bg', c.bg);
+    ball.style.setProperty('--fb-shadow', '0 2px ' + Math.round(16*gf) + 'px rgba(' + c.s + ',' + (0.35*gf) + '),0 0 0 1.5px rgba(255,255,255,0.3),0 0 ' + Math.round(40*gf) + 'px 6px rgba(' + c.se + ',' + (0.15*gf) + ')');
+    ball.style.setProperty('--fb-shadow-hover', '0 4px ' + Math.round(24*gf) + 'px rgba(' + c.s + ',' + (0.4*gf) + '),0 0 0 2px rgba(255,255,255,0.4),0 0 ' + Math.round(50*gf) + 'px 10px rgba(' + c.se + ',' + (0.2*gf) + ')');
+    ball.style.setProperty('--fb-hl-opacity', hf);
+    hlBrightness = hf;
+  }
+
+  applyFBS();
 
   if (!localStorage.getItem('fb-tip-shown')) {
     tip.classList.add('show');
@@ -77,7 +126,8 @@
     var rect = ball.getBoundingClientRect();
     var cx = ((e.clientX - rect.left) / rect.width) * 100;
     var cy = ((e.clientY - rect.top) / rect.height) * 100;
-    glow.style.background = 'radial-gradient(circle at ' + cx + '% ' + cy + '%, rgba(255,255,255,0.3) 0%, transparent 60%)';
+    var ha = 0.3 * hlBrightness;
+    glow.style.background = 'radial-gradient(circle at ' + cx + '% ' + cy + '%, rgba(255,255,255,' + ha + ') 0%, transparent 60%)';
 
     if (pointerId === null) return;
     var dx = e.screenX - lastX;
@@ -89,7 +139,8 @@
   });
 
   ball.addEventListener('pointerleave', function() {
-    glow.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.25) 0%, transparent 60%)';
+    var ha = 0.25 * hlBrightness;
+    glow.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,' + ha + ') 0%, transparent 60%)';
   });
 
   ball.addEventListener('pointerup', function(e) {
@@ -106,6 +157,18 @@
   ball.addEventListener('pointercancel', function() {
     ball.releasePointerCapture(pointerId);
     pointerId = null;
+  });
+
+  window.float.onFadeOut(function() {
+    ball.classList.add('fade-out');
+  });
+
+  window.float.onFadeIn(function() {
+    ball.classList.remove('fade-out');
+  });
+
+  window.float.onSettingsUpdate(function() {
+    applyFBS();
   });
 })();
 </script>

@@ -1,11 +1,12 @@
 {
   "name": "AIchatHub",
-  "version": "1.2.4",
+  "version": "1.2.6",
   "description": "AI Chat Hub - 多平台 AI 助手聚合客户端",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "node scripts/build.js",
+    "build:release": "npx electron-builder --win --publish always",
     "icon": "node scripts/make-icon.js"
   },
   "keywords": [],
@@ -17,6 +18,12 @@
     "productName": "AI Chat Hub",
     "directories": {
       "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Shawnylin",
+      "repo": "aichathub",
+      "releaseType": "release"
     },
     "files": [
       "main.js",
@@ -62,5 +69,9 @@
     "electron-builder": "^26.8.1",
     "png-to-ico": "^3.0.1",
     "sharp": "^0.34.5"
+  },
+  "dependencies": {
+    "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.9"
   }
 }

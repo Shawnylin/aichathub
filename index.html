@@ -165,7 +165,7 @@
   .theme-btn:hover { background:var(--btn-hover); }
 
   /* ========== CONTENT ========== */
-  #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; }
+  #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; position:relative; }
   #navbar {
     height:42px; background:var(--bg-navbar);
     border-bottom:1px solid var(--border-nav);
@@ -195,6 +195,8 @@
     transition: background 0.3s, border-color 0.3s, color 0.3s;
   }
   #url-bar .url-domain { color:var(--text-url-domain); font-weight:500; }
+  #url-bar .url-sep { margin:0 4px; color:var(--text-dim); }
+  #url-bar .url-path { color:var(--text-url); }
 
   .site-tag {
     padding:4px 10px; border-radius:5px; font-size:11px; font-weight:600;
@@ -215,10 +217,134 @@
   .site-tag.db  { background:#eef2ff; color:#6366f1; }
   .site-tag.km  { background:#f0f0f0; color:#1a1a1a; }
   .site-tag.qw  { background:#f0edff; color:#6b5ce7; }
+.site-tag.glm { background:#f0edff; color:#8b5cf6; }
+
+  /* Download button */
+  .dl-btn {
+    width:36px; height:32px; border:1.5px solid var(--border-btn); border-radius:8px;
+    background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; position:relative; transition: all 0.15s;
+  }
+  .dl-btn svg { width:18px; height:18px; fill:var(--text-tab); transition: fill 0.15s; }
+  .dl-btn:hover { background:var(--hover-navbtn); border-color:#bbb; }
+  .dl-btn:hover svg { fill:#333; }
+  .dl-btn .dl-badge {
+    position:absolute; top:-4px; right:-4px;
+    min-width:16px; height:16px; border-radius:8px;
+    background:#4d6bfe; color:#fff; font-size:10px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    padding:0 4px; opacity:0; transform:scale(0.5);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .dl-btn .dl-badge.show { opacity:1; transform:scale(1); }
 
   #webview-container { flex:1; position:relative; background:var(--bg-webview); transition: background 0.3s; }
   webview { width:100%; height:100%; display:none; position:absolute; top:0; left:0; }
   webview.visible { display:flex; }
+
+  /* ========== DOWNLOAD PANEL ========== */
+  #download-panel {
+    position:absolute; top:0; right:0; bottom:0; width:360px;
+    background:var(--bg-content); border-left:1px solid var(--border-nav);
+    z-index:150; display:flex; flex-direction:column;
+    transform:translateX(100%); transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
+    box-shadow:-4px 0 20px rgba(0,0,0,0.08);
+  }
+  #download-panel.show { transform:translateX(0); }
+  .dl-panel-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px; border-bottom:1px solid var(--border-nav);
+    flex-shrink:0;
+  }
+  .dl-panel-header h3 { font-size:14px; font-weight:600; color:var(--text-tab-active); }
+  .dl-panel-actions { display:flex; gap:6px; }
+  .dl-panel-actions button {
+    padding:4px 10px; border-radius:5px; border:1px solid var(--border-btn);
+    background:transparent; color:var(--text-tab); cursor:pointer;
+    font-size:11px; font-family:inherit; transition:background 0.12s;
+  }
+  .dl-panel-actions button:hover { background:var(--hover-navbtn); }
+  .dl-list { flex:1; overflow-y:auto; padding:8px; }
+  .dl-item {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:10px 12px; border-radius:8px; border:1px solid var(--border-nav);
+    margin-bottom:6px; transition:background 0.12s;
+  }
+  .dl-item:hover { background:var(--hover-navbtn); }
+  .dl-item-icon {
+    width:32px; height:32px; border-radius:6px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; color:#fff;
+  }
+  .dl-item-icon svg { width:16px; height:16px; display:block; }
+  .dl-item-icon.completed { background:#10b981; }
+  .dl-item-icon.downloading { background:#4d6bfe; }
+  .dl-item-icon.failed { background:#ef4444; }
+  .dl-item-icon.interrupted { background:#f59e0b; }
+  .dl-item-info { flex:1; min-width:0; }
+  .dl-item-name {
+    font-size:12px; font-weight:500; color:var(--text-tab-active);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .dl-item-status {
+    font-size:11px; color:var(--text-dim); margin-top:2px;
+  }
+  .dl-item-progress {
+    width:100%; height:4px; border-radius:2px; background:var(--border-btn);
+    margin-top:6px; overflow:hidden;
+  }
+  .dl-item-progress-fill {
+    height:100%; border-radius:2px; background:#4d6bfe;
+    transition:width 0.3s;
+  }
+  .dl-item-progress-fill.completed { background:#10b981; }
+  .dl-item-progress-fill.failed { background:#ef4444; }
+  .dl-item-actions {
+    display:flex; flex-direction:column; gap:4px; flex-shrink:0;
+  }
+  .dl-item-actions button {
+    width:26px; height:26px; border:none; border-radius:5px;
+    background:transparent; cursor:pointer; display:flex;
+    align-items:center; justify-content:center;
+    color:var(--text-dim); transition:background 0.12s, color 0.12s;
+  }
+  .dl-item-actions button:hover { background:var(--btn-hover); color:var(--text-tab-active); }
+  .dl-item-actions button svg { width:14px; height:14px; }
+  .dl-empty {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    height:100%; color:var(--text-dim); font-size:13px; gap:8px;
+  }
+  .dl-empty-icon { font-size:36px; opacity:0.25; }
+
+  /* 入场动画 */
+  @keyframes dlSlideIn {
+    from { opacity:0; transform:translateX(40px) scale(0.95); }
+    to   { opacity:1; transform:translateX(0) scale(1); }
+  }
+  @keyframes dlBounce {
+    0%   { transform:scale(1); }
+    30%  { transform:scale(1.04); }
+    60%  { transform:scale(0.98); }
+    100% { transform:scale(1); }
+  }
+  @keyframes dlGlow {
+    0%   { box-shadow:0 0 0 0 rgba(77,107,254,0.5); }
+    70%  { box-shadow:0 0 0 8px rgba(77,107,254,0); }
+    100% { box-shadow:0 0 0 0 rgba(77,107,254,0); }
+  }
+  .dl-item.new {
+    animation: dlSlideIn 0.35s cubic-bezier(0.2,0,0,1), dlGlow 1.2s ease-out;
+  }
+  .dl-item.completed-flash {
+    animation: dlBounce 0.4s ease-out;
+  }
+
+  /* 按钮 hover 颜色提示 */
+  .dl-item-actions button[data-action="pause"]:hover   { color:#f59e0b; }
+  .dl-item-actions button[data-action="resume"]:hover  { color:#10b981; }
+  .dl-item-actions button[data-action="cancel"]:hover  { color:#ef4444; }
+  .dl-item-actions button[data-action="delete"]:hover  { color:#ef4444; }
+  .dl-item-actions button[data-action="folder"]:hover  { color:#4d6bfe; }
 
   /* ========== DARK MODE ========== */
   body.dark {
@@ -256,12 +382,15 @@
     background-color:transparent !important;
   }
   body.dark .nav-btn:hover svg { fill:#ddd; }
+  body.dark .dl-btn:hover svg { fill:#ddd; }
   body.dark .site-tag.ds  { background:#1a1d2e; color:#6c8cff; }
   body.dark .site-tag.yb  { background:#1a2e28; color:#2dd4a8; }
   body.dark .site-tag.mm  { background:#1a2a33; color:#38bdf8; }
   body.dark .site-tag.db  { background:#1e1f2e; color:#818cf8; }
   body.dark .site-tag.km  { background:#2a2a2a; color:#b0b0b0; }
   body.dark .site-tag.qw  { background:#1f1b33; color:#8b7cf8; }
+  body.dark .site-tag.glm { background:#1f1b33; color:#a78bfa; }
+  body.dark #download-panel { box-shadow:-4px 0 20px rgba(0,0,0,0.3); }
 
   /* ========== SETTINGS MODAL ========== */
   #settings-overlay {
@@ -333,6 +462,28 @@
   }
   .toggle-switch.on::after { transform:translateX(18px); }
 
+  .perm-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:7px 12px; border-radius:6px; border:1px solid var(--border-btn);
+    margin-bottom:4px; transition:background 0.12s;
+  }
+  .perm-row:hover { background:var(--hover-navbtn); }
+  .perm-row .perm-name { font-size:12px; font-weight:500; color:var(--text-tab-active); min-width:64px; }
+  .perm-row .perm-toggles { display:flex; gap:6px; align-items:center; }
+  .perm-toggle-btn {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:3px 8px; border-radius:4px; border:1px solid var(--border-btn);
+    background:transparent; color:var(--text-dim); cursor:pointer;
+    font-size:10px; font-family:inherit; transition:all 0.15s; white-space:nowrap;
+  }
+  .perm-toggle-btn svg { width:12px; height:12px; }
+  .perm-toggle-btn.on {
+    background:rgba(77,107,254,0.1); border-color:#4d6bfe; color:#4d6bfe;
+  }
+  body.dark .perm-toggle-btn.on {
+    background:rgba(77,107,254,0.15); border-color:#6c8cff; color:#6c8cff;
+  }
+
   .shortcut-list { font-size:12px; color:var(--text-dim); padding:4px 14px; line-height:1.8; }
   .shortcut-list kbd {
     display:inline-block; padding:1px 6px; border-radius:4px; border:1px solid var(--border-btn);
@@ -350,12 +501,113 @@
   .about-value a { color:#4d6bfe; text-decoration:none; }
   .about-value a:hover { text-decoration:underline; }
 
+  /* Download path setting */
+  .dl-path-row {
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px; border-radius:8px; border:1px solid var(--border-btn);
+  }
+  .dl-path-row .dl-path-text {
+    flex:1; font-size:12px; color:var(--text-tab); overflow:hidden;
+    white-space:nowrap; text-overflow:ellipsis;
+  }
+  .dl-path-row button {
+    padding:5px 12px; border-radius:5px; border:1px solid var(--border-btn);
+    background:transparent; color:var(--text-tab); cursor:pointer;
+    font-size:11px; font-family:inherit; transition:background 0.12s; flex-shrink:0;
+  }
+  .dl-path-row button:hover { background:var(--hover-navbtn); }
+
+  /* ========== UPDATE NOTIFICATION ========== */
+  #update-bar {
+    position:fixed; top:0; left:0; right:0; z-index:500;
+    height:0; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    font-size:13px; font-weight:500;
+    background:linear-gradient(135deg, #4d6bfe, #6c8cff);
+    color:#fff;
+    transition: height 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  #update-bar.show { height:44px; }
+  #update-bar .update-icon { font-size:16px; }
+  #update-bar .update-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #update-bar .update-progress {
+    width:120px; height:4px; border-radius:2px; background:rgba(255,255,255,0.25);
+    overflow:hidden; flex-shrink:0;
+  }
+  #update-bar .update-progress-fill {
+    height:100%; width:0%; border-radius:2px; background:#fff;
+    transition: width 0.3s;
+  }
+  #update-bar .update-btn {
+    padding:4px 14px; border-radius:5px; border:1.5px solid rgba(255,255,255,0.6);
+    background:rgba(255,255,255,0.12); color:#fff; cursor:pointer;
+    font-size:12px; font-family:inherit; font-weight:500;
+    transition: background 0.12s; flex-shrink:0;
+  }
+  #update-bar .update-btn:hover { background:rgba(255,255,255,0.25); }
+  #update-bar .update-dismiss {
+    width:28px; height:28px; border:none; border-radius:50%;
+    background:transparent; color:rgba(255,255,255,0.7); cursor:pointer;
+    font-size:16px; display:flex; align-items:center; justify-content:center;
+    transition: background 0.12s; flex-shrink:0;
+  }
+  #update-bar .update-dismiss:hover { background:rgba(255,255,255,0.15); color:#fff; }
+
   #settings-close {
     margin-top:18px; width:100%; padding:10px; border-radius:7px; border:1px solid var(--border-btn);
     background:transparent; color:var(--text-tab); cursor:pointer; font-size:13px; font-family:inherit;
     transition: background 0.12s;
   }
   #settings-close:hover { background:var(--hover-navbtn); }
+
+  /* ========== FLOATBALL CUSTOMIZATION ========== */
+  .fb-preview-wrap {
+    display:flex; justify-content:center; padding:12px 0 16px;
+    overflow:visible;
+  }
+  .fb-preview-ball {
+    border-radius:50%;
+    position:relative; display:flex; align-items:center; justify-content:center;
+    transition:all 0.15s;
+    background:linear-gradient(135deg,rgba(77,107,254,0.65),rgba(108,140,255,0.45),rgba(255,255,255,0.15));
+    box-shadow:0 2px 16px rgba(77,107,254,0.35), 0 0 0 1.5px rgba(255,255,255,0.3), 0 0 40px 6px rgba(108,140,255,0.15);
+  }
+  .fb-preview-ball::before {
+    content:''; position:absolute; top:2px; left:2px; right:40%; bottom:40%;
+    border-radius:50%;
+    background:linear-gradient(135deg,rgba(255,255,255,0.5) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .fb-preview-ball svg { position:relative; z-index:1; opacity:0.9; pointer-events:none; }
+  .fb-preview-glow {
+    position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%;
+    pointer-events:none;
+    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.35) 0%, transparent 60%);
+    transition:opacity 0.15s;
+  }
+  .fb-color-options { display:flex; gap:6px; margin-bottom:10px; }
+  .fb-color-btn {
+    width:26px; height:26px; border-radius:50%; border:2px solid transparent;
+    cursor:pointer; flex-shrink:0; transition:border-color 0.15s, transform 0.12s;
+    padding:0;
+  }
+  .fb-color-btn:hover { transform:scale(1.15); }
+  .fb-color-btn.active { border-color:#fff; box-shadow:0 0 0 1.5px var(--text-tab-active), 0 0 8px rgba(0,0,0,0.2); }
+  .fb-slider-row {
+    display:flex; align-items:center; gap:8px; margin-bottom:7px;
+    padding:0 2px;
+  }
+  .fb-slider-row label { font-size:11px; font-weight:600; color:var(--text-dim); min-width:48px; flex-shrink:0; }
+  .fb-slider-row input[type="range"] {
+    flex:1; height:4px; -webkit-appearance:none; appearance:none;
+    background:var(--border-btn); border-radius:2px; outline:none;
+  }
+  .fb-slider-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:#4d6bfe; cursor:pointer; border:2px solid #fff;
+    box-shadow:0 1px 4px rgba(0,0,0,0.2);
+  }
+  .fb-slider-val { font-size:12px; color:var(--text-tab); min-width:28px; text-align:right; font-variant-numeric:tabular-nums; }
 
   /* ========== CLOSE DIALOG ========== */
   #close-overlay {
@@ -396,10 +648,20 @@
 <body>
 
 <div id="titlebar">
-  <span class="title">AI Chat Hub</span>
+  <span class="title">&#x25C6; AI Chat Hub &#x25C6;</span>
   <button class="win-btn" id="btn-min">&ndash;</button>
   <button class="win-btn" id="btn-max">&#x25A1;</button>
   <button class="win-btn" id="btn-close">&#x2715;</button>
+</div>
+
+<div id="update-bar">
+  <span class="update-icon">&#x2B06;</span>
+  <span class="update-text" id="update-text">检查更新...</span>
+  <div class="update-progress" id="update-progress" style="display:none">
+    <div class="update-progress-fill" id="update-progress-fill"></div>
+  </div>
+  <button class="update-btn" id="update-btn" style="display:none">下载</button>
+  <button class="update-dismiss" id="update-dismiss" title="关闭">&#x2715;</button>
 </div>
 
 <div id="app">
@@ -456,6 +718,13 @@
         <span class="tab-text">千问</span>
         <span class="indicator" style="background:#6b5ce7"></span>
       </button>
+
+      <button class="tab-item" data-site="chatglm" title="智谱清言">
+        <img class="favicon" alt="" style="display:none" data-src="https://chatglm.cn/favicon.ico">
+        <span class="favicon-placeholder" style="background:#8b5cf6">GLM</span>
+        <span class="tab-text">智谱清言</span>
+        <span class="indicator" style="background:#8b5cf6"></span>
+      </button>
     </div>
 
     <div class="sidebar-footer">
@@ -477,9 +746,13 @@
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
       </button>
       <div id="url-bar">
-        <span class="url-domain">chat.deepseek.com</span>&nbsp;&bull;&nbsp;<span class="url-path">/</span>
+        <span class="url-domain">chat.deepseek.com</span><span class="url-sep">&bull;</span><span class="url-path">/</span>
       </div>
       <span class="site-tag ds" id="site-tag">DeepSeek</span>
+      <button class="dl-btn" id="dl-btn" title="下载管理">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-320 280-520l56-56 104 104v-288h80v288l104-104 56 56-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>
+        <span class="dl-badge" id="dl-badge">0</span>
+      </button>
     </div>
 
     <div id="webview-container">
@@ -487,6 +760,23 @@
       <div id="no-page-placeholder" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; flex-direction:column; align-items:center; justify-content:center; color:var(--text-dim);">
         <div style="font-size:40px; margin-bottom:12px; opacity:0.25; line-height:1;">—</div>
         <div style="font-size:13px;">点击左侧标签打开 AI 助手</div>
+      </div>
+    </div>
+
+    <!-- 下载管理面板 -->
+    <div id="download-panel">
+      <div class="dl-panel-header">
+        <h3>下载管理</h3>
+        <div class="dl-panel-actions">
+          <button id="dl-clear-btn">清空</button>
+          <button id="dl-close-btn">&#x2715;</button>
+        </div>
+      </div>
+      <div class="dl-list" id="dl-list">
+        <div class="dl-empty" id="dl-empty">
+          <div class="dl-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <span>暂无下载</span>
+        </div>
       </div>
     </div>
   </div>
@@ -525,7 +815,7 @@
         <button class="toggle-switch on" id="shortcut-toggle"></button>
       </div>
       <div class="shortcut-list" id="shortcut-list">
-        <div><kbd>Ctrl+1~6</kbd> 切换标签页</div>
+        <div><kbd>Ctrl+1~7</kbd> 切换标签页</div>
         <div><kbd>Ctrl+R</kbd> 刷新当前页</div>
         <div><kbd>Ctrl+B</kbd> 收起/展开侧栏</div>
         <div><kbd>Ctrl+D</kbd> 切换深色模式</div>
@@ -540,6 +830,58 @@
         <span class="toggle-label">窗口隐藏时显示悬浮球</span>
         <button class="toggle-switch on" id="floatball-toggle"></button>
       </div>
+      <div style="margin-top:4px;" id="fb-custom-section">
+        <div class="fb-preview-wrap">
+          <div class="fb-preview-ball" id="fb-preview">
+            <div class="fb-preview-glow"></div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="fb-color-options" id="fb-color-options">
+          <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
+          <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
+          <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
+          <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
+          <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
+          <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
+        </div>
+        <div class="fb-slider-row">
+          <label>大小</label>
+          <input type="range" id="fb-size" min="32" max="80" value="44">
+          <span class="fb-slider-val" id="fb-size-val">44</span>
+        </div>
+        <div class="fb-slider-row">
+          <label>光晕</label>
+          <input type="range" id="fb-glow" min="0" max="100" value="100">
+          <span class="fb-slider-val" id="fb-glow-val">100</span>
+        </div>
+        <div class="fb-slider-row">
+          <label>高光</label>
+          <input type="range" id="fb-highlight" min="0" max="100" value="100">
+          <span class="fb-slider-val" id="fb-highlight-val">100</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <div class="setting-section">
+      <span class="setting-label">下载</span>
+      <div style="margin-bottom:8px; font-size:11px; color:var(--text-dim);">默认下载路径</div>
+      <div class="dl-path-row">
+        <span class="dl-path-text" id="dl-path-text">加载中...</span>
+        <button id="dl-path-change">更改</button>
+      </div>
+    </div>
+
+    <div class="setting-divider"></div>
+
+    <div class="setting-section">
+      <span class="setting-label">权限管理</span>
+      <div style="font-size:11px; color:var(--text-dim); margin-bottom:8px;">管理各站点对麦克风、摄像头和定位的访问权限</div>
+      <div id="permission-list"></div>
     </div>
 
     <div class="setting-divider"></div>
@@ -556,9 +898,13 @@
 
     <div class="setting-section">
       <span class="setting-label">关于</span>
-      <div class="about-row"><span class="about-label">版本</span><span class="about-value">1.2.4</span></div>
+      <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.2.6</span></div>
       <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
       <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
+      <div style="margin-top:10px; display:flex; align-items:center; gap:10px; padding:0 14px;">
+        <button id="check-update-btn" style="padding:7px 16px; border-radius:6px; border:1.5px solid var(--border-btn); background:transparent; color:var(--text-tab); cursor:pointer; font-size:12px; font-family:inherit; transition:background 0.12s;">检查更新</button>
+        <span id="update-status-text" style="font-size:12px; color:var(--text-dim);"></span>
+      </div>
     </div>
 
     <button id="settings-close">关闭</button>
@@ -578,6 +924,8 @@
     </label>
   </div>
 </div>
+
+
 
 <script>
   const sidebar = document.getElementById('sidebar');
@@ -603,6 +951,7 @@
     localStorage.setItem('aihub-theme', theme);
     document.body.classList.toggle('dark', theme === 'dark');
     themeOptions.forEach(o => o.classList.toggle('selected', o.dataset.theme === theme));
+    window.app?.setTheme(theme === 'dark' ? 'dark' : 'light');
   }
   themeOptions.forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
   if (localStorage.getItem('aihub-theme') === 'dark') applyTheme('dark');
@@ -630,13 +979,113 @@
   });
   window.app.setFloatBall(floatBallEnabled);
 
+  // 悬浮球自定义设置
+  const FB_COLORS = {
+    blue:{bg:'linear-gradient(135deg,rgba(77,107,254,0.65),rgba(108,140,255,0.45),rgba(255,255,255,0.15))',s:'77,107,254',se:'108,140,255'},
+    purple:{bg:'linear-gradient(135deg,rgba(147,51,234,0.65),rgba(168,85,247,0.45),rgba(255,255,255,0.15))',s:'147,51,234',se:'168,85,247'},
+    green:{bg:'linear-gradient(135deg,rgba(16,185,129,0.65),rgba(52,211,153,0.45),rgba(255,255,255,0.15))',s:'16,185,129',se:'52,211,153'},
+    orange:{bg:'linear-gradient(135deg,rgba(245,158,11,0.65),rgba(251,191,36,0.45),rgba(255,255,255,0.15))',s:'245,158,11',se:'251,191,36'},
+    pink:{bg:'linear-gradient(135deg,rgba(236,72,153,0.65),rgba(244,114,182,0.45),rgba(255,255,255,0.15))',s:'236,72,153',se:'244,114,182'},
+    cyan:{bg:'linear-gradient(135deg,rgba(6,182,212,0.65),rgba(34,211,238,0.45),rgba(255,255,255,0.15))',s:'6,182,212',se:'34,211,238'}
+  };
+
+  const fbPreview = document.getElementById('fb-preview');
+  const fbPreviewGlow = fbPreview.querySelector('.fb-preview-glow');
+
+  function loadFBS() {
+    try { return JSON.parse(localStorage.getItem('aihub-floatball-settings')) || {}; } catch(e) { return {}; }
+  }
+  function saveFBS(s) {
+    localStorage.setItem('aihub-floatball-settings', JSON.stringify(s));
+    window.app.updateFloatballSettings();
+  }
+
+  function applyFBPreview(s) {
+    const c = FB_COLORS[s.color] || FB_COLORS.blue;
+    const gf = (s.glow != null ? s.glow : 100) / 100;
+    const hf = (s.highlight != null ? s.highlight : 100) / 100;
+    const sz = s.size || 44;
+
+    fbPreview.style.width = sz + 'px';
+    fbPreview.style.height = sz + 'px';
+    fbPreview.style.background = c.bg;
+    fbPreview.style.boxShadow = '0 2px ' + Math.round(16*gf) + 'px rgba(' + c.s + ',' + (0.35*gf) + '),0 0 0 1.5px rgba(255,255,255,0.3),0 0 ' + Math.round(40*gf) + 'px 6px rgba(' + c.se + ',' + (0.15*gf) + ')';
+    fbPreviewGlow.style.opacity = hf;
+
+    const svg = fbPreview.querySelector('svg');
+    const svgSz = Math.round(sz * 0.5);
+    svg.style.width = svgSz + 'px';
+    svg.style.height = svgSz + 'px';
+
+    document.querySelectorAll('.fb-color-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.color === s.color);
+    });
+  }
+
+  function updateFBS(partial) {
+    const s = loadFBS();
+    for (const k in partial) s[k] = partial[k];
+    if (!s.color) s.color = 'blue';
+    saveFBS(s);
+    applyFBPreview(s);
+  }
+
+  // Init
+  let fbSettings = loadFBS();
+  if (!fbSettings.color) {
+    fbSettings = { color: 'blue', size: 44, glow: 100, highlight: 100 };
+    saveFBS(fbSettings);
+  }
+  applyFBPreview(fbSettings);
+
+  // Restore slider positions
+  document.getElementById('fb-size').value = fbSettings.size || 44;
+  document.getElementById('fb-size-val').textContent = fbSettings.size || 44;
+  document.getElementById('fb-glow').value = fbSettings.glow != null ? fbSettings.glow : 100;
+  document.getElementById('fb-glow-val').textContent = fbSettings.glow != null ? fbSettings.glow : 100;
+  document.getElementById('fb-highlight').value = fbSettings.highlight != null ? fbSettings.highlight : 100;
+  document.getElementById('fb-highlight-val').textContent = fbSettings.highlight != null ? fbSettings.highlight : 100;
+
+  // Events
+  document.querySelectorAll('.fb-color-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      updateFBS({ color: this.dataset.color });
+    });
+  });
+
+  document.getElementById('fb-size').addEventListener('input', function() {
+    document.getElementById('fb-size-val').textContent = this.value;
+    updateFBS({ size: parseInt(this.value) });
+  });
+
+  document.getElementById('fb-glow').addEventListener('input', function() {
+    document.getElementById('fb-glow-val').textContent = this.value;
+    updateFBS({ glow: parseInt(this.value) });
+  });
+
+  document.getElementById('fb-highlight').addEventListener('input', function() {
+    document.getElementById('fb-highlight-val').textContent = this.value;
+    updateFBS({ highlight: parseInt(this.value) });
+  });
+
   // GitHub 链接
   document.getElementById('repo-link').addEventListener('click', (e) => {
     e.preventDefault();
     window.app.openExternal('https://github.com/Shawnylin/aichathub');
   });
 
+  // ======== 下载路径设置 ========
+  const dlPathText = document.getElementById('dl-path-text');
+  window.app.getDownloadPath().then(p => { dlPathText.textContent = p; });
+  document.getElementById('dl-path-change').addEventListener('click', async () => {
+    const newPath = await window.app.setDownloadPath();
+    if (newPath) dlPathText.textContent = newPath;
+  });
+
   const urlBar = document.getElementById('url-bar');
+  const urlDomain = urlBar.querySelector('.url-domain');
+  const urlSep = urlBar.querySelector('.url-sep');
+  const urlPath = urlBar.querySelector('.url-path');
   const siteTag = document.getElementById('site-tag');
   siteTag.addEventListener('click', () => {
     if (activeSite) unloadWebview(activeSite);
@@ -648,10 +1097,11 @@
     doubao:  {name:'豆包',        domain:'www.doubao.com',        url:'https://www.doubao.com/chat/',      cls:'db'},
     kimi:    {name:'Kimi',        domain:'www.kimi.com',          url:'https://www.kimi.com/',             cls:'km'},
     minimax: {name:'MiniMax',     domain:'agent.minimaxi.com',    url:'https://agent.minimaxi.com/',       cls:'mm'},
-    tongyi:  {name:'千问',        domain:'www.tongyi.com',        url:'https://www.tongyi.com/',           cls:'qw'}
+    tongyi:  {name:'千问',        domain:'www.tongyi.com',        url:'https://www.tongyi.com/',           cls:'qw'},
+    chatglm: {name:'智谱清言',    domain:'chatglm.cn',            url:'https://chatglm.cn/',               cls:'glm'}
   };
   let SITE_ORDER = JSON.parse(localStorage.getItem('aihub-site-order') ||
-    '["deepseek","yuanbao","doubao","kimi","minimax","tongyi"]');
+    '["deepseek","yuanbao","doubao","kimi","minimax","tongyi","chatglm"]');
   let activeSite = 'deepseek';
 
   // 按 SITE_ORDER 重排 DOM
@@ -681,9 +1131,10 @@
     );
     wv.addEventListener('did-start-loading', () => {
       if (wv.classList.contains('visible')) {
-        urlBar.innerHTML = '';
         urlBar.style.opacity = '0.5';
-        urlBar.textContent = '加载中...';
+        urlDomain.textContent = SITES[siteId].domain;
+        urlSep.textContent = '';
+        urlPath.textContent = '加载中...';
       }
     });
     wv.addEventListener('did-stop-loading', () => {
@@ -753,7 +1204,9 @@
         tabItems.forEach(b => b.classList.remove('active'));
         siteTag.textContent = '';
         siteTag.className = 'site-tag';
-        urlBar.innerHTML = '<span style="color:var(--text-dim)">没有打开的页面</span>';
+        urlDomain.textContent = '没有打开的页面';
+        urlSep.textContent = '';
+        urlPath.textContent = '';
       }
     }
   }
@@ -881,6 +1334,7 @@
     navFwd.classList.toggle('disabled', !wv.canGoForward());
   }
 
+  // 优化：复用已有 DOM 节点更新 URL，避免频繁重建
   function updateUrl() {
     const wv = getActiveWebview();
     if (!wv) return;
@@ -889,25 +1343,15 @@
       const u = wv.getURL();
       if (u) {
         const p = new URL(u);
-        urlBar.innerHTML = '';
-        const host = document.createElement('span');
-        host.className = 'url-domain';
-        host.textContent = p.hostname;
-        const sep = document.createTextNode(' • ');
-        const path = document.createElement('span');
-        path.className = 'url-path';
-        path.textContent = p.pathname + p.search;
-        urlBar.appendChild(host);
-        urlBar.appendChild(sep);
-        urlBar.appendChild(path);
+        urlDomain.textContent = p.hostname;
+        urlSep.textContent = '•';
+        urlPath.textContent = p.pathname + p.search;
         return;
       }
     } catch(e) {}
-    urlBar.innerHTML = '';
-    const host = document.createElement('span');
-    host.className = 'url-domain';
-    host.textContent = SITES[activeSite].domain;
-    urlBar.appendChild(host);
+    urlDomain.textContent = SITES[activeSite] ? SITES[activeSite].domain : '';
+    urlSep.textContent = '';
+    urlPath.textContent = '';
   }
 
   setupWebviewListeners(document.getElementById('wv-deepseek'), 'deepseek');
@@ -927,7 +1371,7 @@
 
   document.addEventListener('keydown', e => {
     if (!shortcutsEnabled) return;
-    if (e.ctrlKey && e.key >= '1' && e.key <= '6') {
+    if (e.ctrlKey && e.key >= '1' && e.key <= '7') {
       e.preventDefault(); switchTab(SITE_ORDER[parseInt(e.key)-1]);
     }
     if (e.ctrlKey && e.key === 'r') { e.preventDefault(); getActiveWebview().reload(); }
@@ -1010,6 +1454,436 @@
 
   updateIndicators();
   updateUrl();
-</script>
+
+  // ======== 版本更新逻辑 ========
+  var currentVersion = '';
+  window.app.getVersion().then(function(v) {
+    currentVersion = v;
+    document.getElementById('version-display').textContent = v;
+  });
+
+  var updateBar = document.getElementById('update-bar');
+  var updateText = document.getElementById('update-text');
+  var updateBtn = document.getElementById('update-btn');
+  var updateProgress = document.getElementById('update-progress');
+  var updateProgressFill = document.getElementById('update-progress-fill');
+  var updateDismiss = document.getElementById('update-dismiss');
+  var updateStatusText = document.getElementById('update-status-text');
+
+  function showUpdateBar(text, showBtn, btnText, btnAction) {
+    updateText.textContent = text;
+    if (showBtn) {
+      updateBtn.style.display = '';
+      updateBtn.textContent = btnText || '';
+      updateBtn.onclick = btnAction || null;
+    } else {
+      updateBtn.style.display = 'none';
+    }
+    updateProgress.style.display = 'none';
+    updateBar.classList.add('show');
+  }
+
+  function hideUpdateBar() {
+    updateBar.classList.remove('show');
+  }
+
+  updateDismiss.addEventListener('click', hideUpdateBar);
+
+  // 主更新状态处理
+  window.app.onUpdateStatus(function(status, info) {
+    var checkBtn = document.getElementById('check-update-btn');
+
+    switch (status) {
+      case 'checking':
+        updateStatusText.textContent = '正在检查更新...';
+        checkBtn.disabled = true;
+        checkBtn.style.opacity = '0.5';
+        showUpdateBar('正在检查更新...', false);
+        break;
+
+      case 'available':
+        var ver = info ? info.version : '';
+        updateStatusText.textContent = ver ? '发现新版本 v' + ver : '发现新版本';
+        checkBtn.disabled = false;
+        checkBtn.style.opacity = '';
+        showUpdateBar('发现新版本 v' + ver, true, '下载更新', function() {
+          window.app.downloadUpdate();
+        });
+        break;
+
+      case 'not-available':
+        updateStatusText.textContent = '已是最新版本';
+        checkBtn.disabled = false;
+        checkBtn.style.opacity = '';
+        hideUpdateBar();
+        setTimeout(function() {
+          if (updateStatusText.textContent === '已是最新版本') {
+            updateStatusText.textContent = '';
+          }
+        }, 3000);
+        break;
+
+      case 'downloading':
+        updateStatusText.textContent = '下载中...';
+        updateProgress.style.display = '';
+        updateProgressFill.style.width = (info && info.percent) + '%';
+        updateText.textContent = '下载更新 ' + (info && info.percent) + '%';
+        updateBtn.style.display = 'none';
+        break;
+
+      case 'downloaded':
+        updateStatusText.textContent = '更新已下载，重启即可安装';
+        updateProgress.style.display = 'none';
+        showUpdateBar('更新已下载，是否立即重启安装？', true, '立即重启', function() {
+          window.app.installUpdate();
+        });
+        break;
+
+      case 'error':
+        updateStatusText.textContent = '检查更新失败: ' + (info || '');
+        checkBtn.disabled = false;
+        checkBtn.style.opacity = '';
+        hideUpdateBar();
+        setTimeout(function() {
+          if (updateStatusText.textContent !== '') {
+            updateStatusText.textContent = '';
+          }
+        }, 4000);
+        break;
+    }
+  });
+
+  document.getElementById('check-update-btn').addEventListener('click', function() {
+    window.app.checkForUpdates();
+  });
+
+  // ======== 下载管理 ========
+  const downloadPanel = document.getElementById('download-panel');
+  const dlList = document.getElementById('dl-list');
+  const dlBadge = document.getElementById('dl-badge');
+  const dlEmpty = document.getElementById('dl-empty');
+  let dlPanelOpen = false;
+  let dlMap = {}; // id -> DOM element
+  let activeDlCount = 0;
+
+  function formatBytes(bytes) {
+    if (!bytes || bytes <= 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  function getStatusText(dl) {
+    switch (dl.state) {
+      case 'downloading': return dl.progress + '% · ' + formatBytes(dl.receivedBytes) + ' / ' + formatBytes(dl.totalBytes);
+      case 'completed': return '已完成 · ' + formatBytes(dl.totalBytes);
+      case 'failed': return '下载失败';
+      case 'interrupted': return '已中断';
+      case 'paused': return '已暂停 · ' + dl.progress + '%';
+      default: return dl.state;
+    }
+  }
+
+  // SVG icons
+  const ICONS = {
+    pause:   '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+    resume:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+    cancel:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+    delete:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+    folder:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>'
+  };
+
+  function buildActionsHtml(dl) {
+    let html = '';
+    if (dl.state === 'downloading') {
+      html += '<button title="暂停" data-action="pause">' + ICONS.pause + '</button>';
+      html += '<button title="取消" data-action="cancel">' + ICONS.cancel + '</button>';
+    } else if (dl.state === 'paused') {
+      html += '<button title="继续" data-action="resume">' + ICONS.resume + '</button>';
+      html += '<button title="取消" data-action="cancel">' + ICONS.cancel + '</button>';
+    } else if (dl.state === 'completed') {
+      html += '<button title="打开所在文件夹" data-action="folder">' + ICONS.folder + '</button>';
+      html += '<button title="删除文件" data-action="delete">' + ICONS.delete + '</button>';
+    } else if (dl.state === 'failed' || dl.state === 'interrupted' || dl.state === 'cancelled' || dl.state === 'deleted') {
+      html += '<button title="从列表移除" data-action="remove">' + ICONS.cancel + '</button>';
+    }
+    return html;
+  }
+
+  function getStateClass(state) {
+    if (state === 'completed') return 'completed';
+    if (state === 'failed' || state === 'cancelled' || state === 'deleted') return 'failed';
+    if (state === 'paused' || state === 'interrupted') return 'interrupted';
+    return 'downloading';
+  }
+
+  function getStateIconSvg(state) {
+    switch(state) {
+      case 'completed':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      case 'failed':
+      case 'cancelled':
+      case 'deleted':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      case 'paused':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+      case 'interrupted':
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+      default:
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+    }
+  }
+
+  function getStatusText(dl) {
+    switch (dl.state) {
+      case 'downloading': return dl.progress + '% · ' + formatBytes(dl.receivedBytes) + ' / ' + formatBytes(dl.totalBytes);
+      case 'completed': return '已完成 · ' + formatBytes(dl.totalBytes);
+      case 'failed': return '下载失败';
+      case 'interrupted': return '已中断';
+      case 'paused': return '已暂停 · ' + dl.progress + '%';
+      case 'cancelled': return '已取消';
+      case 'deleted': return '已删除';
+      default: return dl.state;
+    }
+  }
+
+  function createDlItem(dl) {
+    const el = document.createElement('div');
+    el.className = 'dl-item' + (dl.justAdded ? ' new' : '');
+    el.id = 'dl-item-' + dl.id;
+
+    const stateClass = getStateClass(dl.state);
+    const iconSvg = getStateIconSvg(dl.state);
+
+    el.innerHTML =
+      '<div class="dl-item-icon ' + stateClass + '">' + iconSvg + '</div>' +
+      '<div class="dl-item-info">' +
+        '<div class="dl-item-name" title="' + dl.savePath + '">' + dl.filename + '</div>' +
+        '<div class="dl-item-status">' + getStatusText(dl) + '</div>' +
+        '<div class="dl-item-progress"><div class="dl-item-progress-fill ' + stateClass + '" style="width:' + dl.progress + '%"></div></div>' +
+      '</div>' +
+      '<div class="dl-item-actions">' + buildActionsHtml(dl) + '</div>';
+
+    bindActionHandlers(el, dl);
+    return el;
+  }
+
+  function bindActionHandlers(el, dl) {
+    el.querySelectorAll('.dl-item-actions button').forEach(btn => {
+      const action = btn.dataset.action;
+      btn.addEventListener('click', () => {
+        switch (action) {
+          case 'pause':  window.app.pauseDownload(dl.id); break;
+          case 'resume': window.app.resumeDownload(dl.id); break;
+          case 'cancel': window.app.cancelDownload(dl.id); break;
+          case 'delete':
+            if (confirm('确认删除文件 "' + dl.filename + '" 吗？此操作不可撤销。')) {
+              window.app.deleteDownload(dl.id);
+            }
+            break;
+          case 'folder': window.app.openDownloadFile(dl.savePath); break;
+          case 'remove':
+            el.style.transition = 'opacity 0.25s, transform 0.25s, max-height 0.3s, margin 0.3s, padding 0.3s';
+            el.style.overflow = 'hidden';
+            el.style.maxHeight = el.offsetHeight + 'px';
+            requestAnimationFrame(() => {
+              el.style.opacity = '0';
+              el.style.transform = 'translateX(40px)';
+              el.style.maxHeight = '0';
+              el.style.marginBottom = '0';
+              el.style.paddingTop = '0';
+              el.style.paddingBottom = '0';
+            });
+            setTimeout(() => {
+              delete dlMap[dl.id];
+              el.remove();
+              if (Object.keys(dlMap).length === 0 && dlEmpty && !dlList.querySelector('.dl-empty')) {
+                dlList.appendChild(dlEmpty);
+                dlEmpty.style.display = '';
+              }
+            }, 320);
+            window.app.removeDownloadRecord(dl.id);
+            return;
+        }
+      });
+    });
+  }
+
+  function updateDlItem(dl) {
+    const el = dlMap[dl.id];
+    const isNew = !el;
+    if (isNew) {
+      const newEl = createDlItem(dl);
+      dlMap[dl.id] = newEl;
+      if (dlEmpty) dlEmpty.style.display = 'none';
+      dlList.insertBefore(newEl, dlList.firstChild);
+      return;
+    }
+
+    const stateClass = getStateClass(dl.state);
+    const icon = el.querySelector('.dl-item-icon');
+    icon.className = 'dl-item-icon ' + stateClass;
+    icon.innerHTML = getStateIconSvg(dl.state);
+
+    el.querySelector('.dl-item-status').textContent = getStatusText(dl);
+    const fill = el.querySelector('.dl-item-progress-fill');
+    fill.style.width = dl.progress + '%';
+    fill.className = 'dl-item-progress-fill ' + stateClass;
+
+    // 重建 actions（状态变化时按钮组会变）
+    const actionsEl = el.querySelector('.dl-item-actions');
+    const newHtml = buildActionsHtml(dl);
+    if (actionsEl.innerHTML !== newHtml) {
+      actionsEl.innerHTML = newHtml;
+      bindActionHandlers(el, dl);
+    }
+
+    // 完成时添加一次性 bounce 动画
+    if (dl.state === 'completed' && el._lastState !== 'completed') {
+      el.classList.add('completed-flash');
+      setTimeout(() => el.classList.remove('completed-flash'), 450);
+    }
+    el._lastState = dl.state;
+  }
+
+  function updateDlBadge() {
+    if (activeDlCount > 0) {
+      dlBadge.textContent = activeDlCount;
+      dlBadge.classList.add('show');
+    } else {
+      dlBadge.classList.remove('show');
+    }
+  }
+
+  // 监听下载更新
+  window.app.onDownloadUpdate(function(dl) {
+    const isNewRecord = !dlMap[dl.id];
+    const wasDownloading = isNewRecord ? false : (dlMap[dl.id]._state === 'downloading');
+    const isDownloading = dl.state === 'downloading';
+
+    if (!wasDownloading && isDownloading) activeDlCount++;
+    else if (wasDownloading && !isDownloading) activeDlCount = Math.max(0, activeDlCount - 1);
+
+    updateDlItem(dl);
+    if (dlMap[dl.id]) dlMap[dl.id]._state = dl.state;
+    updateDlBadge();
+  });
+
+  // 下载按钮
+  document.getElementById('dl-btn').addEventListener('click', () => {
+    dlPanelOpen = !dlPanelOpen;
+    downloadPanel.classList.toggle('show', dlPanelOpen);
+  });
+  document.getElementById('dl-close-btn').addEventListener('click', () => {
+    dlPanelOpen = false;
+    downloadPanel.classList.remove('show');
+  });
+  document.getElementById('dl-clear-btn').addEventListener('click', () => {
+    dlList.innerHTML = '';
+    dlMap = {};
+    activeDlCount = 0;
+    updateDlBadge();
+    window.app.clearDownloads();
+    const emptyEl = document.createElement('div');
+    emptyEl.className = 'dl-empty';
+    emptyEl.id = 'dl-empty';
+    emptyEl.innerHTML = '<div class="dl-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><span>暂无下载</span>';
+    dlList.appendChild(emptyEl);
+  });
+
+  // 加载已有下载记录（启动时不显示动画）
+  window.app.getDownloads().then(function(list) {
+    list.reverse().forEach(function(dl) {
+      const item = { ...dl, justAdded: false };
+      if (dl.state === 'downloading') activeDlCount++;
+      const el = createDlItem(item);
+      el.classList.remove('new');
+      dlMap[dl.id] = el;
+      el._state = dl.state;
+      el._lastState = dl.state;
+      if (dlEmpty) dlEmpty.style.display = 'none';
+      dlList.appendChild(el);
+    });
+    updateDlBadge();
+  });
+
+  // ======== 权限管理 ========
+  const PERM_LABELS = {
+    media: { label: '媒体', title: '麦克风和摄像头' },
+    geolocation: { label: '定位', title: '地理位置' }
+  };
+
+  const PERM_SVG = {
+    media: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+    geolocation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+  };
+
+  let permState = {};
+
+  function buildPermissionUI() {
+    const container = document.getElementById('permission-list');
+    if (!container) return;
+    container.innerHTML = '';
+
+    SITE_ORDER.forEach(function(siteKey) {
+      const info = SITES[siteKey];
+      if (!info) return;
+
+      const row = document.createElement('div');
+      row.className = 'perm-row';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'perm-name';
+      nameSpan.textContent = info.name;
+
+      const togglesDiv = document.createElement('div');
+      togglesDiv.className = 'perm-toggles';
+
+      Object.keys(PERM_LABELS).forEach(function(permKey) {
+        const btn = document.createElement('button');
+        btn.className = 'perm-toggle-btn';
+        btn.dataset.site = siteKey;
+        btn.dataset.perm = permKey;
+
+        const isOn = permState[siteKey] && permState[siteKey][permKey];
+        if (isOn) btn.classList.add('on');
+
+        btn.innerHTML = PERM_SVG[permKey] + '<span>' + PERM_LABELS[permKey].label + '</span>';
+        btn.title = PERM_LABELS[permKey].title;
+
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const site = this.dataset.site;
+          const perm = this.dataset.perm;
+          const newVal = !this.classList.contains('on');
+          this.classList.toggle('on', newVal);
+          if (!permState[site]) permState[site] = {};
+          permState[site][perm] = newVal;
+          window.app.setPermission(site, perm, newVal);
+        });
+
+        togglesDiv.appendChild(btn);
+      });
+
+      row.appendChild(nameSpan);
+      row.appendChild(togglesDiv);
+      container.appendChild(row);
+    });
+  }
+
+  // 加载权限配置
+  window.app.getPermissions().then(function(config) {
+    permState = config || {};
+    buildPermissionUI();
+  });
+
+  // 打开设置时刷新权限配置
+  document.getElementById('settings-btn').addEventListener('click', function() {
+    window.app.getPermissions().then(function(config) {
+      permState = config || {};
+      buildPermissionUI();
+    });
+  });</script>
 </body>
 </html>
