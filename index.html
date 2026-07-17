@@ -46,73 +46,14 @@
     display:flex; align-items:center; padding:0 8px;
     z-index:100; -webkit-app-region:drag; flex-shrink:0;
     transition: background 0.3s;
-    gap:4px;
   }
-  #titlebar .title {
-    flex:1; text-align:center; font-size:12px; font-weight:500; color:var(--text-title);
-    -webkit-app-region:drag;
-  }
-  body.tab-mode #titlebar .title { display:none; }
-  body.tab-mode #titlebar { padding:0 4px; }
-  /* 标签栏嵌入标题栏 */
-  #titlebar .tab-bar-inner {
-    display:none; flex:1; align-items:center; gap:2px;
-    overflow-x:auto; overflow-y:hidden; height:100%;
-    scrollbar-width:thin; padding:0 2px;
-    -webkit-app-region:no-drag;
-  }
-  body.tab-mode #titlebar .tab-bar-inner { display:flex; }
-  #titlebar .tab-bar-inner::-webkit-scrollbar { height:3px; }
-  #titlebar .tab-bar-inner::-webkit-scrollbar-thumb { background:rgba(128,128,128,0.25); border-radius:3px; }
-  #titlebar .tab-bar-inner::-webkit-scrollbar-thumb:hover { background:rgba(128,128,128,0.4); }
-  #titlebar .tab-bar-inner .tab-item {
-    display:inline-flex; align-items:center; justify-content:center; gap:5px;
-    padding:3px 8px 3px 10px; border-radius:5px;
-    cursor:pointer; white-space:nowrap;
-    color:var(--text-tab); font-size:12px; font-weight:450;
-    border:none; background:transparent;
-    font-family:inherit; flex:1 1 0; min-width:60px; max-width:160px;
-    height:32px; -webkit-app-region:no-drag;
-    transition:background 0.12s, color 0.12s;
-  }
-  #titlebar .tab-bar-inner .tab-item:hover { background:var(--hover-tab); color:var(--text-tab-active); }
-  #titlebar .tab-bar-inner .tab-item.active { color:var(--text-tab-active); font-weight:500; background:var(--active-tab-bg); }
-  #titlebar .tab-bar-inner .tab-item .favicon,
-  #titlebar .tab-bar-inner .tab-item .favicon-placeholder { width:16px; height:16px; border-radius:3px; object-fit:contain; flex-shrink:0; }
-  #titlebar .tab-bar-inner .tab-item .favicon-placeholder {
-    display:flex; align-items:center; justify-content:center;
-    font-size:9px; font-weight:700; color:#fff;
-  }
-  #titlebar .tab-bar-inner .tab-item .tab-text { font-size:12px; font-weight:450; flex:none; overflow:visible; color:inherit; }
-  #titlebar .tab-bar-inner .tab-item .tab-close {
-    width:16px; height:16px; border:none; border-radius:3px;
-    background:transparent; color:var(--text-dim); cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; padding:0;
-    opacity:0; transition:opacity 0.12s, background 0.12s, color 0.12s;
-    -webkit-app-region:no-drag;
-  }
-  #titlebar .tab-bar-inner .tab-item:hover .tab-close { opacity:1; }
-  #titlebar .tab-bar-inner .tab-item .tab-close:hover { background:rgba(224,47,47,0.15); color:#e02f2f; }
-  #titlebar .tab-bar-inner .tab-item .tab-close svg { width:11px; height:11px; }
-  #titlebar .tab-bar-inner .tab-item .indicator { display:none; }
-  .tb-settings-btn {
-    display:none; width:28px; height:28px; border:none; border-radius:5px;
-    background:transparent; color:var(--text-dim); cursor:pointer;
-    align-items:center; justify-content:center;
-    flex-shrink:0; -webkit-app-region:no-drag;
-    transition:background 0.12s, color 0.12s;
-  }
-  .tb-settings-btn svg { width:14px; height:14px; }
-  body.tab-mode .tb-settings-btn { display:flex; }
-  .tb-settings-btn:hover { background:var(--btn-hover); color:var(--text-tab-active); }
+  #titlebar .title { flex:1; text-align:center; font-size:12px; font-weight:500; color:var(--text-title); }
   .win-btn {
     -webkit-app-region:no-drag;
     width:36px; height:28px; border:none; border-radius:6px;
     background:transparent; color:var(--text-dim);
     cursor:pointer; display:flex; align-items:center; justify-content:center;
     font-size:14px; transition: background 0.12s, color 0.12s;
-    flex-shrink:0;
   }
   .win-btn:hover { background:var(--win-hover); color:#333; }
   #btn-close { padding-bottom:1px; }
@@ -222,9 +163,6 @@
   }
   .theme-btn svg { width:18px; height:18px; }
   .theme-btn:hover { background:var(--btn-hover); }
-
-  /* 标签页模式下隐藏侧边栏 */
-  body.tab-mode #sidebar { display:none; }
 
   /* ========== CONTENT ========== */
   #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; position:relative; }
@@ -711,12 +649,6 @@
 
 <div id="titlebar">
   <span class="title">&#x25C6; AI Chat Hub &#x25C6;</span>
-  <div class="tab-bar-inner" id="tab-bar-inner">
-    <!-- 标签页模式下的标签由 JS 动态生成 -->
-  </div>
-  <button class="tb-settings-btn" id="tb-settings-btn" title="设置">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/><circle cx="12" cy="12" r="3"/></svg>
-  </button>
   <button class="win-btn" id="btn-min">&ndash;</button>
   <button class="win-btn" id="btn-max">&#x25A1;</button>
   <button class="win-btn" id="btn-close">&#x2715;</button>
@@ -877,28 +809,6 @@
     <div class="setting-divider"></div>
 
     <div class="setting-section">
-      <span class="setting-label">导航模式</span>
-      <div class="radio-options" id="nav-mode-options">
-        <div class="radio-option selected" data-mode="sidebar">
-          <div class="radio-circle"></div>
-          <div class="option-info">
-            <div class="option-name">侧边栏模式</div>
-            <div class="option-desc">左侧固定侧边栏，适合宽屏显示</div>
-          </div>
-        </div>
-        <div class="radio-option" data-mode="tabs">
-          <div class="radio-circle"></div>
-          <div class="option-info">
-            <div class="option-name">标签页模式</div>
-            <div class="option-desc">顶部标签栏，减少与网站侧边栏的重复</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="setting-divider"></div>
-
-    <div class="setting-section">
       <span class="setting-label">快捷键</span>
       <div class="toggle-row">
         <span class="toggle-label">启用快捷键</span>
@@ -1045,100 +955,6 @@
   }
   themeOptions.forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
   if (localStorage.getItem('aihub-theme') === 'dark') applyTheme('dark');
-
-  // ======== 导航模式切换 ========
-  const navModeOptions = document.querySelectorAll('#nav-mode-options .radio-option');
-  let navMode = localStorage.getItem('aihub-nav-mode') || 'sidebar';
-
-  function setNavMode(mode) {
-    navMode = mode;
-    localStorage.setItem('aihub-nav-mode', mode);
-    navModeOptions.forEach(function(o) { o.classList.toggle('selected', o.dataset.mode === mode); });
-    document.body.classList.toggle('tab-mode', mode === 'tabs');
-    // 始终构建标签栏（仅控制显示/隐藏），避免切换模式时重建
-    buildTabBar();
-    syncTabBar();
-  }
-
-  function buildTabBar() {
-    var container = document.getElementById('tab-bar-inner');
-    if (!container) return;
-    container.innerHTML = '';
-    SITE_ORDER.forEach(function(siteKey) {
-      var info = SITES[siteKey];
-      if (!info) return;
-      var btn = document.createElement('button');
-      btn.className = 'tab-item' + (siteKey === activeSite ? ' active' : '');
-      btn.dataset.site = siteKey;
-      btn.title = info.name;
-
-      var savedFav = localStorage.getItem('aihub-favicon-' + siteKey);
-      if (savedFav) {
-        var img = document.createElement('img');
-        img.className = 'favicon'; img.src = savedFav; img.alt = '';
-        btn.appendChild(img);
-      } else {
-        var ph = document.createElement('span');
-        ph.className = 'favicon-placeholder';
-        var abbr = siteKey === 'chatglm' ? 'GLM' : info.name.slice(0, 2).toUpperCase();
-        var colorMap = { deepseek:'#4d6bfe', yuanbao:'#00b894', doubao:'#6366f1', kimi:'#1a1a1a', minimax:'#0ea5e9', tongyi:'#6b5ce7', chatglm:'#8b5cf6' };
-        ph.style.background = colorMap[siteKey] || '#4d6bfe';
-        ph.textContent = abbr;
-        btn.appendChild(ph);
-      }
-
-      var text = document.createElement('span');
-      text.className = 'tab-text';
-      text.textContent = info.name;
-      btn.appendChild(text);
-
-      var closeBtn = document.createElement('span');
-      closeBtn.className = 'tab-close';
-      closeBtn.title = '关闭 ' + info.name;
-      closeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-      closeBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        if (loadedWebviews.has(siteKey)) unloadWebview(siteKey);
-      });
-      btn.appendChild(closeBtn);
-
-      container.appendChild(btn);
-
-      btn.onpointerdown = function(e) {
-        if (e.button === 0) {
-          e.preventDefault();
-          var site = this.dataset.site;
-          // 立即设置激活状态，不依赖 switchTab
-          document.querySelectorAll('#titlebar .tab-item.active').forEach(function(b) { b.classList.remove('active'); });
-          this.classList.add('active');
-          switchTab(site);
-        }
-      };
-      btn.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        contextMenuSite = this.dataset.site;
-        var unloadable = loadedWebviews.has(contextMenuSite);
-        var item = document.getElementById('ctx-unload');
-        item.style.opacity = unloadable ? '1' : '0.35';
-        item.style.pointerEvents = unloadable ? 'auto' : 'none';
-        if (tabCtxMenu) { tabCtxMenu.style.display = 'block'; tabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 140) + 'px'; tabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 40) + 'px'; }
-      });
-    });
-  }
-
-  function syncTabBar() {
-    var items = document.querySelectorAll('#titlebar .tab-item');
-    items.forEach(function(btn) { btn.classList.toggle('active', btn.dataset.site === activeSite); });
-  }
-
-  navModeOptions.forEach(function(opt) {
-    opt.addEventListener('click', function() { setNavMode(this.dataset.mode); });
-  });
-
-  // Tab bar 设置按钮
-  document.getElementById('tb-settings-btn').addEventListener('click', function() {
-    document.getElementById('settings-btn').click();
-  });
 
   // 快捷键开关
   const shortcutToggle = document.getElementById('shortcut-toggle');
@@ -1288,10 +1104,6 @@
     '["deepseek","yuanbao","doubao","kimi","minimax","tongyi","chatglm"]');
   let activeSite = 'deepseek';
 
-  // 导航模式初始化（必须在 SITES/SITE_ORDER 之后）
-  buildTabBar();
-  setNavMode(navMode);
-
   // 按 SITE_ORDER 重排 DOM
   (function reorderDOM(order) {
     const nav = document.querySelector('.sidebar-nav');
@@ -1419,7 +1231,6 @@
     siteTag.className = 'site-tag ' + info.cls;
     updateUrl();
     updateNavState();
-    if (typeof syncTabBar === 'function') syncTabBar();
   }
   tabItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.site)));
   window.app.onSwitchSite((site) => { switchTab(site); });

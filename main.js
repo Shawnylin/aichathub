@@ -16,6 +16,9 @@ app.commandLine.appendSwitch('js-flags', '--max-old-space-size=512');
 // ======== 禁用硬件加速（解决某些 Windows 系统 GPU 兼容问题）=======
 app.disableHardwareAcceleration();
 
+// ======== 禁用硬件加速（解决某些 Windows 系统 GPU 兼容问题）=======
+app.disableHardwareAcceleration();
+
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
@@ -227,13 +230,7 @@ function createWindow() {
     },
   });
 
-  const pageUrl = `file:///${__dirname.replace(/\\/g, '/')}/index.html`;
-  log.info(`Loading: ${pageUrl}`);
-  mainWindow.loadURL(pageUrl);
-  mainWindow.webContents.on('did-start-loading', () => log.info('[page] start'));
-  mainWindow.webContents.on('did-stop-loading', () => log.info('[page] stop'));
-  mainWindow.webContents.on('dom-ready', () => log.info('[page] dom-ready'));
-  mainWindow.webContents.on('did-fail-load', (_e, code, desc, url) => log.warn(`[page] fail: ${code} ${desc} (${url})`));
+  mainWindow.loadURL(`file:///${__dirname.replace(/\\/g, '/')}/index.html`);
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
