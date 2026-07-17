@@ -13,6 +13,9 @@ log.info('App starting, version:', app.getVersion());
 // ======== V8 配置 ========
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=512');
 
+// ======== 禁用硬件加速（解决某些 Windows 系统黑屏问题）=======
+app.disableHardwareAcceleration();
+
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
@@ -215,8 +218,7 @@ function createWindow() {
     minWidth: 480,
     minHeight: 600,
     frame: false,
-    show: false,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: '#1a1a2e',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
