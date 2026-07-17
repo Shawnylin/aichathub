@@ -229,10 +229,10 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
-  // 捕获渲染进程控制台错误
+  // 渲染进程控制台日志转发
   mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
     const levelMap = { 0:'verbose', 1:'info', 2:'warning', 3:'error' };
-    if (level >= 2) log.warn(`[renderer:${levelMap[level]}] ${message} (${sourceId}:${line})`);
+    log.info(`[renderer:${levelMap[level]}] ${message}`);
   });
 
   mainWindow.webContents.on('render-process-gone', (event, details) => {
@@ -243,12 +243,12 @@ function createWindow() {
     log.error('[renderer] unresponsive');
   });
 
-  // 开发模式下自动打开 DevTools（方便查渲染进程错误）
-  if (!app.isPackaged) mainWindow.webContents.openDevTools({ mode: 'detach' });
+  const bounds = mainWindow.getBounds();
+  log.info(`Window created: ${bounds.width}x${bounds.height} at (${bounds.x},${bounds.y})`);
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-  });
+  // 强制立即显示
+  mainWindow.show();
+  mainWindow.focus();
 
   mainWindow.on('maximize', () => {
     if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('maximize-change', true);
