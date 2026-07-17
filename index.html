@@ -46,14 +46,73 @@
     display:flex; align-items:center; padding:0 8px;
     z-index:100; -webkit-app-region:drag; flex-shrink:0;
     transition: background 0.3s;
+    gap:4px;
   }
-  #titlebar .title { flex:1; text-align:center; font-size:12px; font-weight:500; color:var(--text-title); }
+  #titlebar .title {
+    flex:1; text-align:center; font-size:12px; font-weight:500; color:var(--text-title);
+    -webkit-app-region:drag;
+  }
+  body.tab-mode #titlebar .title { display:none; }
+  body.tab-mode #titlebar { padding:0 4px; }
+  /* 标签栏嵌入标题栏 */
+  #titlebar .tab-bar-inner {
+    display:none; flex:1; align-items:center; gap:2px;
+    overflow-x:auto; overflow-y:hidden; height:100%;
+    scrollbar-width:thin; padding:0 2px;
+    -webkit-app-region:no-drag;
+  }
+  body.tab-mode #titlebar .tab-bar-inner { display:flex; }
+  #titlebar .tab-bar-inner::-webkit-scrollbar { height:3px; }
+  #titlebar .tab-bar-inner::-webkit-scrollbar-thumb { background:rgba(128,128,128,0.25); border-radius:3px; }
+  #titlebar .tab-bar-inner::-webkit-scrollbar-thumb:hover { background:rgba(128,128,128,0.4); }
+  #titlebar .tab-bar-inner .tab-item {
+    display:inline-flex; align-items:center; justify-content:center; gap:5px;
+    padding:3px 8px 3px 10px; border-radius:5px;
+    cursor:pointer; white-space:nowrap;
+    color:var(--text-tab); font-size:12px; font-weight:450;
+    border:none; background:transparent;
+    font-family:inherit; flex:1 1 0; min-width:60px; max-width:160px;
+    height:32px; -webkit-app-region:no-drag;
+    transition:background 0.12s, color 0.12s;
+  }
+  #titlebar .tab-bar-inner .tab-item:hover { background:var(--hover-tab); color:var(--text-tab-active); }
+  #titlebar .tab-bar-inner .tab-item.active { color:var(--text-tab-active); font-weight:500; background:var(--active-tab-bg); }
+  #titlebar .tab-bar-inner .tab-item .favicon,
+  #titlebar .tab-bar-inner .tab-item .favicon-placeholder { width:16px; height:16px; border-radius:3px; object-fit:contain; flex-shrink:0; }
+  #titlebar .tab-bar-inner .tab-item .favicon-placeholder {
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; font-weight:700; color:#fff;
+  }
+  #titlebar .tab-bar-inner .tab-item .tab-text { font-size:12px; font-weight:450; flex:none; overflow:visible; color:inherit; }
+  #titlebar .tab-bar-inner .tab-item .tab-close {
+    width:16px; height:16px; border:none; border-radius:3px;
+    background:transparent; color:var(--text-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; padding:0;
+    opacity:0; transition:opacity 0.12s, background 0.12s, color 0.12s;
+    -webkit-app-region:no-drag;
+  }
+  #titlebar .tab-bar-inner .tab-item:hover .tab-close { opacity:1; }
+  #titlebar .tab-bar-inner .tab-item .tab-close:hover { background:rgba(224,47,47,0.15); color:#e02f2f; }
+  #titlebar .tab-bar-inner .tab-item .tab-close svg { width:11px; height:11px; }
+  #titlebar .tab-bar-inner .tab-item .indicator { display:none; }
+  .tb-settings-btn {
+    display:none; width:28px; height:28px; border:none; border-radius:5px;
+    background:transparent; color:var(--text-dim); cursor:pointer;
+    align-items:center; justify-content:center;
+    flex-shrink:0; -webkit-app-region:no-drag;
+    transition:background 0.12s, color 0.12s;
+  }
+  .tb-settings-btn svg { width:14px; height:14px; }
+  body.tab-mode .tb-settings-btn { display:flex; }
+  .tb-settings-btn:hover { background:var(--btn-hover); color:var(--text-tab-active); }
   .win-btn {
     -webkit-app-region:no-drag;
     width:36px; height:28px; border:none; border-radius:6px;
     background:transparent; color:var(--text-dim);
     cursor:pointer; display:flex; align-items:center; justify-content:center;
     font-size:14px; transition: background 0.12s, color 0.12s;
+    flex-shrink:0;
   }
   .win-btn:hover { background:var(--win-hover); color:#333; }
   #btn-close { padding-bottom:1px; }
@@ -164,69 +223,8 @@
   .theme-btn svg { width:18px; height:18px; }
   .theme-btn:hover { background:var(--btn-hover); }
 
-  /* ========== TAB BAR (标签页模式) ========== */
-  #tab-bar {
-    height:44px; background:var(--bg-navbar);
-    border-bottom:1px solid var(--border-nav);
-    display:none; align-items:center; padding:0; gap:0;
-    flex-shrink:0; overflow:hidden;
-    transition: background 0.3s, border-color 0.3s;
-  }
+  /* 标签页模式下隐藏侧边栏 */
   body.tab-mode #sidebar { display:none; }
-  body.tab-mode #tab-bar { display:flex; }
-  .tab-bar-inner {
-    flex:1; display:flex; align-items:center; gap:2px;
-    overflow-x:auto; overflow-y:hidden;
-    padding:0 6px;
-    scrollbar-width:thin;
-  }
-  .tab-bar-inner::-webkit-scrollbar { height:4px; }
-  .tab-bar-inner::-webkit-scrollbar-track { background:transparent; }
-  .tab-bar-inner::-webkit-scrollbar-thumb { background:rgba(128,128,128,0.3); border-radius:3px; }
-  .tab-bar-inner::-webkit-scrollbar-thumb:hover { background:rgba(128,128,128,0.5); }
-  #tab-bar .tab-item {
-    display:inline-flex; align-items:center; justify-content:center; gap:6px;
-    padding:4px 10px 4px 12px; border-radius:6px;
-    cursor:pointer; white-space:nowrap;
-    color:var(--text-tab); font-size:13px; font-weight:450;
-    border:none; background:transparent;
-    font-family:inherit;
-    flex:1 1 0; min-width:80px; max-width:200px;
-    transition:background 0.12s, color 0.12s;
-  }
-  #tab-bar .tab-item:hover { background:var(--hover-tab); color:var(--text-tab-active); }
-  #tab-bar .tab-item.active { color:var(--text-tab-active); font-weight:500; background:var(--active-tab-bg); }
-  #tab-bar .tab-item .favicon,
-  #tab-bar .tab-item .favicon-placeholder { width:16px; height:16px; border-radius:3px; object-fit:contain; flex-shrink:0; }
-  #tab-bar .tab-item .favicon-placeholder {
-    display:flex; align-items:center; justify-content:center;
-    font-size:9px; font-weight:700; color:#fff;
-  }
-  #tab-bar .tab-item .tab-text {
-    font-size:13px; font-weight:450;
-    flex:none; overflow:visible;
-    color:inherit;
-  }
-  #tab-bar .tab-item .tab-close {
-    width:18px; height:18px; border:none; border-radius:4px;
-    background:transparent; color:var(--text-dim); cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; padding:0;
-    opacity:0; transition:opacity 0.12s, background 0.12s, color 0.12s;
-  }
-  #tab-bar .tab-item:hover .tab-close { opacity:1; }
-  #tab-bar .tab-item .tab-close:hover { background:rgba(224,47,47,0.15); color:#e02f2f; }
-  #tab-bar .tab-item .tab-close svg { width:13px; height:13px; }
-  #tab-bar .tab-item .indicator { display:none; }
-  .tab-bar-settings {
-    width:32px; height:32px; border:none; border-radius:6px;
-    background:transparent; color:var(--text-dim); cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; transition:background 0.12s, color 0.12s;
-    margin-left:4px;
-  }
-  .tab-bar-settings svg { width:16px; height:16px; }
-  .tab-bar-settings:hover { background:var(--btn-hover); color:var(--text-tab-active); }
 
   /* ========== CONTENT ========== */
   #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; position:relative; }
@@ -713,6 +711,12 @@
 
 <div id="titlebar">
   <span class="title">&#x25C6; AI Chat Hub &#x25C6;</span>
+  <div class="tab-bar-inner" id="tab-bar-inner">
+    <!-- 标签页模式下的标签由 JS 动态生成 -->
+  </div>
+  <button class="tb-settings-btn" id="tb-settings-btn" title="设置">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/><circle cx="12" cy="12" r="3"/></svg>
+  </button>
   <button class="win-btn" id="btn-min">&ndash;</button>
   <button class="win-btn" id="btn-max">&#x25A1;</button>
   <button class="win-btn" id="btn-close">&#x2715;</button>
@@ -799,16 +803,6 @@
   </div>
 
   <div id="content">
-    <!-- 标签页模式导航栏 -->
-    <div id="tab-bar">
-      <div class="tab-bar-inner" id="tab-bar-inner">
-        <!-- 由 JS 动态生成 -->
-      </div>
-      <button class="tab-bar-settings" id="tab-bar-settings" title="设置">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/><circle cx="12" cy="12" r="3"/></svg>
-      </button>
-    </div>
-
     <div id="navbar">
       <button class="nav-btn" id="nav-back" title="后退">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
@@ -1115,7 +1109,7 @@
           e.preventDefault();
           var site = this.dataset.site;
           // 立即设置激活状态，不依赖 switchTab
-          document.querySelectorAll('#tab-bar .tab-item.active').forEach(function(b) { b.classList.remove('active'); });
+          document.querySelectorAll('#titlebar .tab-item.active').forEach(function(b) { b.classList.remove('active'); });
           this.classList.add('active');
           switchTab(site);
         }
@@ -1133,7 +1127,7 @@
   }
 
   function syncTabBar() {
-    var items = document.querySelectorAll('#tab-bar .tab-item');
+    var items = document.querySelectorAll('#titlebar .tab-item');
     items.forEach(function(btn) { btn.classList.toggle('active', btn.dataset.site === activeSite); });
   }
 
@@ -1142,7 +1136,7 @@
   });
 
   // Tab bar 设置按钮
-  document.getElementById('tab-bar-settings').addEventListener('click', function() {
+  document.getElementById('tb-settings-btn').addEventListener('click', function() {
     document.getElementById('settings-btn').click();
   });
 
