@@ -1111,7 +1111,16 @@
 
       container.appendChild(btn);
 
-      btn.addEventListener('mousedown', function(e) { if (e.button === 0) { e.preventDefault(); switchTab(this.dataset.site); } });
+      btn.onpointerdown = function(e) {
+        if (e.button === 0) {
+          e.preventDefault();
+          var site = this.dataset.site;
+          // 立即设置激活状态，不依赖 switchTab
+          document.querySelectorAll('#tab-bar .tab-item.active').forEach(function(b) { b.classList.remove('active'); });
+          this.classList.add('active');
+          switchTab(site);
+        }
+      };
       btn.addEventListener('contextmenu', function(e) {
         e.preventDefault();
         contextMenuSite = this.dataset.site;
