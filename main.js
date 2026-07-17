@@ -225,17 +225,18 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile('index.html');
+  mainWindow.loadFile('index.html').catch(err => {
+    log.error('Failed to load index.html:', err);
+  });
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
-  // 渲染进程控制台日志转发
-  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+  mainWindow.webContents.on('console-message', (_event, level, message) => {
     const levelMap = { 0:'verbose', 1:'info', 2:'warning', 3:'error' };
-    log.info(`[renderer:${levelMap[level]}] ${message}`);
+    log.info(`[renderer:${levelMap[level] || '?'}] ${message}`);
   });
 
-  mainWindow.webContents.on('render-process-gone', (event, details) => {
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
     log.error(`[renderer] process gone: ${details.reason}`);
   });
 
@@ -245,6 +246,11 @@ function createWindow() {
 
   const bounds = mainWindow.getBounds();
   log.info(`Window created: ${bounds.width}x${bounds.height} at (${bounds.x},${bounds.y})`);
+
+  // 自动打开 DevTools（开发模式）
+  if (!app.isPackaged) {
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+  }
 
   // 强制立即显示
   mainWindow.show();
