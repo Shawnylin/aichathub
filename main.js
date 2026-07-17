@@ -229,6 +229,23 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
+  // 捕获渲染进程控制台错误
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    const levelMap = { 0:'verbose', 1:'info', 2:'warning', 3:'error' };
+    if (level >= 2) log.warn(`[renderer:${levelMap[level]}] ${message} (${sourceId}:${line})`);
+  });
+
+  mainWindow.webContents.on('render-process-gone', (event, details) => {
+    log.error(`[renderer] process gone: ${details.reason}`);
+  });
+
+  mainWindow.webContents.on('unresponsive', () => {
+    log.error('[renderer] unresponsive');
+  });
+
+  // 开发模式下自动打开 DevTools（方便查渲染进程错误）
+  if (!app.isPackaged) mainWindow.webContents.openDevTools({ mode: 'detach' });
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
