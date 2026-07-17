@@ -1026,6 +1026,52 @@
 
 
 
+<!-- 悬浮球自定义二级页面 -->
+<div id="fb-custom-overlay">
+  <div id="fb-custom-dialog">
+    <div class="fb-custom-header">
+      <h3>悬浮球自定义</h3>
+      <button id="fb-custom-close" title="关闭">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="fb-preview-wrap">
+      <div class="fb-preview-ball" id="fb-preview">
+        <div class="fb-preview-glow"></div>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="fb-custom-body">
+      <div class="fb-color-options" id="fb-color-options" style="justify-content:center;">
+        <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
+        <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
+        <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
+        <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
+        <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
+        <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
+      </div>
+      <div class="fb-slider-row">
+        <label>大小</label>
+        <input type="range" id="fb-size" min="32" max="88" value="44">
+        <span class="fb-slider-val" id="fb-size-val">44</span>
+      </div>
+      <div class="fb-slider-row">
+        <label>光晕</label>
+        <input type="range" id="fb-glow" min="0" max="100" value="100">
+        <span class="fb-slider-val" id="fb-glow-val">100</span>
+      </div>
+      <div class="fb-slider-row">
+        <label>高光</label>
+        <input type="range" id="fb-highlight" min="0" max="100" value="100">
+        <span class="fb-slider-val" id="fb-highlight-val">100</span>
+      </div>
+    </div>
+    <button id="fb-custom-back">返回设置</button>
+  </div>
+</div>
+
 <script>
   const sidebar = document.getElementById('sidebar');
   const collapseBtn = document.getElementById('collapse-btn');
@@ -1137,8 +1183,6 @@
     });
   }
 
-  // Init nav mode
-  setNavMode(navMode);
   navModeOptions.forEach(function(opt) {
     opt.addEventListener('click', function() {
       setNavMode(this.dataset.mode);
@@ -1325,6 +1369,9 @@
   let SITE_ORDER = JSON.parse(localStorage.getItem('aihub-site-order') ||
     '["deepseek","yuanbao","doubao","kimi","minimax","tongyi","chatglm"]');
   let activeSite = 'deepseek';
+
+  // 初始化导航模式（必须在 SITES/SITE_ORDER 之后）
+  setNavMode(navMode);
 
   // 按 SITE_ORDER 重排 DOM
   (function reorderDOM(order) {
@@ -2120,52 +2167,6 @@
       buildPermissionUI();
     });
   });</script>
-
-<!-- 悬浮球自定义二级页面 -->
-<div id="fb-custom-overlay">
-  <div id="fb-custom-dialog">
-    <div class="fb-custom-header">
-      <h3>悬浮球自定义</h3>
-      <button id="fb-custom-close" title="关闭">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="fb-preview-wrap">
-      <div class="fb-preview-ball" id="fb-preview">
-        <div class="fb-preview-glow"></div>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-      </div>
-    </div>
-    <div class="fb-custom-body">
-      <div class="fb-color-options" id="fb-color-options" style="justify-content:center;">
-        <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
-        <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
-        <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
-        <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
-        <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
-        <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
-      </div>
-      <div class="fb-slider-row">
-        <label>大小</label>
-        <input type="range" id="fb-size" min="32" max="88" value="44">
-        <span class="fb-slider-val" id="fb-size-val">44</span>
-      </div>
-      <div class="fb-slider-row">
-        <label>光晕</label>
-        <input type="range" id="fb-glow" min="0" max="100" value="100">
-        <span class="fb-slider-val" id="fb-glow-val">100</span>
-      </div>
-      <div class="fb-slider-row">
-        <label>高光</label>
-        <input type="range" id="fb-highlight" min="0" max="100" value="100">
-        <span class="fb-slider-val" id="fb-highlight-val">100</span>
-      </div>
-    </div>
-    <button id="fb-custom-back">返回设置</button>
-  </div>
-</div>
 
 </body>
 </html>
