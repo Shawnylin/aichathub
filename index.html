@@ -168,28 +168,30 @@
   #tab-bar {
     height:44px; background:var(--bg-navbar);
     border-bottom:1px solid var(--border-nav);
-    display:none; align-items:center; padding:0 8px; gap:3px;
+    display:none; align-items:center; padding:0; gap:0;
     flex-shrink:0; overflow:hidden;
     transition: background 0.3s, border-color 0.3s;
   }
   body.tab-mode #sidebar { display:none; }
   body.tab-mode #tab-bar { display:flex; }
   .tab-bar-inner {
-    flex:1; display:flex; align-items:center; gap:3px;
+    flex:1; display:flex; align-items:center; gap:2px;
     overflow-x:auto; overflow-y:hidden;
+    padding:0 6px;
     scrollbar-width:thin;
-    scrollbar-color:transparent transparent;
   }
-  .tab-bar-inner::-webkit-scrollbar { height:3px; }
-  .tab-bar-inner::-webkit-scrollbar-thumb { background:transparent; border-radius:2px; }
-  .tab-bar-inner:hover::-webkit-scrollbar-thumb { background:var(--border-btn); }
+  .tab-bar-inner::-webkit-scrollbar { height:4px; }
+  .tab-bar-inner::-webkit-scrollbar-track { background:transparent; }
+  .tab-bar-inner::-webkit-scrollbar-thumb { background:rgba(128,128,128,0.3); border-radius:3px; }
+  .tab-bar-inner::-webkit-scrollbar-thumb:hover { background:rgba(128,128,128,0.5); }
   #tab-bar .tab-item {
-    display:inline-flex; align-items:center; gap:4px;
-    padding:5px 8px; border-radius:6px;
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 10px 4px 8px; border-radius:6px;
     cursor:pointer; white-space:nowrap;
-    color:var(--text-tab); font-size:11px; font-weight:500;
-    border:none; background:none;
+    color:var(--text-tab); font-size:12px; font-weight:450;
+    border:none; background:transparent;
     font-family:inherit; flex-shrink:0;
+    width:auto; min-width:0; position:relative;
     transition:background 0.12s, color 0.12s;
   }
   #tab-bar .tab-item:hover { background:var(--hover-tab); color:var(--text-tab-active); }
@@ -200,6 +202,17 @@
     display:flex; align-items:center; justify-content:center;
     font-size:9px; font-weight:700; color:#fff;
   }
+  #tab-bar .tab-item .tab-text { font-size:12px; }
+  #tab-bar .tab-item .tab-close {
+    width:16px; height:16px; border:none; border-radius:3px;
+    background:transparent; color:var(--text-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; padding:0; margin-left:2px;
+    opacity:0; transition:opacity 0.12s, background 0.12s, color 0.12s;
+  }
+  #tab-bar .tab-item:hover .tab-close { opacity:1; }
+  #tab-bar .tab-item .tab-close:hover { background:rgba(224,47,47,0.15); color:#e02f2f; }
+  #tab-bar .tab-item .tab-close svg { width:12px; height:12px; }
   #tab-bar .tab-item .indicator { display:none; }
   .tab-bar-settings {
     width:32px; height:32px; border:none; border-radius:6px;
@@ -1077,11 +1090,21 @@
         btn.appendChild(ph);
       }
 
-      var abbrMap = { deepseek:'DS', yuanbao:'元宝', doubao:'豆包', kimi:'Kimi', minimax:'Mini', tongyi:'千问', chatglm:'GLM' };
       var text = document.createElement('span');
       text.className = 'tab-text';
-      text.textContent = abbrMap[siteKey] || info.name.slice(0, 2);
+      text.textContent = info.name;
       btn.appendChild(text);
+
+      var closeBtn = document.createElement('span');
+      closeBtn.className = 'tab-close';
+      closeBtn.title = '关闭 ' + info.name;
+      closeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (loadedWebviews.has(siteKey)) unloadWebview(siteKey);
+      });
+      btn.appendChild(closeBtn);
+
       container.appendChild(btn);
 
       btn.addEventListener('click', function() { switchTab(this.dataset.site); syncTabBar(); });
