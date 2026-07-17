@@ -13,7 +13,7 @@ log.info('App starting, version:', app.getVersion());
 // ======== V8 配置 ========
 app.commandLine.appendSwitch('js-flags', '--max-old-space-size=512');
 
-// ======== 禁用硬件加速（解决某些 Windows 系统黑屏问题）=======
+// ======== 禁用硬件加速（解决某些 Windows 系统 GPU 兼容问题）=======
 app.disableHardwareAcceleration();
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -218,7 +218,7 @@ function createWindow() {
     minWidth: 480,
     minHeight: 600,
     frame: false,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#0a0a0a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -227,27 +227,8 @@ function createWindow() {
     },
   });
 
-  const loadStart = Date.now();
-  const indexPath = path.join(__dirname, 'index.html');
-  log.info(`Loading index.html from: ${indexPath}`);
-
-  // 先用 loadURL 测试基本渲染
-  mainWindow.loadURL(`data:text/html,<h1 style="color:white;padding:40px;font-family:sans-serif">Test: App is running</h1>`);
-  log.info(`Test page loaded, will load real page after`);
-
-  mainWindow.webContents.on('dom-ready', () => {
-    log.info(`[page] dom-ready after ${Date.now() - loadStart}ms`);
-    // DOM ready 后再切换到真实页面
-    mainWindow.loadFile(indexPath).then(() => {
-      log.info(`Real page loaded in ${Date.now() - loadStart}ms`);
-    }).catch(err => {
-      log.error('Failed to load index.html:', err);
-    });
-  });
-
-  mainWindow.webContents.on('did-start-loading', () => log.info('[page] start loading'));
-  mainWindow.webContents.on('did-stop-loading', () => log.info('[page] stop loading'));
-  mainWindow.webContents.on('did-finish-load', () => log.info('[page] finish load'));
+  // 使用 file:// URL 而非 loadFile（Electron 42 在某些 Windows 版本上 loadFile 会挂起）
+  mainWindow.loadURL(`file:///${__dirname.replace(/\\/g, '/')}/index.html`);
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
