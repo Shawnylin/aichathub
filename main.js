@@ -227,9 +227,18 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile('index.html').catch(err => {
+  const loadStart = Date.now();
+  mainWindow.loadFile('index.html').then(() => {
+    log.info(`Page loaded successfully in ${Date.now() - loadStart}ms`);
+  }).catch(err => {
     log.error('Failed to load index.html:', err);
   });
+
+  // 监控页面加载状态
+  mainWindow.webContents.on('did-start-loading', () => log.info('[page] start loading'));
+  mainWindow.webContents.on('did-stop-loading', () => log.info('[page] stop loading'));
+  mainWindow.webContents.on('did-finish-load', () => log.info('[page] finish load'));
+  mainWindow.webContents.on('dom-ready', () => log.info('[page] dom-ready'));
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
