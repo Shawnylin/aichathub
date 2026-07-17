@@ -351,13 +351,28 @@ function registerIpcHandlers() {
   });
 
   ipcMain.handle('download-update', () => {
-    autoUpdater.downloadUpdate();
-    return true;
+    if (!app.isPackaged) {
+      sendUpdateStatus('error', '开发模式无法下载更新');
+      return false;
+    }
+    try {
+      autoUpdater.downloadUpdate();
+      return true;
+    } catch (e) {
+      log.error('downloadUpdate error:', e.message);
+      sendUpdateStatus('error', e.message);
+      return false;
+    }
   });
 
   ipcMain.handle('install-update', () => {
-    autoUpdater.quitAndInstall();
-    return true;
+    try {
+      autoUpdater.quitAndInstall();
+      return true;
+    } catch (e) {
+      log.error('installUpdate error:', e.message);
+      return false;
+    }
   });
 
   ipcMain.handle('get-app-version', () => app.getVersion());

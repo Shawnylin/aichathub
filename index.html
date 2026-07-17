@@ -527,7 +527,7 @@
     color:#fff;
     transition: height 0.3s cubic-bezier(0.4,0,0.2,1);
   }
-  #update-bar.show { height:44px; }
+  #update-bar.show { height:44px; overflow:visible; }
   #update-bar .update-icon { font-size:16px; }
   #update-bar .update-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #update-bar .update-progress {
@@ -1469,25 +1469,37 @@
   var updateProgressFill = document.getElementById('update-progress-fill');
   var updateDismiss = document.getElementById('update-dismiss');
   var updateStatusText = document.getElementById('update-status-text');
+  var updateBarEl = document.getElementById('update-bar');
 
   function showUpdateBar(text, showBtn, btnText, btnAction) {
     updateText.textContent = text;
     if (showBtn) {
       updateBtn.style.display = '';
       updateBtn.textContent = btnText || '';
-      updateBtn.onclick = btnAction || null;
+      // 先移除旧的事件监听（避免重复绑定），再添加新的事件
+      updateBtn._clickHandler && updateBtn.removeEventListener('click', updateBtn._clickHandler);
+      updateBtn._clickHandler = function(e) {
+        e.stopPropagation();
+        if (typeof btnAction === 'function') {
+          try { btnAction(); } catch(err) { console.error('Update action error:', err); }
+        }
+      };
+      updateBtn.addEventListener('click', updateBtn._clickHandler);
     } else {
       updateBtn.style.display = 'none';
     }
     updateProgress.style.display = 'none';
-    updateBar.classList.add('show');
+    updateBarEl.classList.add('show');
   }
 
   function hideUpdateBar() {
-    updateBar.classList.remove('show');
+    updateBarEl.classList.remove('show');
   }
 
-  updateDismiss.addEventListener('click', hideUpdateBar);
+  updateDismiss.addEventListener('click', function(e) {
+    e.stopPropagation();
+    hideUpdateBar();
+  });
 
   // 主更新状态处理
   window.app.onUpdateStatus(function(status, info) {
