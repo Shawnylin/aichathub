@@ -79,6 +79,9 @@ let floatBall = null;
 let isQuitting = false;
 let floatBallEnabled = true;
 let floatBallPos = null;
+let appAccentColor = '#10a37f';
+const FLOAT_BALL_SIZE = 120;
+const FLOAT_BALL_EDGE_GAP = 12;
 
 // ======== 下载管理 ========
 let downloads = [];
@@ -92,6 +95,11 @@ function loadConfig() {
     if (fs.existsSync(configPath)) {
       const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
       if (cfg.downloadPath) downloadPath = cfg.downloadPath;
+      if (cfg.floatBallPosition && Number.isFinite(cfg.floatBallPosition.x) && Number.isFinite(cfg.floatBallPosition.y)) {
+        floatBallPos = cfg.floatBallPosition;
+      }
+      if (typeof cfg.floatBallEnabled === 'boolean') floatBallEnabled = cfg.floatBallEnabled;
+      if (typeof cfg.appAccentColor === 'string' && /^#[0-9a-f]{6}$/i.test(cfg.appAccentColor)) appAccentColor = cfg.appAccentColor;
     }
   } catch (e) { log.warn('Failed to load config:', e.message); }
 }
@@ -297,8 +305,13 @@ function registerIpcHandlers() {
 
   // 悬浮球
   ipcMain.on('set-float-ball', (_, enabled) => {
-    floatBallEnabled = enabled;
-    if (!enabled) destroyFloatBall();
+    setFloatBallEnabled(enabled);
+  });
+
+  ipcMain.handle('get-float-ball-enabled', () => floatBallEnabled);
+
+  ipcMain.on('reset-float-ball-position', () => {
+    resetFloatBallPosition();
   });
 
   ipcMain.on('update-site-order', (_, order) => {
@@ -306,14 +319,17 @@ function registerIpcHandlers() {
     if (tray) buildTrayMenu();
   });
 
-  ipcMain.on('update-floatball-settings', () => {
-    if (floatBall && !floatBall.isDestroyed()) {
-      floatBall.webContents.send('apply-floatball-settings');
-    }
-  });
-
   ipcMain.on('set-theme', (_, theme) => {
     nativeTheme.themeSource = theme;
+  });
+
+  ipcMain.on('set-accent-color', (_, color) => {
+    if (typeof color !== 'string' || !/^#[0-9a-f]{6}$/i.test(color)) return;
+    appAccentColor = color;
+    saveConfig('appAccentColor', appAccentColor);
+    if (floatBall && !floatBall.isDestroyed()) {
+      floatBall.webContents.send('float-ball-accent-change', appAccentColor);
+    }
   });
 
   ipcMain.on('show-context-menu', (_, action) => {
@@ -375,21 +391,27 @@ function registerIpcHandlers() {
     }
   });
 
-  ipcMain.on('float-ball-close', () => {
-    floatBallEnabled = false;
-    destroyFloatBall();
-    if (tray) buildTrayMenu();
-  });
-
   ipcMain.on('float-ball-context-menu', () => {
     if (!floatBall) return;
     const menu = Menu.buildFromTemplate([
       {
+        label: '打开 AI Chat Hub',
+        click: () => {
+          if (mainWindow) {
+            mainWindow.show();
+            mainWindow.focus();
+          }
+        }
+      },
+      {
+        label: '恢复默认位置',
+        click: () => resetFloatBallPosition()
+      },
+      { type: 'separator' },
+      {
         label: '关闭悬浮窗',
         click: () => {
-          floatBallEnabled = false;
-          destroyFloatBall();
-          if (tray) buildTrayMenu();
+          setFloatBallEnabled(false);
         }
       }
     ]);
@@ -399,11 +421,18 @@ function registerIpcHandlers() {
   ipcMain.on('float-ball-drag', (_, dx, dy) => {
     if (floatBall && Number.isFinite(dx) && Number.isFinite(dy)) {
       const [x, y] = floatBall.getPosition();
-      const nx = Math.round(x + dx);
-      const ny = Math.round(y + dy);
-      floatBall.setPosition(nx, ny);
-      floatBallPos = { x: nx, y: ny };
+      const position = clampFloatBallPosition({ x: x + dx, y: y + dy });
+      floatBall.setPosition(position.x, position.y);
+      floatBallPos = position;
     }
+  });
+
+  ipcMain.on('float-ball-drag-end', () => {
+    if (!floatBall || floatBall.isDestroyed()) return;
+    const [x, y] = floatBall.getPosition();
+    floatBallPos = snapFloatBallPosition({ x, y });
+    floatBall.setPosition(floatBallPos.x, floatBallPos.y);
+    saveConfig('floatBallPosition', floatBallPos);
   });
 
   // ======== 下载管理 IPC ========
@@ -563,12 +592,9 @@ autoUpdater.on('error', (err) => {
 // ======== 悬浮球 ========
 function createFloatBall() {
   if (floatBall) return;
-  if (!floatBallPos) {
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-    floatBallPos = { x: width - 196, y: height - 196 };
-  }
+  floatBallPos = clampFloatBallPosition(floatBallPos || getDefaultFloatBallPosition());
   floatBall = new BrowserWindow({
-    width: 180, height: 180,
+    width: FLOAT_BALL_SIZE, height: FLOAT_BALL_SIZE,
     x: floatBallPos.x,
     y: floatBallPos.y,
     alwaysOnTop: true,
@@ -585,6 +611,11 @@ function createFloatBall() {
   });
 
   floatBall.loadFile(path.join(__dirname, 'floatball.html'));
+  floatBall.webContents.once('did-finish-load', () => {
+    if (floatBall && !floatBall.isDestroyed()) {
+      floatBall.webContents.send('float-ball-accent-change', appAccentColor);
+    }
+  });
   floatBall.setAlwaysOnTop(true, 'floating');
   floatBall.on('closed', () => { floatBall = null; });
 }
@@ -594,6 +625,64 @@ function destroyFloatBall() {
     floatBall.close();
     floatBall = null;
   }
+}
+
+function getDefaultFloatBallPosition() {
+  const { workArea } = screen.getPrimaryDisplay();
+  return {
+    x: workArea.x + workArea.width - FLOAT_BALL_SIZE - FLOAT_BALL_EDGE_GAP,
+    y: workArea.y + workArea.height - FLOAT_BALL_SIZE - FLOAT_BALL_EDGE_GAP
+  };
+}
+
+function clampFloatBallPosition(position) {
+  const fallback = getDefaultFloatBallPosition();
+  const point = {
+    x: Number.isFinite(position?.x) ? position.x + FLOAT_BALL_SIZE / 2 : fallback.x + FLOAT_BALL_SIZE / 2,
+    y: Number.isFinite(position?.y) ? position.y + FLOAT_BALL_SIZE / 2 : fallback.y + FLOAT_BALL_SIZE / 2
+  };
+  const { workArea } = screen.getDisplayNearestPoint(point);
+  const minX = workArea.x + FLOAT_BALL_EDGE_GAP;
+  const maxX = workArea.x + workArea.width - FLOAT_BALL_SIZE - FLOAT_BALL_EDGE_GAP;
+  const minY = workArea.y + FLOAT_BALL_EDGE_GAP;
+  const maxY = workArea.y + workArea.height - FLOAT_BALL_SIZE - FLOAT_BALL_EDGE_GAP;
+  return {
+    x: Math.round(Math.min(Math.max(point.x - FLOAT_BALL_SIZE / 2, minX), maxX)),
+    y: Math.round(Math.min(Math.max(point.y - FLOAT_BALL_SIZE / 2, minY), maxY))
+  };
+}
+
+function snapFloatBallPosition(position) {
+  const clamped = clampFloatBallPosition(position);
+  const { workArea } = screen.getDisplayNearestPoint({
+    x: clamped.x + FLOAT_BALL_SIZE / 2,
+    y: clamped.y + FLOAT_BALL_SIZE / 2
+  });
+  const left = workArea.x + FLOAT_BALL_EDGE_GAP;
+  const right = workArea.x + workArea.width - FLOAT_BALL_SIZE - FLOAT_BALL_EDGE_GAP;
+  return { ...clamped, x: clamped.x + FLOAT_BALL_SIZE / 2 < workArea.x + workArea.width / 2 ? left : right };
+}
+
+function resetFloatBallPosition() {
+  floatBallPos = getDefaultFloatBallPosition();
+  saveConfig('floatBallPosition', floatBallPos);
+  if (floatBall && !floatBall.isDestroyed()) {
+    floatBall.setPosition(floatBallPos.x, floatBallPos.y);
+  }
+}
+
+function setFloatBallEnabled(enabled) {
+  floatBallEnabled = !!enabled;
+  saveConfig('floatBallEnabled', floatBallEnabled);
+  if (!floatBallEnabled) {
+    destroyFloatBall();
+  } else if (mainWindow && !mainWindow.isVisible()) {
+    createFloatBall();
+  }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('float-ball-enabled-change', floatBallEnabled);
+  }
+  if (tray) buildTrayMenu();
 }
 
 // ======== 系统托盘 ========
@@ -641,13 +730,10 @@ function buildTrayMenu() {
       label: floatBallEnabled ? '关闭悬浮窗' : '开启悬浮窗',
       click: () => {
         if (floatBallEnabled) {
-          floatBallEnabled = false;
-          destroyFloatBall();
+          setFloatBallEnabled(false);
         } else {
-          floatBallEnabled = true;
-          if (mainWindow && !mainWindow.isVisible()) createFloatBall();
+          setFloatBallEnabled(true);
         }
-        buildTrayMenu();
       }
     },
     { type: 'separator' },

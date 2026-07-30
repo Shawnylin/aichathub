@@ -10,11 +10,15 @@ contextBridge.exposeInMainWorld('app', {
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   onSwitchSite: (cb) => ipcRenderer.on('switch-site', (_, site) => cb(site)),
   setFloatBall: (enabled) => ipcRenderer.send('set-float-ball', enabled),
+  getFloatBallEnabled: () => ipcRenderer.invoke('get-float-ball-enabled'),
+  onFloatBallEnabledChange: (cb) => ipcRenderer.on('float-ball-enabled-change', (_, enabled) => cb(enabled)),
   showContextMenu: () => ipcRenderer.send('show-context-menu', 'normal'),
   updateSiteOrder: (order) => ipcRenderer.send('update-site-order', order),
   updateFloatballSettings: () => ipcRenderer.send('update-floatball-settings'),
+  resetFloatBallPosition: () => ipcRenderer.send('reset-float-ball-position'),
   onContextMenuAction: (cb) => ipcRenderer.on('context-menu-action', (_, action) => cb(action)),
   setTheme: (theme) => ipcRenderer.send('set-theme', theme),
+  setAccentColor: (color) => ipcRenderer.send('set-accent-color', color),
 
   // ======== 版本更新 API ========
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),

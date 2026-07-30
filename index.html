@@ -643,12 +643,128 @@
     display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-dim);
     cursor:pointer; justify-content:center;
   }
+
+  /* ========== CHATGPT-INSPIRED REFINEMENT ========== */
+  :root {
+    --sidebar-w: 248px;
+    --collapsed-w: 60px;
+    --accent: #10a37f;
+    --site-accent: #4d6bfe;
+    --accent-soft: #e6f5f1;
+    --bg-titlebar: #f7f7f8;
+    --bg-sidebar: #f7f7f8;
+    --bg-content: #ffffff;
+    --bg-navbar: #ffffff;
+    --bg-urlbar: #f7f7f8;
+    --bg-webview: #ffffff;
+    --border-sidebar: #e5e5e5;
+    --border-nav: #ececec;
+    --border-btn: #e5e5e5;
+    --text-title: #6f6f73;
+    --text-tab: #4a4a4d;
+    --text-tab-active: #202123;
+    --text-dim: #8e8e93;
+    --text-url: #7b7b80;
+    --text-url-domain: #343438;
+    --hover-tab: #ebebed;
+    --hover-navbtn: #f0f0f1;
+    --active-tab-bg: #e7e7e9;
+    --win-hover: #e7e7e9;
+    --btn-hover: #ebebed;
+  }
+  body {
+    background: var(--bg-content);
+    letter-spacing: -0.01em;
+    transition: background .24s ease, color .24s ease;
+  }
+  body.dark {
+    --bg-titlebar: #202123;
+    --bg-sidebar: #202123;
+    --bg-content: #212121;
+    --bg-navbar: #212121;
+    --bg-urlbar: #2a2a2a;
+    --bg-webview: #212121;
+    --border-sidebar: #353535;
+    --border-nav: #343434;
+    --border-btn: #434343;
+    --text-title: #a3a3a5;
+    --text-tab: #d0d0d1;
+    --text-tab-active: #f5f5f5;
+    --text-dim: #9b9b9f;
+    --text-url: #ababaf;
+    --text-url-domain: #f2f2f2;
+    --hover-tab: #2f2f2f;
+    --hover-navbtn: #2b2b2b;
+    --active-tab-bg: #343434;
+    --win-hover: #343434;
+    --btn-hover: #303030;
+  }
+  #titlebar { height: 36px; padding: 0 10px; }
+  #titlebar .title { text-align: left; font-size: 12px; font-weight: 600; letter-spacing: .01em; }
+  .win-btn { width: 34px; height: 26px; border-radius: 5px; }
+  #sidebar { border-right: 0; }
+  .sidebar-header { padding: 14px 14px 10px; border-bottom: 0; }
+  .sidebar-header .logo-icon { width: 26px; height: 26px; border-radius: 8px; }
+  .sidebar-header .logo-text { letter-spacing: -.02em; }
+  .sidebar-nav { padding: 8px; gap: 3px; }
+  .sidebar-nav .section-label { padding: 10px 8px 5px; font-size: 10px; letter-spacing: .08em; }
+  .tab-item { min-height: 42px; padding: 9px 10px; border-radius: 9px; gap: 11px; }
+  .tab-item.active {
+    color: var(--site-accent);
+    background: color-mix(in srgb, var(--site-accent) 12%, transparent);
+    box-shadow: inset 3px 0 0 var(--site-accent);
+  }
+  .tab-item:hover { transform: translateX(1px); }
+  .tab-item:active { transform: scale(.985); }
+  .sidebar-footer { padding: 10px 12px 14px; border-top: 0; }
+  .theme-btn, .collapse-btn { border-radius: 8px; }
+  #navbar { height: 52px; padding: 0 14px; gap: 4px; }
+  .nav-btn, .dl-btn { width: 34px; height: 34px; border: 0; border-radius: 8px; }
+  .nav-btn:hover, .dl-btn:hover { border-color: transparent; }
+  #url-bar { height: 34px; border: 0; border-radius: 9px; padding: 0 12px; }
+  .site-tag { padding: 5px 9px; border-radius: 7px; }
+  .site-tag.ds { background: var(--accent-soft); color: var(--accent); }
+  #download-panel { width: 380px; border-left: 1px solid var(--border-nav); box-shadow: -16px 0 42px rgba(0,0,0,.08); }
+  #settings-overlay, #close-overlay { backdrop-filter: blur(5px); }
+  #settings-dialog, #close-dialog { border-radius: 16px; box-shadow: 0 18px 58px rgba(0,0,0,.22); }
+  #settings-dialog { padding: 28px; }
+  .radio-option { border-width: 1px; border-radius: 10px; }
+  .radio-option.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .radio-option.selected .radio-circle { border-color: var(--accent); }
+  .radio-option.selected .radio-circle::after { background: var(--accent); }
+  .toggle-switch.on { background: var(--accent); }
+  #settings-close { border: 0; border-radius: 9px; background: var(--accent); color: #fff; }
+  #settings-close:hover { background: color-mix(in srgb, var(--accent) 84%, #000); }
+  .fb-quick-access {
+    display:flex; align-items:center; gap:12px; margin-top:10px; padding:12px;
+    border:1px solid var(--border-nav); border-radius:10px; background:var(--bg-urlbar);
+  }
+  .fb-quick-icon {
+    width:34px; height:34px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center;
+    color:#fff; background:var(--accent); box-shadow:0 5px 14px rgba(16,163,127,.22);
+  }
+  .fb-quick-copy { flex:1; min-width:0; }
+  .fb-quick-copy strong { display:block; font-size:12px; color:var(--text-tab-active); }
+  .fb-quick-copy span { display:block; margin-top:3px; font-size:11px; line-height:1.4; color:var(--text-dim); }
+  #fb-reset-position { border:0; border-radius:7px; padding:6px 8px; background:transparent; color:var(--accent); cursor:pointer; font:inherit; font-size:11px; white-space:nowrap; }
+  #fb-reset-position:hover { background:var(--accent-soft); }
+  #fb-custom-section { display:none; }
+  .accent-options { display:flex; gap:8px; padding:2px 0; }
+  .accent-option {
+    width:26px; height:26px; padding:0; border:2px solid transparent; border-radius:50%;
+    background:var(--color); cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .accent-option:hover { transform:scale(1.12); }
+  .accent-option.active { border-color:var(--bg-content); box-shadow:0 0 0 2px var(--accent), 0 2px 7px rgba(0,0,0,.18); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+  }
 </style>
 </head>
 <body>
 
 <div id="titlebar">
-  <span class="title">&#x25C6; AI Chat Hub &#x25C6;</span>
+  <span class="title">AI Chat Hub</span>
   <button class="win-btn" id="btn-min">&ndash;</button>
   <button class="win-btn" id="btn-max">&#x25A1;</button>
   <button class="win-btn" id="btn-close">&#x2715;</button>
@@ -806,6 +922,17 @@
       </div>
     </div>
 
+    <div class="setting-section">
+      <span class="setting-label">主题色</span>
+      <div class="accent-options" id="accent-options" aria-label="选择主题色">
+        <button class="accent-option" type="button" data-accent="#10a37f" style="--color:#10a37f" aria-label="绿色"></button>
+        <button class="accent-option" type="button" data-accent="#4d6bfe" style="--color:#4d6bfe" aria-label="蓝色"></button>
+        <button class="accent-option" type="button" data-accent="#8b5cf6" style="--color:#8b5cf6" aria-label="紫色"></button>
+        <button class="accent-option" type="button" data-accent="#e66a3c" style="--color:#e66a3c" aria-label="橙色"></button>
+        <button class="accent-option" type="button" data-accent="#e45b88" style="--color:#e45b88" aria-label="玫红色"></button>
+      </div>
+    </div>
+
     <div class="setting-divider"></div>
 
     <div class="setting-section">
@@ -829,6 +956,14 @@
       <div class="toggle-row">
         <span class="toggle-label">窗口隐藏时显示悬浮球</span>
         <button class="toggle-switch on" id="floatball-toggle"></button>
+      </div>
+      <div class="fb-quick-access">
+        <div class="fb-quick-icon" aria-hidden="true">✦</div>
+        <div class="fb-quick-copy">
+          <strong>桌面快速入口</strong>
+          <span>拖动后会自动贴边；单击即可回到当前会话。</span>
+        </div>
+        <button id="fb-reset-position" type="button">恢复位置</button>
       </div>
       <div style="margin-top:4px;" id="fb-custom-section">
         <div class="fb-preview-wrap">
@@ -898,7 +1033,7 @@
 
     <div class="setting-section">
       <span class="setting-label">关于</span>
-      <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.2.7</span></div>
+      <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.3.0</span></div>
       <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
       <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
       <div style="margin-top:10px; display:flex; align-items:center; gap:10px; padding:0 14px;">
@@ -951,10 +1086,24 @@
     localStorage.setItem('aihub-theme', theme);
     document.body.classList.toggle('dark', theme === 'dark');
     themeOptions.forEach(o => o.classList.toggle('selected', o.dataset.theme === theme));
+    const accentColor = localStorage.getItem('aihub-accent') || '#10a37f';
+    document.documentElement.style.setProperty('--accent-soft', accentColor + (theme === 'dark' ? '2b' : '1f'));
     window.app?.setTheme(theme === 'dark' ? 'dark' : 'light');
   }
   themeOptions.forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
   if (localStorage.getItem('aihub-theme') === 'dark') applyTheme('dark');
+
+  const accentOptions = document.querySelectorAll('.accent-option');
+  function applyAccentColor(color) {
+    const isDark = document.body.classList.contains('dark');
+    document.documentElement.style.setProperty('--accent', color);
+    document.documentElement.style.setProperty('--accent-soft', color + (isDark ? '2b' : '1f'));
+    accentOptions.forEach(option => option.classList.toggle('active', option.dataset.accent === color));
+    localStorage.setItem('aihub-accent', color);
+    window.app.setAccentColor(color);
+  }
+  accentOptions.forEach(option => option.addEventListener('click', () => applyAccentColor(option.dataset.accent)));
+  applyAccentColor(localStorage.getItem('aihub-accent') || '#10a37f');
 
   // 快捷键开关
   const shortcutToggle = document.getElementById('shortcut-toggle');
@@ -969,15 +1118,25 @@
 
   // 悬浮球开关
   const floatballToggle = document.getElementById('floatball-toggle');
-  let floatBallEnabled = localStorage.getItem('aihub-floatball') !== '0';
-  floatballToggle.classList.toggle('on', floatBallEnabled);
-  floatballToggle.addEventListener('click', () => {
-    floatBallEnabled = !floatBallEnabled;
+  let floatBallEnabled = true;
+  function applyFloatBallState(enabled) {
+    floatBallEnabled = !!enabled;
     floatballToggle.classList.toggle('on', floatBallEnabled);
     localStorage.setItem('aihub-floatball', floatBallEnabled ? '1' : '0');
+  }
+  floatballToggle.addEventListener('click', () => {
+    applyFloatBallState(!floatBallEnabled);
     window.app.setFloatBall(floatBallEnabled);
   });
-  window.app.setFloatBall(floatBallEnabled);
+  window.app.getFloatBallEnabled().then(applyFloatBallState).catch(() => {
+    applyFloatBallState(localStorage.getItem('aihub-floatball') !== '0');
+    window.app.setFloatBall(floatBallEnabled);
+  });
+  window.app.onFloatBallEnabledChange(applyFloatBallState);
+
+  document.getElementById('fb-reset-position').addEventListener('click', () => {
+    window.app.resetFloatBallPosition();
+  });
 
   // 悬浮球自定义设置
   const FB_COLORS = {
@@ -1092,13 +1251,13 @@
   });
 
   const SITES = {
-    deepseek:{name:'DeepSeek',    domain:'chat.deepseek.com',     url:'https://chat.deepseek.com/',        cls:'ds'},
-    yuanbao: {name:'腾讯元宝',     domain:'yuanbao.tencent.com',   url:'https://yuanbao.tencent.com/chat/', cls:'yb'},
-    doubao:  {name:'豆包',        domain:'www.doubao.com',        url:'https://www.doubao.com/chat/',      cls:'db'},
-    kimi:    {name:'Kimi',        domain:'www.kimi.com',          url:'https://www.kimi.com/',             cls:'km'},
-    minimax: {name:'MiniMax',     domain:'agent.minimaxi.com',    url:'https://agent.minimaxi.com/',       cls:'mm'},
-    tongyi:  {name:'千问',        domain:'www.tongyi.com',        url:'https://www.tongyi.com/',           cls:'qw'},
-    chatglm: {name:'智谱清言',    domain:'chatglm.cn',            url:'https://chatglm.cn/',               cls:'glm'}
+    deepseek:{name:'DeepSeek',    domain:'chat.deepseek.com',     url:'https://chat.deepseek.com/',        cls:'ds',  color:'#4d6bfe'},
+    yuanbao: {name:'腾讯元宝',     domain:'yuanbao.tencent.com',   url:'https://yuanbao.tencent.com/chat/', cls:'yb',  color:'#00b894'},
+    doubao:  {name:'豆包',        domain:'www.doubao.com',        url:'https://www.doubao.com/chat/',      cls:'db',  color:'#6366f1'},
+    kimi:    {name:'Kimi',        domain:'www.kimi.com',          url:'https://www.kimi.com/',             cls:'km',  color:'#4a4a4d'},
+    minimax: {name:'MiniMax',     domain:'agent.minimaxi.com',    url:'https://agent.minimaxi.com/',       cls:'mm',  color:'#0ea5e9'},
+    tongyi:  {name:'千问',        domain:'www.tongyi.com',        url:'https://www.tongyi.com/',           cls:'qw',  color:'#6b5ce7'},
+    chatglm: {name:'智谱清言',    domain:'chatglm.cn',            url:'https://chatglm.cn/',               cls:'glm', color:'#8b5cf6'}
   };
   let SITE_ORDER = JSON.parse(localStorage.getItem('aihub-site-order') ||
     '["deepseek","yuanbao","doubao","kimi","minimax","tongyi","chatglm"]');
@@ -1202,6 +1361,7 @@
         document.querySelectorAll('webview').forEach(w => w.classList.remove('visible'));
         document.getElementById('no-page-placeholder').style.display = 'flex';
         tabItems.forEach(b => b.classList.remove('active'));
+        document.documentElement.style.setProperty('--site-accent', '#4d6bfe');
         siteTag.textContent = '';
         siteTag.className = 'site-tag';
         urlDomain.textContent = '没有打开的页面';
@@ -1227,6 +1387,7 @@
     getOrCreateWebview(site);
     document.querySelectorAll('webview').forEach(w => w.classList.toggle('visible', w.id === 'wv-' + site));
     const info = SITES[site];
+    document.documentElement.style.setProperty('--site-accent', info.color);
     siteTag.textContent = info.name;
     siteTag.className = 'site-tag ' + info.cls;
     updateUrl();
