@@ -109,7 +109,7 @@
 
   .tab-item {
     display:flex; align-items:center; gap:12px;
-    padding:9px 12px; border-radius:8px;
+    padding:9px 13px; border-radius:8px;
     cursor:pointer;
     color:var(--text-tab); font-size:13px; font-weight:450;
     border:none; background:none;
@@ -118,8 +118,12 @@
     transition: background 0.12s, gap 0.25s, padding 0.25s, color 0.12s;
   }
   .tab-item:hover { background:var(--hover-tab); color:var(--text-tab-active); }
+  /* 选中态与悬浮态使用同一整行背景，位置完全一致 */
   .tab-item.active { color:#111; font-weight:500; background:var(--active-tab-bg); }
-  #sidebar.collapsed .tab-item { padding:9px 7px; gap:0; }
+  #sidebar.collapsed .tab-item {
+    min-height:42px; padding:9px 13px; gap:0;
+    align-self:stretch; justify-content:flex-start;
+  }
   .tab-item .favicon,
   .tab-item .favicon-placeholder { width:22px; height:22px; border-radius:5px; object-fit:contain; flex-shrink:0; }
   .tab-item .favicon-placeholder {
@@ -143,7 +147,7 @@
     background-size:contain !important;
     background-color:transparent !important;
   }
-  #sidebar.collapsed .tab-item .indicator { opacity:0; }
+  #sidebar.collapsed .tab-item .indicator { display:none; }
   .tab-item.dragging { opacity:0.5; }
 
   .sidebar-footer {
@@ -159,13 +163,61 @@
     width:34px; height:34px; border-radius:7px; border:none;
     background:transparent; cursor:pointer; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    transition: background 0.12s;
+    color:var(--text-dim);
+    transition: background 0.12s, color 0.12s;
   }
   .theme-btn svg { width:18px; height:18px; }
-  .theme-btn:hover { background:var(--btn-hover); }
+  .theme-btn:hover { background:var(--btn-hover); color:var(--text-tab-active); }
 
   /* ========== CONTENT ========== */
   #content { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-content); transition: background 0.3s; position:relative; }
+  #tab-bar {
+    display:flex; align-items:flex-end; gap:4px;
+    padding:8px 12px 0; background:var(--bg-navbar);
+    border-bottom:1px solid var(--border-nav); flex-shrink:0;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  #top-tabs { flex:1; display:flex; align-items:flex-end; gap:4px; overflow-x:auto; scrollbar-width:thin; }
+  #top-tabs::-webkit-scrollbar { height:4px; }
+  #top-tabs::-webkit-scrollbar-track { background:transparent; }
+  #top-tabs::-webkit-scrollbar-thumb { background:var(--border-btn); border-radius:2px; }
+  .top-tab {
+    display:flex; align-items:center; gap:7px;
+    max-width:200px; min-width:0; height:36px; padding:0 12px;
+    border-radius:10px 10px 0 0; cursor:pointer;
+    color:var(--text-tab); font-size:13px; line-height:1; flex-shrink:0;
+    background:transparent; border:1px solid transparent; border-bottom:none;
+    font-family:inherit;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .top-tab:hover { background:var(--hover-tab); color:var(--text-tab-active); }
+  .top-tab.active {
+    color:var(--text-tab-active); font-weight:500;
+    background:var(--bg-content);
+    border-color:var(--border-nav);
+  }
+  .top-tab .tt-favicon { width:16px; height:16px; border-radius:3px; flex-shrink:0; object-fit:contain; }
+  .top-tab .tt-favicon-ph {
+    width:16px; height:16px; border-radius:4px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; font-weight:700; color:var(--text-tab);
+    background:var(--hover-tab);
+  }
+  .top-tab .tt-text { flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .top-tab .tt-close {
+    width:16px; height:16px; flex-shrink:0; border:none; border-radius:4px;
+    background:transparent; color:var(--text-dim); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; line-height:1; padding:0;
+  }
+  .top-tab .tt-close:hover { background:#e02f2f; color:#fff; }
+  #new-tab-btn {
+    width:30px; height:30px; flex-shrink:0; border:none; border-radius:8px;
+    background:transparent; color:var(--text-tab); cursor:pointer;
+    font-size:18px; line-height:1; display:flex; align-items:center; justify-content:center;
+    transition: background 0.12s, color 0.12s;
+  }
+  #new-tab-btn:hover { background:var(--hover-navbtn); color:var(--text-tab-active); }
   #navbar {
     height:42px; background:var(--bg-navbar);
     border-bottom:1px solid var(--border-nav);
@@ -187,37 +239,14 @@
   .nav-btn:active { transform:scale(0.95); }
   .nav-btn.disabled { opacity:0.3; pointer-events:none; }
   #url-bar {
-    flex:1; height:30px; border:1px solid var(--border-btn); border-radius:6px;
+    flex:1; height:30px; min-width:60px; border:1px solid var(--border-btn); border-radius:6px;
     background:var(--bg-urlbar); padding:0 12px;
-    font-size:12px; color:var(--text-url);
-    display:flex; align-items:center;
-    overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
-    transition: background 0.3s, border-color 0.3s, color 0.3s;
+    font-size:12px; color:var(--text-url-domain); font-family:inherit; outline:none;
+    transition: background 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.15s;
   }
-  #url-bar .url-domain { color:var(--text-url-domain); font-weight:500; }
-  #url-bar .url-sep { margin:0 4px; color:var(--text-dim); }
-  #url-bar .url-path { color:var(--text-url); }
-
-  .site-tag {
-    padding:4px 10px; border-radius:5px; font-size:11px; font-weight:600;
-    white-space:nowrap; flex-shrink:0; cursor:pointer; position:relative;
-    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-  }
-  .site-tag::before {
-    content: '\00D7';
-    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    font-size:13px; font-weight:700; color:#e02f2f;
-    opacity:0; transition: opacity 0.15s; line-height:1;
-  }
-  .site-tag:hover { background:transparent !important; box-shadow:inset 0 0 0 1.5px #e02f2f; color:transparent !important; }
-  .site-tag:hover::before { opacity:1; }
-  .site-tag.ds  { background:#eef1ff; color:#4d6bfe; }
-  .site-tag.yb  { background:#e6f9f5; color:#00b894; }
-  .site-tag.mm  { background:#f0f9ff; color:#0ea5e9; }
-  .site-tag.db  { background:#eef2ff; color:#6366f1; }
-  .site-tag.km  { background:#f0f0f0; color:#1a1a1a; }
-  .site-tag.qw  { background:#f0edff; color:#6b5ce7; }
-.site-tag.glm { background:#f0edff; color:#8b5cf6; }
+  #url-bar:focus { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); background:var(--bg-content); }
+  #url-bar::placeholder { color:var(--text-dim); }
+  #url-bar.loading { opacity:0.5; }
 
   /* Download button */
   .dl-btn {
@@ -383,13 +412,6 @@
   }
   body.dark .nav-btn:hover svg { fill:#ddd; }
   body.dark .dl-btn:hover svg { fill:#ddd; }
-  body.dark .site-tag.ds  { background:#1a1d2e; color:#6c8cff; }
-  body.dark .site-tag.yb  { background:#1a2e28; color:#2dd4a8; }
-  body.dark .site-tag.mm  { background:#1a2a33; color:#38bdf8; }
-  body.dark .site-tag.db  { background:#1e1f2e; color:#818cf8; }
-  body.dark .site-tag.km  { background:#2a2a2a; color:#b0b0b0; }
-  body.dark .site-tag.qw  { background:#1f1b33; color:#8b7cf8; }
-  body.dark .site-tag.glm { background:#1f1b33; color:#a78bfa; }
   body.dark #download-panel { box-shadow:-4px 0 20px rgba(0,0,0,0.3); }
 
   /* ========== SETTINGS MODAL ========== */
@@ -402,27 +424,67 @@
   }
   #settings-overlay.show { opacity:1; pointer-events:auto; }
   #settings-dialog {
-    background:var(--bg-content); border-radius:12px;
-    padding:28px 20px 28px 28px; width:400px; max-width:92vw; max-height:85vh;
-    overflow-y:auto;
+    background:var(--bg-content); border-radius:16px;
+    padding:24px; width:680px; max-width:94vw;
+    height:620px; max-height:86vh;
+    display:flex; flex-direction:column;
     box-shadow:0 8px 32px rgba(0,0,0,0.3);
     transition: background 0.3s;
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
   }
-  #settings-dialog:hover { scrollbar-color: var(--border-btn) transparent; }
-  #settings-dialog::-webkit-scrollbar { width:5px; }
-  #settings-dialog::-webkit-scrollbar-track { background:transparent; }
-  #settings-dialog::-webkit-scrollbar-thumb { background:transparent; border-radius:4px; }
-  #settings-dialog:hover::-webkit-scrollbar-thumb { background:var(--border-btn); }
-  #settings-dialog:hover::-webkit-scrollbar-thumb:hover { background:var(--text-dim); }
-  #settings-dialog h2 { font-size:18px; font-weight:600; color:var(--text-tab-active); margin-bottom:20px; }
-  #settings-dialog .setting-section { margin-bottom:18px; }
-  #settings-dialog .setting-section:last-of-type { margin-bottom:0; }
-  #settings-dialog .setting-label { font-size:11px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:block; }
-  .setting-divider { height:1px; background:var(--border-nav); margin:18px 0; }
+  #settings-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-shrink:0; }
+  #settings-head h2 { font-size:16px; font-weight:600; color:var(--text-tab-active); }
+  #settings-body { display:flex; flex:1; min-height:0; gap:18px; }
+  #settings-nav { width:104px; flex-shrink:0; display:flex; flex-direction:column; gap:2px; }
+  .settings-nav-item {
+    padding:9px 12px; border-radius:8px; border:none; background:transparent;
+    color:var(--text-tab); font-size:13px; text-align:left; cursor:pointer;
+    font-family:inherit; transition: background 0.12s, color 0.12s;
+  }
+  .settings-nav-item:hover { background:var(--hover-navbtn); color:var(--text-tab-active); }
+  .settings-nav-item.active { background:var(--active-tab-bg); color:var(--text-tab-active); font-weight:500; }
+  #settings-panels { flex:1; min-width:0; overflow-y:auto; padding-right:6px; }
+  #settings-panels::-webkit-scrollbar { width:5px; }
+  #settings-panels::-webkit-scrollbar-track { background:transparent; }
+  #settings-panels::-webkit-scrollbar-thumb { background:var(--border-btn); border-radius:4px; }
+  #settings-panels:hover::-webkit-scrollbar-thumb:hover { background:var(--text-dim); }
+  .settings-panel { display:none; }
+  .settings-panel.active { display:block; }
+  .panel-heading {
+    font-size:11px; font-weight:600; color:var(--text-dim);
+    text-transform:uppercase; letter-spacing:0.5px; margin:16px 0 8px;
+  }
+  .settings-panel .panel-heading:first-child { margin-top:0; }
+  .setting-hint { font-size:11px; color:var(--text-dim); margin-top:6px; line-height:1.5; }
+  .beta-tag {
+    display:inline-block; padding:1px 6px; margin-left:4px; border-radius:4px;
+    font-size:10px; font-weight:600; background:var(--accent-soft); color:var(--accent);
+  }
+  .collapse-row {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:8px; padding:8px 14px; border-radius:8px; border:1px solid var(--border-btn);
+  }
+  .collapse-row .toggle-label { font-size:12px; font-weight:500; color:var(--text-tab); }
+  .collapse-btn-custom {
+    border:1px solid var(--border-btn); border-radius:6px; padding:3px 10px;
+    background:transparent; color:var(--text-tab); cursor:pointer; font-size:11px; font-family:inherit;
+    transition: background 0.12s, color 0.12s;
+  }
+  .collapse-btn-custom:hover { background:var(--hover-navbtn); color:var(--text-tab-active); }
+  #fb-custom-section { display:none; }
+  #fb-custom-section.open { display:block; margin-top:8px; }
+  #settings-footer { display:flex; justify-content:flex-end; margin-top:16px; flex-shrink:0; }
+  #settings-close {
+    border:0; border-radius:8px; padding:8px 24px;
+    background:var(--accent); color:#fff; font-size:13px; cursor:pointer; font-family:inherit;
+    transition: background 0.12s;
+  }
+  #settings-close:hover { background:color-mix(in srgb, var(--accent) 84%, #000); }
 
   .radio-options { display:flex; flex-direction:column; gap:6px; }
+  .radio-options.horizontal { flex-direction:row; }
+  .radio-options.horizontal .radio-option { flex:1; }
   .radio-option {
     display:flex; align-items:center; gap:10px;
     padding:11px 14px; border-radius:8px; border:2px solid var(--border-btn);
@@ -500,6 +562,16 @@
   .about-value { color:var(--text-tab-active); font-weight:500; user-select:all; }
   .about-value a { color:#4d6bfe; text-decoration:none; }
   .about-value a:hover { text-decoration:underline; }
+  .about-update-row {
+    display:flex; align-items:center; gap:10px; margin-top:10px; padding:0 14px;
+  }
+  .about-update-row button {
+    padding:7px 16px; border-radius:6px; border:1.5px solid var(--border-btn);
+    background:transparent; color:var(--text-tab); cursor:pointer; font-size:12px; font-family:inherit;
+    transition: background 0.12s;
+  }
+  .about-update-row button:hover { background:var(--hover-navbtn); }
+  .about-update-row span { font-size:12px; color:var(--text-dim); }
 
   /* Download path setting */
   .dl-path-row {
@@ -708,13 +780,7 @@
   .sidebar-header .logo-text { letter-spacing: -.02em; }
   .sidebar-nav { padding: 8px; gap: 3px; }
   .sidebar-nav .section-label { padding: 10px 8px 5px; font-size: 10px; letter-spacing: .08em; }
-  .tab-item { min-height: 42px; padding: 9px 10px; border-radius: 9px; gap: 11px; }
-  .tab-item.active {
-    color: var(--site-accent);
-    background: color-mix(in srgb, var(--site-accent) 12%, transparent);
-    box-shadow: inset 3px 0 0 var(--site-accent);
-  }
-  .tab-item:hover { transform: translateX(1px); }
+  .tab-item { min-height: 42px; padding: 9px 13px; border-radius: 9px; gap: 11px; }
   .tab-item:active { transform: scale(.985); }
   .sidebar-footer { padding: 10px 12px 14px; border-top: 0; }
   .theme-btn, .collapse-btn { border-radius: 8px; }
@@ -722,12 +788,10 @@
   .nav-btn, .dl-btn { width: 34px; height: 34px; border: 0; border-radius: 8px; }
   .nav-btn:hover, .dl-btn:hover { border-color: transparent; }
   #url-bar { height: 34px; border: 0; border-radius: 9px; padding: 0 12px; }
-  .site-tag { padding: 5px 9px; border-radius: 7px; }
-  .site-tag.ds { background: var(--accent-soft); color: var(--accent); }
   #download-panel { width: 380px; border-left: 1px solid var(--border-nav); box-shadow: -16px 0 42px rgba(0,0,0,.08); }
   #settings-overlay, #close-overlay { backdrop-filter: blur(5px); }
   #settings-dialog, #close-dialog { border-radius: 16px; box-shadow: 0 18px 58px rgba(0,0,0,.22); }
-  #settings-dialog { padding: 28px; }
+  #settings-dialog { padding: 24px; }
   .radio-option { border-width: 1px; border-radius: 10px; }
   .radio-option.selected { border-color: var(--accent); background: var(--accent-soft); }
   .radio-option.selected .radio-circle { border-color: var(--accent); }
@@ -748,7 +812,6 @@
   .fb-quick-copy span { display:block; margin-top:3px; font-size:11px; line-height:1.4; color:var(--text-dim); }
   #fb-reset-position { border:0; border-radius:7px; padding:6px 8px; background:transparent; color:var(--accent); cursor:pointer; font:inherit; font-size:11px; white-space:nowrap; }
   #fb-reset-position:hover { background:var(--accent-soft); }
-  #fb-custom-section { display:none; }
   .accent-options { display:flex; gap:8px; padding:2px 0; }
   .accent-option {
     width:26px; height:26px; padding:0; border:2px solid transparent; border-radius:50%;
@@ -791,7 +854,7 @@
     </div>
 
     <div class="sidebar-nav">
-      <div class="section-label">会话</div>
+      <div class="section-label">AI 站点</div>
 
       <button class="tab-item active" data-site="deepseek" title="DeepSeek">
         <img class="favicon" alt="" style="display:none" data-src="https://chat.deepseek.com/favicon.ico">
@@ -845,12 +908,16 @@
 
     <div class="sidebar-footer">
       <button class="theme-btn" id="settings-btn" title="设置">
-        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z" fill="var(--text-dim)"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
     </div>
   </div>
 
   <div id="content">
+    <div id="tab-bar">
+      <div id="top-tabs"></div>
+      <button id="new-tab-btn" title="新建页面">+</button>
+    </div>
     <div id="navbar">
       <button class="nav-btn" id="nav-back" title="后退">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"/></svg>
@@ -861,10 +928,7 @@
       <button class="nav-btn" id="nav-refresh" title="刷新">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
       </button>
-      <div id="url-bar">
-        <span class="url-domain">chat.deepseek.com</span><span class="url-sep">&bull;</span><span class="url-path">/</span>
-      </div>
-      <span class="site-tag ds" id="site-tag">DeepSeek</span>
+      <input id="url-bar" type="text" spellcheck="false" autocomplete="off" placeholder="输入网址，回车跳转">
       <button class="dl-btn" id="dl-btn" title="下载管理">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-320 280-520l56-56 104 104v-288h80v288l104-104 56 56-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>
         <span class="dl-badge" id="dl-badge">0</span>
@@ -875,7 +939,7 @@
       <webview id="wv-deepseek" src="https://chat.deepseek.com/" partition="persist:deepseek" class="visible"></webview>
       <div id="no-page-placeholder" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; flex-direction:column; align-items:center; justify-content:center; color:var(--text-dim);">
         <div style="font-size:40px; margin-bottom:12px; opacity:0.25; line-height:1;">—</div>
-        <div style="font-size:13px;">点击左侧标签打开 AI 助手</div>
+        <div style="font-size:13px;">输入网址或点击左侧站点打开页面</div>
       </div>
     </div>
 
@@ -900,149 +964,157 @@
 
 <div id="settings-overlay">
   <div id="settings-dialog">
-    <h2>设置</h2>
-
-    <div class="setting-section">
-      <span class="setting-label">主题</span>
-      <div class="radio-options" id="theme-options">
-        <div class="radio-option selected" data-theme="light">
-          <div class="radio-circle"></div>
-          <div class="option-info">
-            <div class="option-name">浅色模式</div>
-            <div class="option-desc">亮色界面，适合日间使用</div>
+    <div id="settings-head">
+      <h2>设置</h2>
+    </div>
+    <div id="settings-body">
+      <nav id="settings-nav">
+        <button type="button" class="settings-nav-item active" data-panel="appearance">外观</button>
+        <button type="button" class="settings-nav-item" data-panel="features">功能</button>
+        <button type="button" class="settings-nav-item" data-panel="downloads">下载</button>
+        <button type="button" class="settings-nav-item" data-panel="permissions">权限</button>
+        <button type="button" class="settings-nav-item" data-panel="about">关于</button>
+      </nav>
+      <div id="settings-panels">
+        <section class="settings-panel active" id="panel-appearance">
+          <h3 class="panel-heading">主题</h3>
+          <div class="radio-options horizontal" id="theme-options">
+            <div class="radio-option selected" data-theme="light">
+              <div class="radio-circle"></div>
+              <div class="option-info">
+                <div class="option-name">浅色模式</div>
+                <div class="option-desc">亮色界面，适合日间使用</div>
+              </div>
+            </div>
+            <div class="radio-option" data-theme="dark">
+              <div class="radio-circle"></div>
+              <div class="option-info">
+                <div class="option-name">深色模式</div>
+                <div class="option-desc">暗色界面，减少眼部疲劳</div>
+              </div>
+            </div>
+            <div class="radio-option" data-theme="system">
+              <div class="radio-circle"></div>
+              <div class="option-info">
+                <div class="option-name">跟随系统</div>
+                <div class="option-desc">自动匹配系统外观</div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="radio-option" data-theme="dark">
-          <div class="radio-circle"></div>
-          <div class="option-info">
-            <div class="option-name">深色模式</div>
-            <div class="option-desc">暗色界面，减少眼部疲劳</div>
+          <h3 class="panel-heading">主题色</h3>
+          <div class="accent-options" id="accent-options" aria-label="选择主题色">
+            <button class="accent-option" type="button" data-accent="#10a37f" style="--color:#10a37f" aria-label="绿色"></button>
+            <button class="accent-option" type="button" data-accent="#4d6bfe" style="--color:#4d6bfe" aria-label="蓝色"></button>
+            <button class="accent-option" type="button" data-accent="#8b5cf6" style="--color:#8b5cf6" aria-label="紫色"></button>
+            <button class="accent-option" type="button" data-accent="#e66a3c" style="--color:#e66a3c" aria-label="橙色"></button>
+            <button class="accent-option" type="button" data-accent="#e45b88" style="--color:#e45b88" aria-label="玫红色"></button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="setting-section">
-      <span class="setting-label">主题色</span>
-      <div class="accent-options" id="accent-options" aria-label="选择主题色">
-        <button class="accent-option" type="button" data-accent="#10a37f" style="--color:#10a37f" aria-label="绿色"></button>
-        <button class="accent-option" type="button" data-accent="#4d6bfe" style="--color:#4d6bfe" aria-label="蓝色"></button>
-        <button class="accent-option" type="button" data-accent="#8b5cf6" style="--color:#8b5cf6" aria-label="紫色"></button>
-        <button class="accent-option" type="button" data-accent="#e66a3c" style="--color:#e66a3c" aria-label="橙色"></button>
-        <button class="accent-option" type="button" data-accent="#e45b88" style="--color:#e45b88" aria-label="玫红色"></button>
-      </div>
-    </div>
-
-    <div class="setting-divider"></div>
-
-    <div class="setting-section">
-      <span class="setting-label">快捷键</span>
-      <div class="toggle-row">
-        <span class="toggle-label">启用快捷键</span>
-        <button class="toggle-switch on" id="shortcut-toggle"></button>
-      </div>
-      <div class="shortcut-list" id="shortcut-list">
-        <div><kbd>Ctrl+1~7</kbd> 切换标签页</div>
-        <div><kbd>Ctrl+R</kbd> 刷新当前页</div>
-        <div><kbd>Ctrl+B</kbd> 收起/展开侧栏</div>
-        <div><kbd>Ctrl+D</kbd> 切换深色模式</div>
-      </div>
-    </div>
-
-    <div class="setting-divider"></div>
-
-    <div class="setting-section">
-      <span class="setting-label">悬浮球</span>
-      <div class="toggle-row">
-        <span class="toggle-label">窗口隐藏时显示悬浮球</span>
-        <button class="toggle-switch on" id="floatball-toggle"></button>
-      </div>
-      <div class="fb-quick-access">
-        <div class="fb-quick-icon" aria-hidden="true">✦</div>
-        <div class="fb-quick-copy">
-          <strong>桌面快速入口</strong>
-          <span>拖动后会自动贴边；单击即可回到当前会话。</span>
-        </div>
-        <button id="fb-reset-position" type="button">恢复位置</button>
-      </div>
-      <div style="margin-top:4px;" id="fb-custom-section">
-        <div class="fb-preview-wrap">
-          <div class="fb-preview-ball" id="fb-preview">
-            <div class="fb-preview-glow"></div>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
+        </section>
+        <section class="settings-panel" id="panel-features">
+          <h3 class="panel-heading">快捷键</h3>
+          <div class="toggle-row">
+            <span class="toggle-label">启用快捷键</span>
+            <button class="toggle-switch on" id="shortcut-toggle"></button>
           </div>
-        </div>
-        <div class="fb-color-options" id="fb-color-options">
-          <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
-          <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
-          <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
-          <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
-          <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
-          <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
-        </div>
-        <div class="fb-slider-row">
-          <label>大小</label>
-          <input type="range" id="fb-size" min="32" max="80" value="44">
-          <span class="fb-slider-val" id="fb-size-val">44</span>
-        </div>
-        <div class="fb-slider-row">
-          <label>光晕</label>
-          <input type="range" id="fb-glow" min="0" max="100" value="100">
-          <span class="fb-slider-val" id="fb-glow-val">100</span>
-        </div>
-        <div class="fb-slider-row">
-          <label>高光</label>
-          <input type="range" id="fb-highlight" min="0" max="100" value="100">
-          <span class="fb-slider-val" id="fb-highlight-val">100</span>
-        </div>
+          <div class="shortcut-list" id="shortcut-list">
+            <div><kbd>Ctrl+1~7</kbd> 切换标签页</div>
+            <div><kbd>Ctrl+T</kbd> 新建页面</div>
+            <div><kbd>Ctrl+W</kbd> 关闭当前页面</div>
+            <div><kbd>Ctrl+L</kbd> 定位到地址栏</div>
+            <div><kbd>Ctrl+R</kbd> 刷新当前页</div>
+            <div><kbd>Ctrl+B</kbd> 收起/展开侧栏</div>
+            <div><kbd>Ctrl+D</kbd> 切换深色模式</div>
+          </div>
+          <h3 class="panel-heading">悬浮球</h3>
+          <div class="toggle-row">
+            <span class="toggle-label">窗口隐藏时显示悬浮球</span>
+            <button class="toggle-switch on" id="floatball-toggle"></button>
+          </div>
+          <div class="fb-quick-access">
+            <div class="fb-quick-icon" aria-hidden="true">✦</div>
+            <div class="fb-quick-copy">
+              <strong>桌面快速入口</strong>
+              <span>拖动后会自动贴边；单击即可回到当前会话。</span>
+            </div>
+            <button id="fb-reset-position" type="button">恢复位置</button>
+          </div>
+          <div class="collapse-row">
+            <span class="toggle-label">悬浮球外观</span>
+            <button class="collapse-btn-custom" id="fb-custom-toggle" type="button">展开</button>
+          </div>
+          <div id="fb-custom-section">
+            <div class="fb-preview-wrap">
+              <div class="fb-preview-ball" id="fb-preview">
+                <div class="fb-preview-glow"></div>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="fb-color-options" id="fb-color-options">
+              <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
+              <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
+              <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
+              <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
+              <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
+              <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
+            </div>
+            <div class="fb-slider-row">
+              <label>大小</label>
+              <input type="range" id="fb-size" min="32" max="80" value="44">
+              <span class="fb-slider-val" id="fb-size-val">44</span>
+            </div>
+            <div class="fb-slider-row">
+              <label>光晕</label>
+              <input type="range" id="fb-glow" min="0" max="100" value="100">
+              <span class="fb-slider-val" id="fb-glow-val">100</span>
+            </div>
+            <div class="fb-slider-row">
+              <label>高光</label>
+              <input type="range" id="fb-highlight" min="0" max="100" value="100">
+              <span class="fb-slider-val" id="fb-highlight-val">100</span>
+            </div>
+          </div>
+          <h3 class="panel-heading">内存</h3>
+          <div class="toggle-row">
+            <span class="toggle-label">内存优化 <span class="beta-tag">Beta</span></span>
+            <button class="toggle-switch on" id="memory-toggle"></button>
+          </div>
+          <div class="setting-hint">自动释放长时间未使用的隐藏页面，降低内存占用；关闭后所有已打开的页面保持常驻。</div>
+          <h3 class="panel-heading">关闭行为</h3>
+          <div class="toggle-row">
+            <span class="toggle-label">关闭窗口时显示确认对话框</span>
+            <button class="toggle-switch on" id="close-confirm-toggle"></button>
+          </div>
+        </section>
+        <section class="settings-panel" id="panel-downloads">
+          <h3 class="panel-heading">下载</h3>
+          <div class="setting-hint" style="margin-bottom:8px;">默认下载路径</div>
+          <div class="dl-path-row">
+            <span class="dl-path-text" id="dl-path-text">加载中...</span>
+            <button id="dl-path-change">更改</button>
+          </div>
+        </section>
+        <section class="settings-panel" id="panel-permissions">
+          <h3 class="panel-heading">权限管理</h3>
+          <div class="setting-hint" style="margin-bottom:8px;">管理各站点对麦克风、摄像头和定位的访问权限</div>
+          <div id="permission-list"></div>
+        </section>
+        <section class="settings-panel" id="panel-about">
+          <h3 class="panel-heading">关于</h3>
+          <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.3.0</span></div>
+          <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
+          <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
+          <div class="about-update-row">
+            <button id="check-update-btn">检查更新</button>
+            <span id="update-status-text"></span>
+          </div>
+        </section>
       </div>
     </div>
-
-    <div class="setting-divider"></div>
-
-    <div class="setting-section">
-      <span class="setting-label">下载</span>
-      <div style="margin-bottom:8px; font-size:11px; color:var(--text-dim);">默认下载路径</div>
-      <div class="dl-path-row">
-        <span class="dl-path-text" id="dl-path-text">加载中...</span>
-        <button id="dl-path-change">更改</button>
-      </div>
+    <div id="settings-footer">
+      <button id="settings-close">完成</button>
     </div>
-
-    <div class="setting-divider"></div>
-
-    <div class="setting-section">
-      <span class="setting-label">权限管理</span>
-      <div style="font-size:11px; color:var(--text-dim); margin-bottom:8px;">管理各站点对麦克风、摄像头和定位的访问权限</div>
-      <div id="permission-list"></div>
-    </div>
-
-    <div class="setting-divider"></div>
-
-    <div class="setting-section">
-      <span class="setting-label">关闭行为</span>
-      <div class="toggle-row">
-        <span class="toggle-label">关闭窗口时显示确认对话框</span>
-        <button class="toggle-switch on" id="close-confirm-toggle"></button>
-      </div>
-    </div>
-
-    <div class="setting-divider"></div>
-
-    <div class="setting-section">
-      <span class="setting-label">关于</span>
-      <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.3.0</span></div>
-      <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
-      <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
-      <div style="margin-top:10px; display:flex; align-items:center; gap:10px; padding:0 14px;">
-        <button id="check-update-btn" style="padding:7px 16px; border-radius:6px; border:1.5px solid var(--border-btn); background:transparent; color:var(--text-tab); cursor:pointer; font-size:12px; font-family:inherit; transition:background 0.12s;">检查更新</button>
-        <span id="update-status-text" style="font-size:12px; color:var(--text-dim);"></span>
-      </div>
-    </div>
-
-    <button id="settings-close">关闭</button>
   </div>
 </div>
 
@@ -1079,19 +1151,57 @@
   document.getElementById('settings-close').addEventListener('click', () => settingsOverlay.classList.remove('show'));
   settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) settingsOverlay.classList.remove('show'); });
 
+  // 设置分类切换
+  document.querySelectorAll('.settings-nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.settings-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + btn.dataset.panel));
+    });
+  });
+
+  // 悬浮球外观折叠
+  document.getElementById('fb-custom-toggle').addEventListener('click', () => {
+    const sec = document.getElementById('fb-custom-section');
+    const open = sec.classList.toggle('open');
+    document.getElementById('fb-custom-toggle').textContent = open ? '收起' : '展开';
+  });
+
+  // 内存优化（Beta）开关
+  let memoryOptEnabled = localStorage.getItem('aihub-memory-opt') !== '0';
+  const memoryToggle = document.getElementById('memory-toggle');
+  function updateMemoryUI() {
+    memoryToggle.classList.toggle('on', memoryOptEnabled);
+    localStorage.setItem('aihub-memory-opt', memoryOptEnabled ? '1' : '0');
+  }
+  updateMemoryUI();
+  memoryToggle.addEventListener('click', () => { memoryOptEnabled = !memoryOptEnabled; updateMemoryUI(); });
+
 
   // 主题
   const themeOptions = document.querySelectorAll('#theme-options .radio-option');
-  function applyTheme(theme) {
-    localStorage.setItem('aihub-theme', theme);
-    document.body.classList.toggle('dark', theme === 'dark');
+  const systemDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  function resolveDark(theme) {
+    if (theme === 'dark') return true;
+    if (theme === 'light') return false;
+    return systemDarkQuery.matches;
+  }
+  function applyTheme(theme, skipSave) {
+    if (!skipSave) localStorage.setItem('aihub-theme', theme);
+    const dark = resolveDark(theme);
+    document.body.classList.toggle('dark', dark);
     themeOptions.forEach(o => o.classList.toggle('selected', o.dataset.theme === theme));
     const accentColor = localStorage.getItem('aihub-accent') || '#10a37f';
-    document.documentElement.style.setProperty('--accent-soft', accentColor + (theme === 'dark' ? '2b' : '1f'));
-    window.app?.setTheme(theme === 'dark' ? 'dark' : 'light');
+    document.documentElement.style.setProperty('--accent-soft', accentColor + (dark ? '2b' : '1f'));
+    window.app?.setTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
   }
   themeOptions.forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
-  if (localStorage.getItem('aihub-theme') === 'dark') applyTheme('dark');
+  // 跟随系统时，系统主题变化自动同步
+  systemDarkQuery.addEventListener('change', () => {
+    if ((localStorage.getItem('aihub-theme') || 'light') === 'system') {
+      applyTheme('system', true);
+    }
+  });
+  applyTheme(localStorage.getItem('aihub-theme') || 'light');
 
   const accentOptions = document.querySelectorAll('.accent-option');
   function applyAccentColor(color) {
@@ -1242,13 +1352,6 @@
   });
 
   const urlBar = document.getElementById('url-bar');
-  const urlDomain = urlBar.querySelector('.url-domain');
-  const urlSep = urlBar.querySelector('.url-sep');
-  const urlPath = urlBar.querySelector('.url-path');
-  const siteTag = document.getElementById('site-tag');
-  siteTag.addEventListener('click', () => {
-    if (activeSite) unloadWebview(activeSite);
-  });
 
   const SITES = {
     deepseek:{name:'DeepSeek',    domain:'chat.deepseek.com',     url:'https://chat.deepseek.com/',        cls:'ds',  color:'#4d6bfe'},
@@ -1261,7 +1364,23 @@
   };
   let SITE_ORDER = JSON.parse(localStorage.getItem('aihub-site-order') ||
     '["deepseek","yuanbao","doubao","kimi","minimax","tongyi","chatglm"]');
-  let activeSite = 'deepseek';
+  let activeSite = 'deepseek'; // 侧栏当前选中的 AI 站点
+  let activePage = 'deepseek'; // 当前显示的页面（站点主页面 或 附属页面 sp-N）
+  // ======== 附属页面管理模型 ========
+  // 顶部标签栏用于展示当前站点打开的"附属页面"（AI 回复中点击链接等弹出的页面），
+  // 切换站点时，标签组随站点切换而隐藏；附属页面共享所属站点的登录会话。
+  // subPageInfo: 附属页面元数据；subPagesBySite: 每个站点打开的附属页面列表（会话级）
+  // lastUsed: LRU 时间戳，配合 MAX_LOADED_PAGES 对隐藏的主站点页面做内存自动回收
+  const subPageInfo = new Map();
+  const subPagesBySite = new Map();
+  let subPageCounter = 0;
+  const lastUsed = { deepseek: Date.now() };
+  // 内存策略：
+  // - 所有已打开的 AI 站点主页面保持加载、切换即时恢复；长时间未使用的隐藏页面由 idleUnloadCheck 自动释放；
+  // - 附属页面全局按 LRU 保留最多 MAX_SUB_PAGES 个（仅卸载 webview，标签保留，点击重新加载）；
+  // - 用户也可通过侧栏红点手动关闭站点释放内存。
+  const MAX_SUB_PAGES = 8;
+  const IDLE_UNLOAD_MS = 15 * 60 * 1000; // 隐藏页面空闲 15 分钟后自动释放
 
   // 按 SITE_ORDER 重排 DOM
   (function reorderDOM(order) {
@@ -1280,9 +1399,34 @@
   const tabItems = document.querySelectorAll('.tab-item');
   const loadedWebviews = new Set(['deepseek']);
 
-  function getActiveWebview() { return document.getElementById('wv-'+activeSite); }
+  function getActiveWebview() { return document.getElementById('wv-' + activePage); }
 
-  function setupWebviewListeners(wv, siteId) {
+  function getPageInfo(pageId) {
+    return SITES[pageId] || subPageInfo.get(pageId) || null;
+  }
+
+  // 页面所属的 AI 站点（附属页面跟随其父站点）
+  function parentSiteOf(pageId) {
+    if (SITES[pageId]) return pageId;
+    const sp = subPageInfo.get(pageId);
+    return sp ? sp.site : activeSite;
+  }
+
+  // 弹窗链接分流：blob:/javascript: 等依赖原页面的 URL 只能在原 webview 中打开，
+  // 其余链接在顶部标签栏中作为附属页面打开
+  function handlePopupUrl(url, pageId) {
+    if (!url) return;
+    if (/^(blob:|javascript:)/i.test(url)) {
+      const wv = document.getElementById('wv-' + pageId);
+      if (wv) {
+        try { const p = wv.loadURL(url); if (p && p.catch) p.catch(() => {}); } catch(_) {}
+      }
+      return;
+    }
+    newSubPage(url, parentSiteOf(pageId));
+  }
+
+  function setupWebviewListeners(wv, pageId) {
     ['did-navigate','did-navigate-in-page'].forEach(ev =>
       wv.addEventListener(ev, () => {
         if (wv.classList.contains('visible')) { updateUrl(); updateNavState(); }
@@ -1290,37 +1434,60 @@
     );
     wv.addEventListener('did-start-loading', () => {
       if (wv.classList.contains('visible')) {
-        urlBar.style.opacity = '0.5';
-        urlDomain.textContent = SITES[siteId].domain;
-        urlSep.textContent = '';
-        urlPath.textContent = '加载中...';
+        urlBar.classList.add('loading');
+        urlBar.value = '加载中...';
       }
     });
     wv.addEventListener('did-stop-loading', () => {
       if (wv.classList.contains('visible')) { updateUrl(); updateNavState(); }
     });
+    wv.addEventListener('did-fail-load', (e) => {
+      // -3 = 导航被中止（快速切换页面时正常发生），忽略
+      if (!e.isMainFrame || e.errorCode === -3) return;
+      if (wv.classList.contains('visible')) {
+        urlBar.classList.remove('loading');
+        urlBar.value = '无法打开：' + (e.errorDescription || ('错误码 ' + e.errorCode));
+      }
+    });
+    wv.addEventListener('dom-ready', () => {
+      if (wv.classList.contains('visible')) { updateUrl(); updateNavState(); }
+    });
+    wv.addEventListener('page-title-updated', (e) => {
+      const info = subPageInfo.get(pageId);
+      if (info && e.title) {
+        info.title = e.title;
+        renderTopTabs();
+      }
+    });
     wv.addEventListener('page-favicon-updated', (e) => {
       const favs = e.favicons;
       if (favs && favs.length > 0) {
-        const tabBtn = document.querySelector(`.tab-item[data-site="${siteId}"]`);
-        if (tabBtn) {
-          const img = tabBtn.querySelector('.favicon');
-          if (img) {
-            img.src = favs[0];
-            img.style.display = '';
-            img.nextElementSibling.style.display = 'none';
-            try { localStorage.setItem('aihub-favicon-' + siteId, favs[0]); } catch(e) {}
+        const info = subPageInfo.get(pageId);
+        if (info) {
+          info.favicon = favs[0];
+          renderTopTabs();
+        } else {
+          const tabBtn = document.querySelector(`.tab-item[data-site="${pageId}"]`);
+          if (tabBtn) {
+            const img = tabBtn.querySelector('.favicon');
+            if (img) {
+              img.src = favs[0];
+              img.style.display = '';
+              img.nextElementSibling.style.display = 'none';
+              try { localStorage.setItem('aihub-favicon-' + pageId, favs[0]); } catch(e) {}
+            }
           }
+          renderTopTabs();
         }
       }
     });
     wv.addEventListener('new-window', e => {
       e.preventDefault();
-      wv.loadURL(e.url);
+      handlePopupUrl(e.url, pageId);
     });
     try {
       wv.setWindowOpenHandler(({ url }) => {
-        wv.loadURL(url);
+        handlePopupUrl(url, pageId);
         return { action: 'deny' };
       });
     } catch(e) {}
@@ -1330,45 +1497,234 @@
     });
   }
 
-  function getOrCreateWebview(site) {
-    let wv = document.getElementById('wv-' + site);
+  function getOrCreateWebview(pageId) {
+    let wv = document.getElementById('wv-' + pageId);
     if (!wv) {
-      const info = SITES[site];
+      const info = getPageInfo(pageId);
+      if (!info) return null;
+      const isSite = !!SITES[pageId];
+      const site = isSite ? pageId : info.site;
       wv = document.createElement('webview');
-      wv.id = 'wv-' + site;
+      wv.id = 'wv-' + pageId;
       wv.setAttribute('src', info.url);
+      // 附属页面与所属站点共享同一个持久化分区（继承登录态）
       wv.setAttribute('partition', 'persist:' + site);
       document.getElementById('webview-container').appendChild(wv);
-      setupWebviewListeners(wv, site);
-      loadedWebviews.add(site);
+      setupWebviewListeners(wv, pageId);
+      loadedWebviews.add(pageId);
+      lastUsed[pageId] = Date.now();
       updateIndicators();
+      renderTopTabs();
+      enforceMemoryLimit();
     }
     return wv;
   }
 
-  function unloadWebview(site) {
-    const wv = document.getElementById('wv-' + site);
-    if (!wv) return;
-    wv.remove();
-    loadedWebviews.delete(site);
+  // 内存策略：附属页面全局 LRU 回收，最多保留 MAX_SUB_PAGES 个
+  function enforceMemoryLimit() {
+    if (!memoryOptEnabled) return;
+    const allSubs = [...loadedWebviews].filter(id => subPageInfo.has(id));
+    allSubs.sort((a, b) => (lastUsed[a] || 0) - (lastUsed[b] || 0));
+    while (allSubs.length > MAX_SUB_PAGES) {
+      const victim = allSubs.shift();
+      const wv = document.getElementById('wv-' + victim);
+      if (wv) wv.remove();
+      loadedWebviews.delete(victim);
+      delete lastUsed[victim];
+    }
     updateIndicators();
-    if (site === activeSite) {
-      const others = [...loadedWebviews];
-      if (others.length > 0) {
-        switchTab(others[0]);
+  }
+
+  // 空闲回收：隐藏且超过 IDLE_UNLOAD_MS 未使用的页面自动卸载（标签保留，点击后重新加载）
+  function idleUnloadCheck() {
+    if (!memoryOptEnabled) return;
+    const now = Date.now();
+    [...loadedWebviews].forEach(id => {
+      if (id === activePage) return;                       // 当前显示页不回收
+      if (SITES[id] && id === activeSite) return;          // 当前站点主页面不回收
+      if (now - (lastUsed[id] || 0) > IDLE_UNLOAD_MS) {
+        const wv = document.getElementById('wv-' + id);
+        if (wv) wv.remove();
+        loadedWebviews.delete(id);
+        delete lastUsed[id];
+      }
+    });
+    updateIndicators();
+  }
+  setInterval(idleUnloadCheck, 60 * 1000);
+
+  function closePage(pageId) {
+    const isSite = !!SITES[pageId];
+    const wv = document.getElementById('wv-' + pageId);
+    if (wv) wv.remove();
+    loadedWebviews.delete(pageId);
+    delete lastUsed[pageId];
+    if (isSite) {
+      // 关闭站点时一并关闭其附属页面
+      (subPagesBySite.get(pageId) || []).forEach(id => {
+        const swv = document.getElementById('wv-' + id);
+        if (swv) swv.remove();
+        loadedWebviews.delete(id);
+        delete lastUsed[id];
+        subPageInfo.delete(id);
+      });
+      subPagesBySite.delete(pageId);
+      if (pageId === activeSite || pageId === activePage) {
+        const others = SITE_ORDER.filter(s => loadedWebviews.has(s));
+        if (others.length > 0) {
+          switchSite(others[0]);
+        } else {
+          activeSite = null;
+          activePage = null;
+          document.querySelectorAll('webview').forEach(w => w.classList.remove('visible'));
+          document.getElementById('no-page-placeholder').style.display = 'flex';
+          tabItems.forEach(b => b.classList.remove('active'));
+          document.documentElement.style.setProperty('--site-accent', '#4d6bfe');
+          urlBar.value = '';
+          urlBar.classList.remove('loading');
+          navBack.classList.add('disabled');
+          navFwd.classList.add('disabled');
+          renderTopTabs();
+        }
+      }
+    } else {
+      // 关闭附属页面：回到所属站点主页面
+      const sp = subPageInfo.get(pageId);
+      if (sp) {
+        const list = subPagesBySite.get(sp.site) || [];
+        const i = list.indexOf(pageId);
+        if (i !== -1) list.splice(i, 1);
+        subPageInfo.delete(pageId);
+        if (pageId === activePage) switchPage(sp.site);
+      }
+      renderTopTabs();
+    }
+    updateIndicators();
+  }
+
+  function renderTopTabs() {
+    const container = document.getElementById('top-tabs');
+    container.innerHTML = '';
+    if (!activeSite) return;
+    // 当前 AI 站点主页面标签（固定在首位，点击回到站点主页）
+    const siteInfo = SITES[activeSite];
+    const siteTab = document.createElement('div');
+    siteTab.className = 'top-tab' + (activePage === activeSite ? ' active' : '');
+    siteTab.dataset.page = activeSite;
+    siteTab.title = siteInfo.name + ' · ' + siteInfo.domain;
+    let siteFavicon = null;
+    try { siteFavicon = localStorage.getItem('aihub-favicon-' + activeSite); } catch(e) {}
+    siteTab.innerHTML = (siteFavicon
+      ? '<img class="tt-favicon" src="' + siteFavicon + '" alt="">'
+      : '<span class="tt-favicon-ph">' + siteInfo.name.slice(0, 2) + '</span>')
+      + '<span class="tt-text"></span>';
+    siteTab.querySelector('.tt-text').textContent = siteInfo.name;
+    siteTab.addEventListener('click', () => switchSite(activeSite));
+    siteTab.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      topTabMenuPage = activeSite;
+      document.getElementById('ttctx-close').style.display = 'none';
+      topTabCtxMenu.style.display = 'block';
+      topTabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 150) + 'px';
+      topTabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 100) + 'px';
+    });
+    container.appendChild(siteTab);
+    // 附属页面标签
+    (subPagesBySite.get(activeSite) || []).forEach(pageId => {
+      const info = subPageInfo.get(pageId);
+      if (!info) return;
+      const tab = document.createElement('div');
+      tab.className = 'top-tab' + (pageId === activePage ? ' active' : '');
+      tab.dataset.page = pageId;
+      tab.title = info.title || info.url || '附属页面';
+      const label = info.title || (function() { try { return new URL(info.url).hostname; } catch(e) { return '新页面'; } })();
+      let favHtml = '';
+      if (info.favicon) {
+        favHtml = '<img class="tt-favicon" src="' + info.favicon + '" alt="">';
       } else {
-        activeSite = null;
-        document.querySelectorAll('webview').forEach(w => w.classList.remove('visible'));
-        document.getElementById('no-page-placeholder').style.display = 'flex';
-        tabItems.forEach(b => b.classList.remove('active'));
-        document.documentElement.style.setProperty('--site-accent', '#4d6bfe');
-        siteTag.textContent = '';
-        siteTag.className = 'site-tag';
-        urlDomain.textContent = '没有打开的页面';
-        urlSep.textContent = '';
-        urlPath.textContent = '';
+        favHtml = '<span class="tt-favicon-ph">页</span>';
+      }
+      tab.innerHTML = favHtml + '<span class="tt-text"></span><button class="tt-close" title="关闭页面">&#x2715;</button>';
+      tab.querySelector('.tt-text').textContent = label;
+      tab.querySelector('.tt-close').addEventListener('click', (e) => {
+        e.stopPropagation();
+        closePage(pageId);
+      });
+      tab.addEventListener('click', () => switchPage(pageId));
+      tab.addEventListener('auxclick', (e) => {
+        if (e.button === 1) { e.preventDefault(); closePage(pageId); }
+      });
+      tab.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        topTabMenuPage = pageId;
+        document.getElementById('ttctx-close').style.display = '';
+        topTabCtxMenu.style.display = 'block';
+        topTabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 150) + 'px';
+        topTabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 100) + 'px';
+      });
+      container.appendChild(tab);
+    });
+  }
+
+  // 侧栏/托盘切换站点：显示站点主页面，附属页面标签组随站点切换
+  function switchSite(siteId) {
+    if (!SITES[siteId]) return;
+    activeSite = siteId;
+    activePage = siteId;
+    lastUsed[siteId] = Date.now();
+    document.getElementById('no-page-placeholder').style.display = 'none';
+    tabItems.forEach(b => b.classList.toggle('active', b.dataset.site === siteId));
+    getOrCreateWebview(siteId);
+    document.querySelectorAll('webview').forEach(w => w.classList.toggle('visible', w.id === 'wv-' + siteId));
+    document.documentElement.style.setProperty('--site-accent', SITES[siteId].color);
+    enforceMemoryLimit();
+    renderTopTabs();
+    updateUrl();
+    updateNavState();
+  }
+
+  // 打开/切换任意页面（站点主页面或附属页面）
+  function switchPage(pageId) {
+    const info = getPageInfo(pageId);
+    if (!info) return;
+    if (SITES[pageId]) { switchSite(pageId); return; }
+    if (activeSite !== info.site) switchSite(info.site);
+    activePage = pageId;
+    lastUsed[pageId] = Date.now();
+    document.getElementById('no-page-placeholder').style.display = 'none';
+    getOrCreateWebview(pageId);
+    document.querySelectorAll('webview').forEach(w => w.classList.toggle('visible', w.id === 'wv-' + pageId));
+    document.documentElement.style.setProperty('--site-accent', SITES[info.site].color);
+    enforceMemoryLimit();
+    renderTopTabs();
+    updateUrl();
+    updateNavState();
+  }
+
+  // 新建附属页面（AI 页面弹出的新窗口 / 顶部 + 按钮）
+  function newSubPage(url, site) {
+    site = site || activeSite;
+    if (!SITES[site]) return null;
+    const isBlank = !url || /^about:blank/.test(url) || url === 'newtab.html';
+    const target = isBlank
+      ? 'newtab.html?theme=' + (document.body.classList.contains('dark') ? 'dark' : 'light')
+      : url;
+    if (!isBlank) {
+      for (const [id, sp] of subPageInfo) {
+        if (sp.site === site && sp.url === target) { switchPage(id); return id; }
       }
     }
+    subPageCounter++;
+    const pageId = 'sp-' + subPageCounter;
+    let title = '新页面';
+    if (!isBlank) {
+      try { title = new URL(target).hostname; } catch(e) {}
+    }
+    subPageInfo.set(pageId, { id: pageId, site, url: target, title, favicon: null });
+    if (!subPagesBySite.has(site)) subPagesBySite.set(site, []);
+    subPagesBySite.get(site).push(pageId);
+    switchPage(pageId);
+    return pageId;
   }
 
   function updateIndicators() {
@@ -1380,23 +1736,10 @@
     });
   }
 
-  function switchTab(site) {
-    document.getElementById('no-page-placeholder').style.display = 'none';
-    activeSite = site;
-    tabItems.forEach(b => b.classList.toggle('active', b.dataset.site === site));
-    getOrCreateWebview(site);
-    document.querySelectorAll('webview').forEach(w => w.classList.toggle('visible', w.id === 'wv-' + site));
-    const info = SITES[site];
-    document.documentElement.style.setProperty('--site-accent', info.color);
-    siteTag.textContent = info.name;
-    siteTag.className = 'site-tag ' + info.cls;
-    updateUrl();
-    updateNavState();
-  }
-  tabItems.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.site)));
-  window.app.onSwitchSite((site) => { switchTab(site); });
+  tabItems.forEach(btn => btn.addEventListener('click', () => switchSite(btn.dataset.site)));
+  window.app.onSwitchSite((site) => { switchSite(site); });
 
-  // 指示点悬停放大关闭 + 右键菜单
+  // 侧栏标签右键菜单（关闭页面）
   let contextMenuSite = null;
   const tabCtxMenu = document.createElement('div');
   tabCtxMenu.style.cssText = 'display:none;position:fixed;z-index:300;background:var(--bg-content);border:1px solid var(--border-nav);border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,0.3);min-width:130px;';
@@ -1408,8 +1751,7 @@
     if (indicator) {
       indicator.addEventListener('click', (e) => {
         e.stopPropagation();
-        const site = btn.dataset.site;
-        if (loadedWebviews.has(site)) unloadWebview(site);
+        closePage(btn.dataset.site);
       });
     }
     btn.addEventListener('contextmenu', (e) => {
@@ -1425,9 +1767,48 @@
     });
   });
 
-  document.addEventListener('click', () => { tabCtxMenu.style.display = 'none'; });
+  // 顶部标签右键菜单
+  let topTabMenuPage = null;
+  const topTabCtxMenu = document.createElement('div');
+  topTabCtxMenu.style.cssText = 'display:none;position:fixed;z-index:300;background:var(--bg-content);border:1px solid var(--border-nav);border-radius:8px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,0.3);min-width:140px;';
+  topTabCtxMenu.innerHTML =
+    '<div id="ttctx-refresh" style="padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text-tab);white-space:nowrap;">刷新页面</div>' +
+    '<div id="ttctx-copy" style="padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text-tab);white-space:nowrap;">复制链接</div>' +
+    '<div id="ttctx-close" style="padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;color:#e02f2f;white-space:nowrap;">关闭页面</div>';
+  document.body.appendChild(topTabCtxMenu);
+  document.getElementById('ttctx-refresh').addEventListener('click', () => {
+    if (topTabMenuPage) {
+      const wv = getOrCreateWebview(topTabMenuPage);
+      if (wv) wv.reload();
+    }
+    topTabCtxMenu.style.display = 'none';
+  });
+  document.getElementById('ttctx-copy').addEventListener('click', () => {
+    const wv = document.getElementById('wv-' + topTabMenuPage);
+    let url = '';
+    if (wv) {
+      try { url = wv.getURL(); } catch(_) {}
+    }
+    if (!url) {
+      const sp = subPageInfo.get(topTabMenuPage);
+      if (sp) url = sp.url;
+    }
+    if (url && url !== 'about:blank' && url.indexOf('newtab.html') !== 0) {
+      try { navigator.clipboard.writeText(url); } catch(_) {}
+    }
+    topTabCtxMenu.style.display = 'none';
+  });
+  document.getElementById('ttctx-close').addEventListener('click', () => {
+    if (topTabMenuPage) closePage(topTabMenuPage);
+    topTabCtxMenu.style.display = 'none';
+  });
+
+  document.addEventListener('click', () => {
+    tabCtxMenu.style.display = 'none';
+    topTabCtxMenu.style.display = 'none';
+  });
   document.getElementById('ctx-unload').addEventListener('click', () => {
-    if (contextMenuSite) unloadWebview(contextMenuSite);
+    if (contextMenuSite) closePage(contextMenuSite);
     tabCtxMenu.style.display = 'none';
   });
 
@@ -1481,39 +1862,96 @@
   const navRef  = document.getElementById('nav-refresh');
 
   navBack.addEventListener('click', () => {
-    const wv = getActiveWebview(); if (wv.canGoBack()) wv.goBack();
+    const wv = getActiveWebview(); if (wv && typeof wv.canGoBack === 'function' && wv.canGoBack()) wv.goBack();
   });
   navFwd.addEventListener('click', () => {
-    const wv = getActiveWebview(); if (wv.canGoForward()) wv.goForward();
+    const wv = getActiveWebview(); if (wv && typeof wv.canGoForward === 'function' && wv.canGoForward()) wv.goForward();
   });
-  navRef.addEventListener('click', () => getActiveWebview().reload());
+  navRef.addEventListener('click', () => { const wv = getActiveWebview(); if (wv && typeof wv.reload === 'function') wv.reload(); });
 
   function updateNavState() {
     const wv = getActiveWebview();
-    if (!wv) return;
-    navBack.classList.toggle('disabled', !wv.canGoBack());
-    navFwd.classList.toggle('disabled', !wv.canGoForward());
+    if (!wv) {
+      navBack.classList.add('disabled');
+      navFwd.classList.add('disabled');
+      return;
+    }
+    try {
+      navBack.classList.toggle('disabled', !wv.canGoBack());
+      navFwd.classList.toggle('disabled', !wv.canGoForward());
+    } catch(_) {
+      // webview 未就绪（dom-ready 前）时保持禁用
+      navBack.classList.add('disabled');
+      navFwd.classList.add('disabled');
+    }
   }
 
-  // 优化：复用已有 DOM 节点更新 URL，避免频繁重建
   function updateUrl() {
     const wv = getActiveWebview();
-    if (!wv) return;
-    urlBar.style.opacity = '';
+    urlBar.classList.remove('loading');
+    if (!wv) { urlBar.value = ''; return; }
     try {
       const u = wv.getURL();
       if (u) {
-        const p = new URL(u);
-        urlDomain.textContent = p.hostname;
-        urlSep.textContent = '•';
-        urlPath.textContent = p.pathname + p.search;
+        if (u.indexOf('newtab.html') !== -1 || u === 'about:blank') {
+          urlBar.value = '';
+          return;
+        }
+        urlBar.value = u;
         return;
       }
     } catch(e) {}
-    urlDomain.textContent = SITES[activeSite] ? SITES[activeSite].domain : '';
-    urlSep.textContent = '';
-    urlPath.textContent = '';
+    const info = getPageInfo(activePage);
+    urlBar.value = info ? info.url : '';
   }
+
+  // ======== 地址栏导航（跳转到任意网页）========
+  function normalizeAddress(input) {
+    let s = (input || '').trim();
+    if (!s) return null;
+    if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(s)) {
+      const looksLikeHost = /^(localhost|([\w-]+\.)+[a-zA-Z]{2,}|(\d{1,3}\.){3}\d{1,3})(:\d+)?(\/.*)?$/.test(s);
+      if (!looksLikeHost) {
+        return 'https://www.baidu.com/s?wd=' + encodeURIComponent(s);
+      }
+      s = 'https://' + s;
+    }
+    try { return new URL(s).href; } catch(e) {}
+    return 'https://www.baidu.com/s?wd=' + encodeURIComponent(input.trim());
+  }
+
+  function navigateToAddress() {
+    const url = normalizeAddress(urlBar.value);
+    if (!url) return;
+    let wv = getActiveWebview();
+    if (!wv) {
+      if (!activeSite) switchSite(SITE_ORDER[0]);
+      wv = getActiveWebview();
+      if (!wv) return;
+    }
+    try {
+      if (url === wv.getURL()) return;
+    } catch(_) {}
+    urlBar.classList.add('loading');
+    wv.loadURL(url);
+  }
+
+  urlBar.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      navigateToAddress();
+    }
+  });
+  urlBar.addEventListener('focus', () => { urlBar.select(); });
+  urlBar.addEventListener('blur', () => updateUrl());
+
+  // ======== 新建空白附属页面（顶部 + 按钮）========
+  document.getElementById('new-tab-btn').addEventListener('click', () => {
+    if (!activeSite) return;
+    newSubPage('about:blank', activeSite);
+    urlBar.focus();
+    urlBar.select();
+  });
 
   setupWebviewListeners(document.getElementById('wv-deepseek'), 'deepseek');
 
@@ -1533,9 +1971,25 @@
   document.addEventListener('keydown', e => {
     if (!shortcutsEnabled) return;
     if (e.ctrlKey && e.key >= '1' && e.key <= '7') {
-      e.preventDefault(); switchTab(SITE_ORDER[parseInt(e.key)-1]);
+      e.preventDefault();
+      const site = SITE_ORDER[parseInt(e.key) - 1];
+      if (site) switchSite(site);
     }
-    if (e.ctrlKey && e.key === 'r') { e.preventDefault(); getActiveWebview().reload(); }
+    if (e.ctrlKey && e.key === 't') {
+      e.preventDefault();
+      if (activeSite) {
+        newSubPage('about:blank', activeSite);
+        urlBar.focus();
+        urlBar.select();
+      }
+    }
+    if (e.ctrlKey && e.key === 'w') { e.preventDefault(); if (activePage) closePage(activePage); }
+    if (e.ctrlKey && e.key === 'l') { e.preventDefault(); urlBar.focus(); urlBar.select(); }
+    if (e.ctrlKey && e.key === 'r') {
+      e.preventDefault();
+      const wv = getActiveWebview();
+      if (wv) wv.reload();
+    }
     if (e.ctrlKey && e.key === 'b') { e.preventDefault(); collapseBtn.click(); }
     if (e.ctrlKey && e.key === 'd') { e.preventDefault(); applyTheme(document.body.classList.contains('dark') ? 'light' : 'dark'); }
   });
@@ -1614,7 +2068,9 @@
   });
 
   updateIndicators();
+  renderTopTabs();
   updateUrl();
+  updateNavState();
 
   // ======== 版本更新逻辑 ========
   var currentVersion = '';

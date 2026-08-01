@@ -1,7 +1,7 @@
 const { app, BrowserWindow, session, ipcMain, shell, Tray, Menu, nativeImage, screen, nativeTheme, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
 
@@ -26,50 +26,49 @@ if (!gotTheLock) {
   });
 }
 
-// ======== 全屏检测（Windows）========
-function checkForegroundFullscreen() {
-  try {
-    const script = `
-      Add-Type -AssemblyName System.Windows.Forms;
-      $src = @"
-        using System;
-        using System.Runtime.InteropServices;
-        public class FS {
-          [DllImport("user32.dll")]
-          public static extern IntPtr GetForegroundWindow();
-          [DllImport("user32.dll")]
-          public static extern bool GetWindowRect(IntPtr h, out RECT r);
-          [DllImport("user32.dll")]
-          public static extern int GetWindowLong(IntPtr h, int nIndex);
-          public const int GWL_STYLE = -16;
-        }
-        public struct RECT { public int L,T,R,B; }
-"@;
-      Add-Type -TypeDefinition $src;
-      $r = New-Object RECT;
-      $hwnd = [FS]::GetForegroundWindow();
-      $ok = [FS]::GetWindowRect($hwnd, [ref]$r);
-      if (-not $ok) { $false } else {
-        $screen = [System.Windows.Forms.Screen]::FromHandle($hwnd);
-        $b = $screen.Bounds;
-        $ww = $r.R - $r.L;
-        $wh = $r.B - $r.T;
-        $sw = $b.Width;
-        $sh = $b.Height;
-        $coversFull = ($r.L -le $b.X) -and ($r.T -le $b.Y) -and ($r.R -ge ($b.X + $sw)) -and ($r.B -ge ($b.Y + $sh));
-        if ($coversFull) { $true } else {
-          $style = [FS]::GetWindowLong($hwnd, -16);
-          $noCaption = ($style -band 0xC00000) -eq 0;
-          $coversMost = ($ww -ge ($sw - 4)) -and ($wh -ge ($sh - 4));
-          $noCaption -and $coversMost
-        }
+// ======== 全屏检测（Windows，异步非阻塞）========
+function checkForegroundFullscreen(cb) {
+  const script = `
+    Add-Type -AssemblyName System.Windows.Forms;
+    $src = @"
+      using System;
+      using System.Runtime.InteropServices;
+      public class FS {
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")]
+        public static extern bool GetWindowRect(IntPtr h, out RECT r);
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr h, int nIndex);
+        public const int GWL_STYLE = -16;
       }
-    `.replace(/\n/g, ' ');
-    const out = execSync(`powershell -NoProfile -Command "${script}"`, {
-      encoding: 'utf8', timeout: 1500, windowsHide: true
-    });
-    return out.includes('True');
-  } catch { return false; }
+      public struct RECT { public int L,T,R,B; }
+"@;
+    Add-Type -TypeDefinition $src;
+    $r = New-Object RECT;
+    $hwnd = [FS]::GetForegroundWindow();
+    $ok = [FS]::GetWindowRect($hwnd, [ref]$r);
+    if (-not $ok) { $false } else {
+      $screen = [System.Windows.Forms.Screen]::FromHandle($hwnd);
+      $b = $screen.Bounds;
+      $ww = $r.R - $r.L;
+      $wh = $r.B - $r.T;
+      $sw = $b.Width;
+      $sh = $b.Height;
+      $coversFull = ($r.L -le $b.X) -and ($r.T -le $b.Y) -and ($r.R -ge ($b.X + $sw)) -and ($r.B -ge ($b.Y + $sh));
+      if ($coversFull) { $true } else {
+        $style = [FS]::GetWindowLong($hwnd, -16);
+        $noCaption = ($style -band 0xC00000) -eq 0;
+        $coversMost = ($ww -ge ($sw - 4)) -and ($wh -ge ($sh - 4));
+        $noCaption -and $coversMost
+      }
+    }
+  `.replace(/\n/g, ' ');
+  exec(`powershell -NoProfile -Command "${script}"`, {
+    encoding: 'utf8', timeout: 2000, windowsHide: true
+  }, (err, stdout) => {
+    cb(!err && !!stdout && stdout.includes('True'));
+  });
 }
 
 // ======== 状态变量 ========
@@ -783,23 +782,30 @@ app.whenReady().then(() => {
     }
   }, 5000);
 
-  // 全屏检测：仅在悬浮球存在时检测（主窗口隐藏时），降低轮询频率
+  // 全屏检测：仅在悬浮球存在时检测（主窗口隐藏时）
+  // 异步执行 + 防重入 + 降低轮询频率，避免阻塞主进程事件循环
   let fullscreenHidden = false;
+  let fsCheckRunning = false;
   setInterval(() => {
-    if (!floatBall || floatBall.isDestroyed()) return;
-    const fs = checkForegroundFullscreen();
-    if (fs && !fullscreenHidden) {
-      fullscreenHidden = true;
-      floatBall.webContents.send('float-ball-fade-out');
-      log.info('Foreground fullscreen detected, fading out floatball');
-    } else if (!fs && fullscreenHidden) {
-      fullscreenHidden = false;
-      if (floatBall && !floatBall.isDestroyed()) {
-        floatBall.webContents.send('float-ball-fade-in');
+    if (!floatBall || floatBall.isDestroyed() || fsCheckRunning) return;
+    fsCheckRunning = true;
+    checkForegroundFullscreen((fs) => {
+      fsCheckRunning = false;
+      if (fs && !fullscreenHidden) {
+        fullscreenHidden = true;
+        if (floatBall && !floatBall.isDestroyed()) {
+          floatBall.webContents.send('float-ball-fade-out');
+        }
+        log.info('Foreground fullscreen detected, fading out floatball');
+      } else if (!fs && fullscreenHidden) {
+        fullscreenHidden = false;
+        if (floatBall && !floatBall.isDestroyed()) {
+          floatBall.webContents.send('float-ball-fade-in');
+        }
+        log.info('Foreground fullscreen exited, fading in floatball');
       }
-      log.info('Foreground fullscreen exited, fading in floatball');
-    }
-  }, 3000);
+    });
+  }, 5000);
 
   log.info('App ready');
 });

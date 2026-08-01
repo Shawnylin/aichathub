@@ -16,6 +16,7 @@
   "build": {
     "appId": "com.aichathub.app",
     "productName": "AI Chat Hub",
+    "artifactName": "AI-Chat-Hub-Setup-${version}.${ext}",
     "directories": {
       "output": "dist"
     },
@@ -29,6 +30,7 @@
       "main.js",
       "preload.js",
       "index.html",
+      "newtab.html",
       "floatball.html",
       "floatball-preload.js",
       "svg/**/*",
@@ -65,8 +67,8 @@
     }
   },
   "devDependencies": {
-    "electron": "^42.2.0",
-    "electron-builder": "^26.8.1",
+    "electron": "^43.2.0",
+    "electron-builder": "^26.15.3",
     "png-to-ico": "^3.0.1",
     "sharp": "^0.34.5"
   },
