@@ -1,0 +1,44 @@
+/* Settings appearance promoted from the tested beta; app shell remains unchanged. */
+#settings-overlay { background:rgba(18,26,34,.22); backdrop-filter:blur(8px) saturate(.65); visibility:hidden; transition:opacity 180ms ease,visibility 180ms; }
+#settings-overlay.show { visibility:visible; }
+#settings-dialog { color:var(--text-tab-active); border:1px solid rgba(255,255,255,.9); border-radius:12px; background:rgba(252,253,254,.94); backdrop-filter:blur(24px) saturate(.75); box-shadow:0 16px 48px #14202c24; transform:translateY(8px); transition:transform 220ms cubic-bezier(.2,.7,.2,1); }
+body.dark #settings-dialog { background:rgba(38,44,51,.94); border-color:rgba(255,255,255,.07); }
+#settings-overlay.show #settings-dialog { transform:translateY(0); }
+#settings-dialog { width: 760px; height: 640px; padding: 24px; }
+#settings-head { padding-bottom: 20px; border-bottom: 1px solid var(--border-nav); margin-bottom: 20px; }
+#settings-head h2 { font-size: 18px; }
+#settings-nav { width: 124px; gap: 6px; border-right: 1px solid var(--border-nav); padding-right: 16px; }
+#settings-body { gap: 24px; }
+#settings-panels { padding-right: 4px; }
+.settings-nav-item { min-height: 40px; }
+.settings-nav-item.active { box-shadow: inset 0 0 0 1px var(--border-nav); }
+.panel-heading { font-size: 12px; letter-spacing: 0; margin: 24px 0 12px; color: var(--text-tab); }
+.setting-hint, .option-desc { line-height: 1.7; }
+.radio-options.horizontal { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+#theme-options .radio-option { position: relative; display: flex; flex-direction: column; align-items: stretch; padding: 12px; gap: 12px; }
+#theme-options .radio-circle { position: absolute; top: 20px; right: 20px; width: 14px; height: 14px; }
+#theme-options .radio-circle::after { width: 6px; height: 6px; }
+.theme-preview { display: flex; gap: 5px; height: 60px; padding: 7px; border: 1px solid rgba(80, 95, 110, .18); border-radius: 5px; background: #e9edf1; }
+.theme-preview::before { content: ''; width: 24%; border-radius: 2px; background: #d1d8df; }
+.theme-preview::after { content: ''; flex: 1; border-radius: 2px; background: #fff; }
+.theme-preview.preview-dark { background: #1c232a; }
+.theme-preview.preview-dark::before { background: #38424d; }
+.theme-preview.preview-dark::after { background: #29323c; }
+.theme-preview.preview-system::after { background: #29323c; }
+body.dark #theme-options .radio-option.selected { border-color: var(--text-dim); }
+body.dark #theme-options .radio-option.selected .radio-circle { border-color: #edf1f5; }
+body.dark #theme-options .radio-option.selected .radio-circle::after { background: #edf1f5; }
+.material-note { margin-top: 20px; padding: 16px; border: 1px solid var(--border-nav); border-radius: 8px; background: var(--bg-urlbar); }
+.material-note strong { font-size: 12px; font-weight: 500; }
+.material-note p { margin-top: 6px; font-size: 12px; line-height: 1.7; color: var(--text-dim); }
+.mica-setting-row { gap: 16px; }
+.mica-setting-row.is-unsupported { opacity: .72; }
+.mica-setting-row .toggle-copy { flex: 1; min-width: 0; }
+.mica-setting-row .toggle-copy .setting-hint { display: block; margin-top: 4px; }
+.mica-setting-row .toggle-switch:disabled { opacity: .45; cursor: not-allowed; }
+
+#settings-dialog .accent-option { width:28px; height:28px; border-radius:7px; }
+#settings-dialog .accent-option:hover { transform:translateY(-1px); }
+#settings-dialog :focus-visible { outline:2px solid var(--text-tab); outline-offset:2px; }
+@media(max-width:760px) { #settings-dialog {padding:20px;} #settings-body {gap:16px;} #settings-nav {width:88px;padding-right:8px;} .radio-options.horizontal {grid-template-columns:1fr;} #theme-options .radio-option {flex-direction:row;align-items:center;} .theme-preview {width:64px;height:44px;flex-shrink:0;} #theme-options .radio-circle {position:static;order:3;} }
+@media(prefers-reduced-motion:reduce) { #settings-overlay,#settings-dialog {transition:none;} }

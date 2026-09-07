@@ -632,55 +632,6 @@
   }
   #settings-close:hover { background:var(--hover-navbtn); }
 
-  /* ========== FLOATBALL CUSTOMIZATION ========== */
-  .fb-preview-wrap {
-    display:flex; justify-content:center; padding:12px 0 16px;
-    overflow:visible;
-  }
-  .fb-preview-ball {
-    border-radius:50%;
-    position:relative; display:flex; align-items:center; justify-content:center;
-    transition:all 0.15s;
-    background:linear-gradient(135deg,rgba(77,107,254,0.65),rgba(108,140,255,0.45),rgba(255,255,255,0.15));
-    box-shadow:0 2px 16px rgba(77,107,254,0.35), 0 0 0 1.5px rgba(255,255,255,0.3), 0 0 40px 6px rgba(108,140,255,0.15);
-  }
-  .fb-preview-ball::before {
-    content:''; position:absolute; top:2px; left:2px; right:40%; bottom:40%;
-    border-radius:50%;
-    background:linear-gradient(135deg,rgba(255,255,255,0.5) 0%, transparent 60%);
-    pointer-events:none;
-  }
-  .fb-preview-ball svg { position:relative; z-index:1; opacity:0.9; pointer-events:none; }
-  .fb-preview-glow {
-    position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%;
-    pointer-events:none;
-    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.35) 0%, transparent 60%);
-    transition:opacity 0.15s;
-  }
-  .fb-color-options { display:flex; gap:6px; margin-bottom:10px; }
-  .fb-color-btn {
-    width:26px; height:26px; border-radius:50%; border:2px solid transparent;
-    cursor:pointer; flex-shrink:0; transition:border-color 0.15s, transform 0.12s;
-    padding:0;
-  }
-  .fb-color-btn:hover { transform:scale(1.15); }
-  .fb-color-btn.active { border-color:#fff; box-shadow:0 0 0 1.5px var(--text-tab-active), 0 0 8px rgba(0,0,0,0.2); }
-  .fb-slider-row {
-    display:flex; align-items:center; gap:8px; margin-bottom:7px;
-    padding:0 2px;
-  }
-  .fb-slider-row label { font-size:11px; font-weight:600; color:var(--text-dim); min-width:48px; flex-shrink:0; }
-  .fb-slider-row input[type="range"] {
-    flex:1; height:4px; -webkit-appearance:none; appearance:none;
-    background:var(--border-btn); border-radius:2px; outline:none;
-  }
-  .fb-slider-row input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
-    background:#4d6bfe; cursor:pointer; border:2px solid #fff;
-    box-shadow:0 1px 4px rgba(0,0,0,0.2);
-  }
-  .fb-slider-val { font-size:12px; color:var(--text-tab); min-width:28px; text-align:right; font-variant-numeric:tabular-nums; }
-
   /* ========== CLOSE DIALOG ========== */
   #close-overlay {
     position:fixed; top:0; left:0; width:100%; height:100%;
@@ -823,6 +774,9 @@
     *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
   }
 </style>
+<link rel="stylesheet" href="renderer/task-panel.css">
+<link rel="stylesheet" href="renderer/settings-refresh.css">
+<link rel="stylesheet" href="renderer/glass-navigation.css">
 </head>
 <body>
 
@@ -978,22 +932,25 @@
       <div id="settings-panels">
         <section class="settings-panel active" id="panel-appearance">
           <h3 class="panel-heading">主题</h3>
-          <div class="radio-options horizontal" id="theme-options">
-            <div class="radio-option selected" data-theme="light">
+          <div class="radio-options horizontal" id="theme-options" role="radiogroup" aria-label="界面主题">
+            <div class="radio-option selected" data-theme="light" role="radio" tabindex="0" aria-checked="true">
+              <div class="theme-preview preview-light" aria-hidden="true"></div>
               <div class="radio-circle"></div>
               <div class="option-info">
                 <div class="option-name">浅色模式</div>
                 <div class="option-desc">亮色界面，适合日间使用</div>
               </div>
             </div>
-            <div class="radio-option" data-theme="dark">
+            <div class="radio-option" data-theme="dark" role="radio" tabindex="0" aria-checked="false">
+              <div class="theme-preview preview-dark" aria-hidden="true"></div>
               <div class="radio-circle"></div>
               <div class="option-info">
                 <div class="option-name">深色模式</div>
                 <div class="option-desc">暗色界面，减少眼部疲劳</div>
               </div>
             </div>
-            <div class="radio-option" data-theme="system">
+            <div class="radio-option" data-theme="system" role="radio" tabindex="0" aria-checked="false">
+              <div class="theme-preview preview-system" aria-hidden="true"></div>
               <div class="radio-circle"></div>
               <div class="option-info">
                 <div class="option-name">跟随系统</div>
@@ -1003,12 +960,20 @@
           </div>
           <h3 class="panel-heading">主题色</h3>
           <div class="accent-options" id="accent-options" aria-label="选择主题色">
+            <button class="accent-option" type="button" data-accent="#53616d" style="--color:#53616d" aria-label="石墨灰"></button>
             <button class="accent-option" type="button" data-accent="#10a37f" style="--color:#10a37f" aria-label="绿色"></button>
             <button class="accent-option" type="button" data-accent="#4d6bfe" style="--color:#4d6bfe" aria-label="蓝色"></button>
-            <button class="accent-option" type="button" data-accent="#8b5cf6" style="--color:#8b5cf6" aria-label="紫色"></button>
-            <button class="accent-option" type="button" data-accent="#e66a3c" style="--color:#e66a3c" aria-label="橙色"></button>
-            <button class="accent-option" type="button" data-accent="#e45b88" style="--color:#e45b88" aria-label="玫红色"></button>
+            <button class="accent-option" type="button" data-accent="#786c60" style="--color:#786c60" aria-label="暖灰色"></button>
           </div>
+          <h3 class="panel-heading">窗口材质</h3>
+          <div class="toggle-row mica-setting-row is-unsupported" id="mica-setting-row">
+            <div class="toggle-copy">
+              <span class="toggle-label">启用云母背景材质</span>
+              <span class="setting-hint" id="mica-description">正在检测系统支持情况...</span>
+            </div>
+            <button class="toggle-switch" id="mica-toggle" type="button" role="switch" aria-checked="false" aria-describedby="mica-description" aria-label="启用云母背景材质" disabled></button>
+          </div>
+          <div class="material-note"><strong>轻盈，有序</strong><p>半透明面板与细腻的毛玻璃层次，让内容保持清晰。外观随主题切换，动画跟随系统的减少动态效果设置。</p></div>
         </section>
         <section class="settings-panel" id="panel-features">
           <h3 class="panel-heading">快捷键</h3>
@@ -1031,50 +996,14 @@
             <button class="toggle-switch on" id="floatball-toggle"></button>
           </div>
           <div class="fb-quick-access">
-            <div class="fb-quick-icon" aria-hidden="true">✦</div>
+            <div class="fb-quick-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 4v16"/></svg></div>
             <div class="fb-quick-copy">
               <strong>桌面快速入口</strong>
               <span>拖动后会自动贴边；单击即可回到当前会话。</span>
             </div>
             <button id="fb-reset-position" type="button">恢复位置</button>
           </div>
-          <div class="collapse-row">
-            <span class="toggle-label">悬浮球外观</span>
-            <button class="collapse-btn-custom" id="fb-custom-toggle" type="button">展开</button>
-          </div>
-          <div id="fb-custom-section">
-            <div class="fb-preview-wrap">
-              <div class="fb-preview-ball" id="fb-preview">
-                <div class="fb-preview-glow"></div>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-              </div>
-            </div>
-            <div class="fb-color-options" id="fb-color-options">
-              <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
-              <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
-              <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
-              <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
-              <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
-              <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
-            </div>
-            <div class="fb-slider-row">
-              <label>大小</label>
-              <input type="range" id="fb-size" min="32" max="80" value="44">
-              <span class="fb-slider-val" id="fb-size-val">44</span>
-            </div>
-            <div class="fb-slider-row">
-              <label>光晕</label>
-              <input type="range" id="fb-glow" min="0" max="100" value="100">
-              <span class="fb-slider-val" id="fb-glow-val">100</span>
-            </div>
-            <div class="fb-slider-row">
-              <label>高光</label>
-              <input type="range" id="fb-highlight" min="0" max="100" value="100">
-              <span class="fb-slider-val" id="fb-highlight-val">100</span>
-            </div>
-          </div>
+          <div class="setting-hint">悬浮入口颜色跟随外观中的主题色。</div>
           <h3 class="panel-heading">内存</h3>
           <div class="toggle-row">
             <span class="toggle-label">内存优化 <span class="beta-tag">Beta</span></span>
@@ -1102,7 +1031,7 @@
         </section>
         <section class="settings-panel" id="panel-about">
           <h3 class="panel-heading">关于</h3>
-          <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.3.0</span></div>
+          <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.4.1</span></div>
           <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
           <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
           <div class="about-update-row">
@@ -1134,6 +1063,7 @@
 
 
 
+<script src="renderer/source-route.js"></script>
 <script>
   const sidebar = document.getElementById('sidebar');
   const collapseBtn = document.getElementById('collapse-btn');
@@ -1159,13 +1089,6 @@
     });
   });
 
-  // 悬浮球外观折叠
-  document.getElementById('fb-custom-toggle').addEventListener('click', () => {
-    const sec = document.getElementById('fb-custom-section');
-    const open = sec.classList.toggle('open');
-    document.getElementById('fb-custom-toggle').textContent = open ? '收起' : '展开';
-  });
-
   // 内存优化（Beta）开关
   let memoryOptEnabled = localStorage.getItem('aihub-memory-opt') !== '0';
   const memoryToggle = document.getElementById('memory-toggle');
@@ -1189,12 +1112,12 @@
     if (!skipSave) localStorage.setItem('aihub-theme', theme);
     const dark = resolveDark(theme);
     document.body.classList.toggle('dark', dark);
-    themeOptions.forEach(o => o.classList.toggle('selected', o.dataset.theme === theme));
+    themeOptions.forEach(o => { o.classList.toggle('selected', o.dataset.theme === theme); o.setAttribute('aria-checked', String(o.dataset.theme === theme)); });
     const accentColor = localStorage.getItem('aihub-accent') || '#10a37f';
     document.documentElement.style.setProperty('--accent-soft', accentColor + (dark ? '2b' : '1f'));
     window.app?.setTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
   }
-  themeOptions.forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
+  themeOptions.forEach(opt => { opt.addEventListener('click', () => applyTheme(opt.dataset.theme)); opt.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); opt.click(); } }); });
   // 跟随系统时，系统主题变化自动同步
   systemDarkQuery.addEventListener('change', () => {
     if ((localStorage.getItem('aihub-theme') || 'light') === 'system') {
@@ -1214,6 +1137,43 @@
   }
   accentOptions.forEach(option => option.addEventListener('click', () => applyAccentColor(option.dataset.accent)));
   applyAccentColor(localStorage.getItem('aihub-accent') || '#10a37f');
+
+  // 云母背景材质
+  const micaSettingRow = document.getElementById('mica-setting-row');
+  const micaToggle = document.getElementById('mica-toggle');
+  const micaDescription = document.getElementById('mica-description');
+  let micaState = { supported: false, enabled: false };
+  function renderMicaState(state) {
+    micaState = state || { supported: false, enabled: false };
+    const supported = !!micaState.supported;
+    const enabled = supported && !!micaState.enabled;
+    micaToggle.disabled = !supported;
+    micaToggle.classList.toggle('on', enabled);
+    micaToggle.setAttribute('aria-checked', String(enabled));
+    micaSettingRow.classList.toggle('is-unsupported', !supported);
+    micaDescription.textContent = micaState.reason || (supported
+      ? 'Windows 11 22H2 或更高版本支持实时切换，默认关闭。'
+      : '当前系统不支持此效果');
+    micaToggle.title = supported ? '切换云母背景材质' : micaDescription.textContent;
+    document.body.classList.toggle('mica-enabled', enabled);
+  }
+  micaToggle.addEventListener('click', async () => {
+    if (micaToggle.disabled) return;
+    micaToggle.disabled = true;
+    try {
+      const nextState = await window.app.setMicaEnabled(!micaState.enabled);
+      renderMicaState(nextState);
+    } catch (_) {
+      renderMicaState({ ...micaState, reason: '云母材质暂时无法应用，请稍后重试。' });
+    }
+  });
+  if (typeof window.app.getMicaState === 'function') {
+    window.app.getMicaState().then(renderMicaState).catch(() => {
+      renderMicaState({ supported: false, enabled: false, reason: '当前系统不支持此效果' });
+    });
+  } else {
+    renderMicaState({ supported: false, enabled: false, reason: '当前系统不支持此效果' });
+  }
 
   // 快捷键开关
   const shortcutToggle = document.getElementById('shortcut-toggle');
@@ -1246,95 +1206,6 @@
 
   document.getElementById('fb-reset-position').addEventListener('click', () => {
     window.app.resetFloatBallPosition();
-  });
-
-  // 悬浮球自定义设置
-  const FB_COLORS = {
-    blue:{bg:'linear-gradient(135deg,rgba(77,107,254,0.65),rgba(108,140,255,0.45),rgba(255,255,255,0.15))',s:'77,107,254',se:'108,140,255'},
-    purple:{bg:'linear-gradient(135deg,rgba(147,51,234,0.65),rgba(168,85,247,0.45),rgba(255,255,255,0.15))',s:'147,51,234',se:'168,85,247'},
-    green:{bg:'linear-gradient(135deg,rgba(16,185,129,0.65),rgba(52,211,153,0.45),rgba(255,255,255,0.15))',s:'16,185,129',se:'52,211,153'},
-    orange:{bg:'linear-gradient(135deg,rgba(245,158,11,0.65),rgba(251,191,36,0.45),rgba(255,255,255,0.15))',s:'245,158,11',se:'251,191,36'},
-    pink:{bg:'linear-gradient(135deg,rgba(236,72,153,0.65),rgba(244,114,182,0.45),rgba(255,255,255,0.15))',s:'236,72,153',se:'244,114,182'},
-    cyan:{bg:'linear-gradient(135deg,rgba(6,182,212,0.65),rgba(34,211,238,0.45),rgba(255,255,255,0.15))',s:'6,182,212',se:'34,211,238'}
-  };
-
-  const fbPreview = document.getElementById('fb-preview');
-  const fbPreviewGlow = fbPreview.querySelector('.fb-preview-glow');
-
-  function loadFBS() {
-    try { return JSON.parse(localStorage.getItem('aihub-floatball-settings')) || {}; } catch(e) { return {}; }
-  }
-  function saveFBS(s) {
-    localStorage.setItem('aihub-floatball-settings', JSON.stringify(s));
-    window.app.updateFloatballSettings();
-  }
-
-  function applyFBPreview(s) {
-    const c = FB_COLORS[s.color] || FB_COLORS.blue;
-    const gf = (s.glow != null ? s.glow : 100) / 100;
-    const hf = (s.highlight != null ? s.highlight : 100) / 100;
-    const sz = s.size || 44;
-
-    fbPreview.style.width = sz + 'px';
-    fbPreview.style.height = sz + 'px';
-    fbPreview.style.background = c.bg;
-    fbPreview.style.boxShadow = '0 2px ' + Math.round(16*gf) + 'px rgba(' + c.s + ',' + (0.35*gf) + '),0 0 0 1.5px rgba(255,255,255,0.3),0 0 ' + Math.round(40*gf) + 'px 6px rgba(' + c.se + ',' + (0.15*gf) + ')';
-    fbPreviewGlow.style.opacity = hf;
-
-    const svg = fbPreview.querySelector('svg');
-    const svgSz = Math.round(sz * 0.5);
-    svg.style.width = svgSz + 'px';
-    svg.style.height = svgSz + 'px';
-
-    document.querySelectorAll('.fb-color-btn').forEach(function(b) {
-      b.classList.toggle('active', b.dataset.color === s.color);
-    });
-  }
-
-  function updateFBS(partial) {
-    const s = loadFBS();
-    for (const k in partial) s[k] = partial[k];
-    if (!s.color) s.color = 'blue';
-    saveFBS(s);
-    applyFBPreview(s);
-  }
-
-  // Init
-  let fbSettings = loadFBS();
-  if (!fbSettings.color) {
-    fbSettings = { color: 'blue', size: 44, glow: 100, highlight: 100 };
-    saveFBS(fbSettings);
-  }
-  applyFBPreview(fbSettings);
-
-  // Restore slider positions
-  document.getElementById('fb-size').value = fbSettings.size || 44;
-  document.getElementById('fb-size-val').textContent = fbSettings.size || 44;
-  document.getElementById('fb-glow').value = fbSettings.glow != null ? fbSettings.glow : 100;
-  document.getElementById('fb-glow-val').textContent = fbSettings.glow != null ? fbSettings.glow : 100;
-  document.getElementById('fb-highlight').value = fbSettings.highlight != null ? fbSettings.highlight : 100;
-  document.getElementById('fb-highlight-val').textContent = fbSettings.highlight != null ? fbSettings.highlight : 100;
-
-  // Events
-  document.querySelectorAll('.fb-color-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      updateFBS({ color: this.dataset.color });
-    });
-  });
-
-  document.getElementById('fb-size').addEventListener('input', function() {
-    document.getElementById('fb-size-val').textContent = this.value;
-    updateFBS({ size: parseInt(this.value) });
-  });
-
-  document.getElementById('fb-glow').addEventListener('input', function() {
-    document.getElementById('fb-glow-val').textContent = this.value;
-    updateFBS({ glow: parseInt(this.value) });
-  });
-
-  document.getElementById('fb-highlight').addEventListener('input', function() {
-    document.getElementById('fb-highlight-val').textContent = this.value;
-    updateFBS({ highlight: parseInt(this.value) });
   });
 
   // GitHub 链接
@@ -1493,7 +1364,8 @@
     } catch(e) {}
     wv.addEventListener('context-menu', (e) => {
       e.preventDefault();
-      window.app.showContextMenu();
+      const site = SITES[parentSiteOf(pageId)];
+      window.app.showContextMenu({ text: e.params?.selectionText || '', url: wv.getURL(), title: wv.getTitle(), siteName: site?.name || '网页', siteId: parentSiteOf(pageId) });
     });
   }
 
@@ -1609,17 +1481,19 @@
     // 当前 AI 站点主页面标签（固定在首位，点击回到站点主页）
     const siteInfo = SITES[activeSite];
     const siteTab = document.createElement('div');
-    siteTab.className = 'top-tab' + (activePage === activeSite ? ' active' : '');
+    siteTab.className = 'top-tab site-tab' + (activePage === activeSite ? ' active' : '');
     siteTab.dataset.page = activeSite;
     siteTab.title = siteInfo.name + ' · ' + siteInfo.domain;
     let siteFavicon = null;
     try { siteFavicon = localStorage.getItem('aihub-favicon-' + activeSite); } catch(e) {}
-    siteTab.innerHTML = (siteFavicon
+    siteTab.innerHTML = '<button class="site-nav-trigger" type="button" aria-label="网页导航：后退、前进和刷新" aria-expanded="false" aria-controls="nav-capsule">' + (siteFavicon
       ? '<img class="tt-favicon" src="' + siteFavicon + '" alt="">'
       : '<span class="tt-favicon-ph">' + siteInfo.name.slice(0, 2) + '</span>')
-      + '<span class="tt-text"></span>';
+      + '</button><span class="tt-text"></span>';
     siteTab.querySelector('.tt-text').textContent = siteInfo.name;
-    siteTab.addEventListener('click', () => switchSite(activeSite));
+    siteTab.addEventListener('click', event => {
+      if (!event.target.closest('.site-nav-trigger')) switchSite(activeSite);
+    });
     siteTab.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       topTabMenuPage = activeSite;
@@ -1726,6 +1600,12 @@
     switchPage(pageId);
     return pageId;
   }
+
+  // Source pages reuse their original site's session partition, never the current site's.
+  window.hubNavigation = Object.freeze({ openSource(source) {
+    const route = window.resolveSourceRoute(source, SITES);
+    return newSubPage(route.url, route.siteId);
+  } });
 
   function updateIndicators() {
     tabItems.forEach(btn => {
@@ -2502,5 +2382,8 @@
       buildPermissionUI();
     });
   });</script>
+<script src="renderer/floating-navigation.js"></script>
+<script src="renderer/glass-appearance.js"></script>
+<script src="renderer/task-panel.js"></script>
 </body>
 </html>

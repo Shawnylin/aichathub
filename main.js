@@ -1,9 +1,13 @@
-const { app, BrowserWindow, session, ipcMain, shell, Tray, Menu, nativeImage, screen, nativeTheme, dialog } = require('electron');
+const { app, BrowserWindow, session, ipcMain, shell, clipboard, Tray, Menu, nativeImage, screen, nativeTheme, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const { exec } = require('child_process');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
+const { TaskStore } = require('./main/task-store');
+const { registerTaskIpc, trusted } = require('./main/task-ipc');
+const { captureMenuItem } = require('./main/task-capture');
 
 // ======== 日志配置 ========
 log.transports.file.level = 'info';
@@ -79,6 +83,9 @@ let isQuitting = false;
 let floatBallEnabled = true;
 let floatBallPos = null;
 let appAccentColor = '#10a37f';
+let glassTransparency = 20;
+let micaEnabled = false;
+const WINDOWS_MICA_MIN_BUILD = 22621;
 const FLOAT_BALL_SIZE = 120;
 const FLOAT_BALL_EDGE_GAP = 12;
 
@@ -99,6 +106,8 @@ function loadConfig() {
       }
       if (typeof cfg.floatBallEnabled === 'boolean') floatBallEnabled = cfg.floatBallEnabled;
       if (typeof cfg.appAccentColor === 'string' && /^#[0-9a-f]{6}$/i.test(cfg.appAccentColor)) appAccentColor = cfg.appAccentColor;
+      if (Number.isFinite(cfg.glassTransparency)) glassTransparency = Math.max(0, Math.min(70, cfg.glassTransparency));
+      if (typeof cfg.micaEnabled === 'boolean') micaEnabled = cfg.micaEnabled;
     }
   } catch (e) { log.warn('Failed to load config:', e.message); }
 }
@@ -110,6 +119,43 @@ function saveConfig(key, value) {
     cfg[key] = value;
     fs.writeFileSync(configPath, JSON.stringify(cfg, null, 2));
   } catch (e) { log.warn('Failed to save config:', e.message); }
+}
+
+function getWindowsBuildNumber() {
+  if (process.platform !== 'win32') return 0;
+  const version = typeof process.getSystemVersion === 'function' ? process.getSystemVersion() : os.release();
+  const match = String(version).match(/^10\.0\.(\d+)/);
+  return match ? Number(match[1]) : 0;
+}
+
+function isMicaSupported() {
+  return process.platform === 'win32' && getWindowsBuildNumber() >= WINDOWS_MICA_MIN_BUILD;
+}
+
+function canApplyMica() {
+  return isMicaSupported() && !!mainWindow && !mainWindow.isDestroyed() &&
+    typeof mainWindow.setBackgroundMaterial === 'function';
+}
+
+function getMicaState() {
+  const supported = canApplyMica();
+  return {
+    supported,
+    enabled: supported && micaEnabled,
+    reason: supported ? '' : '当前系统不支持此效果（需要 Windows 11 22H2 或更高版本）'
+  };
+}
+
+function applyMicaMaterial(enabled) {
+  if (!canApplyMica()) return false;
+  try {
+    mainWindow.setBackgroundMaterial(enabled ? 'mica' : 'none');
+    micaEnabled = !!enabled;
+    return true;
+  } catch (error) {
+    log.warn('Failed to apply Mica material:', error.message);
+    return false;
+  }
 }
 
 loadConfig();
@@ -224,6 +270,7 @@ function createWindow() {
     frame: false,
     show: false,
     backgroundColor: '#0a0a0a',
+    ...(isMicaSupported() ? { backgroundMaterial: micaEnabled ? 'mica' : 'none' } : {}),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -235,6 +282,11 @@ function createWindow() {
   mainWindow.loadFile('index.html');
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
+
+  if (isMicaSupported() && !applyMicaMaterial(micaEnabled)) {
+    micaEnabled = false;
+    saveConfig('micaEnabled', false);
+  }
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
@@ -260,6 +312,17 @@ function createWindow() {
     }
   });
 
+  mainWindow.webContents.on('will-prevent-unload', event => {
+    const response = dialog.showMessageBoxSync(mainWindow, {
+      type: 'warning', title: '任务内容尚未保存',
+      message: '有未保存的任务内容或正在进行的保存。',
+      detail: '返回工作台完成保存，或放弃未保存内容并继续。',
+      buttons: ['返回保存', '放弃并继续'], defaultId: 0, cancelId: 0
+    });
+    if (response === 1) event.preventDefault();
+    else isQuitting = false;
+  });
+
   mainWindow.on('hide', () => {
     if (floatBallEnabled) createFloatBall();
   });
@@ -275,6 +338,9 @@ function createWindow() {
 
 // ======== IPC 注册（仅执行一次）========
 function registerIpcHandlers() {
+  registerTaskIpc({ ipcMain, dialog, clipboard, shell, getWindow: () => mainWindow,
+    store: new TaskStore(path.join(app.getPath('userData'), 'task-workspace')),
+    indexFile: path.join(__dirname, 'index.html') });
   // 窗口管理
   ipcMain.on('window-minimize', () => { if (mainWindow) mainWindow.minimize(); });
   ipcMain.on('window-maximize', () => {
@@ -330,9 +396,37 @@ function registerIpcHandlers() {
       floatBall.webContents.send('float-ball-accent-change', appAccentColor);
     }
   });
+  ipcMain.on('set-glass-transparency', (event, value) => {
+    if (!trusted(event, mainWindow, path.join(__dirname, 'index.html')) || !Number.isFinite(value) || value < 0 || value > 70) return;
+    glassTransparency = value;
+    saveConfig('glassTransparency', value);
+    if (floatBall && !floatBall.isDestroyed()) floatBall.webContents.send('float-ball-glass-change', value);
+  });
 
-  ipcMain.on('show-context-menu', (_, action) => {
-    if (!mainWindow) return;
+  // 云母背景材质
+  ipcMain.handle('get-mica-state', (event) => {
+    if (!trusted(event, mainWindow, path.join(__dirname, 'index.html'))) {
+      return { supported: false, enabled: false, reason: '不允许访问窗口材质设置' };
+    }
+    return getMicaState();
+  });
+
+  ipcMain.handle('set-mica-enabled', (event, enabled) => {
+    if (!trusted(event, mainWindow, path.join(__dirname, 'index.html'))) {
+      return { supported: false, enabled: false, applied: false, reason: '不允许访问窗口材质设置' };
+    }
+    if (!isMicaSupported()) return { ...getMicaState(), applied: false };
+
+    const applied = applyMicaMaterial(enabled === true);
+    if (!applied) {
+      return { ...getMicaState(), applied: false, reason: '云母材质暂时无法应用' };
+    }
+    saveConfig('micaEnabled', micaEnabled);
+    return { ...getMicaState(), applied: true };
+  });
+
+  ipcMain.on('show-context-menu', (event, action) => {
+    if (!trusted(event, mainWindow, path.join(__dirname, 'index.html'))) return;
     const wv = mainWindow.webContents;
     const menuItems = [
       { label: '返回',     click: () => wv.send('context-menu-action', 'back') },
@@ -343,6 +437,10 @@ function registerIpcHandlers() {
       { label: '粘贴',     click: () => wv.send('context-menu-action', 'paste') },
       { label: '全选',     click: () => wv.send('context-menu-action', 'selectAll') },
     ];
+
+    if (action && typeof action === 'object') {
+      menuItems.unshift(captureMenuItem(action, snapshot => wv.send('tasks:capture', snapshot)), { type: 'separator' });
+    }
 
     if (action === 'selection') {
       menuItems.unshift(
@@ -613,6 +711,7 @@ function createFloatBall() {
   floatBall.webContents.once('did-finish-load', () => {
     if (floatBall && !floatBall.isDestroyed()) {
       floatBall.webContents.send('float-ball-accent-change', appAccentColor);
+      floatBall.webContents.send('float-ball-glass-change', glassTransparency);
     }
   });
   floatBall.setAlwaysOnTop(true, 'floating');
