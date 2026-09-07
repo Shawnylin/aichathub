@@ -78,7 +78,7 @@ let floatBall = null;
 let isQuitting = false;
 let floatBallEnabled = true;
 let floatBallPos = null;
-let appAccentColor = '#10a37f';
+let appAccentColor = '#53616d';
 const FLOAT_BALL_SIZE = 120;
 const FLOAT_BALL_EDGE_GAP = 12;
 
@@ -210,9 +210,11 @@ const SITE_NAMES = {
   kimi: 'Kimi',
   minimax: 'MiniMax',
   tongyi: '千问',
-  chatglm: '智谱清言'
+  chatglm: '智谱清言',
+  grok: 'Grok',
+  chatgpt: 'ChatGPT'
 };
-let SITE_ORDER = ['deepseek', 'yuanbao', 'doubao', 'kimi', 'minimax', 'tongyi', 'chatglm'];
+let SITE_ORDER = ['deepseek', 'yuanbao', 'doubao', 'kimi', 'minimax', 'tongyi', 'chatglm', 'grok', 'chatgpt'];
 
 // ======== 窗口创建 ========
 function createWindow() {
@@ -702,7 +704,7 @@ function createTray() {
 }
 
 function buildTrayMenu() {
-  const siteItems = SITE_ORDER.map(site => ({
+  const siteItems = SITE_ORDER.filter(site => SITE_NAMES[site]).map(site => ({
     label: SITE_NAMES[site],
     click: () => {
       if (mainWindow) {
@@ -750,7 +752,7 @@ function buildTrayMenu() {
 
 // ======== 启动 ========
 app.whenReady().then(() => {
-  const sites = ['deepseek', 'yuanbao', 'doubao', 'kimi', 'minimax', 'tongyi', 'chatglm'];
+  const sites = ['deepseek', 'yuanbao', 'doubao', 'kimi', 'minimax', 'tongyi', 'chatglm', 'grok', 'chatgpt'];
   sites.forEach(site => {
     const ses = session.fromPartition(`persist:${site}`);
     ses.setPermissionRequestHandler((webContents, permission, callback) => {

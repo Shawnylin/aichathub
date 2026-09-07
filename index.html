@@ -106,6 +106,17 @@
     transition: opacity 0.15s, color 0.3s;
   }
   #sidebar.collapsed .sidebar-nav .section-label { opacity:0; }
+  .site-section-head { display:flex; align-items:center; justify-content:space-between; padding-right:4px; }
+  .site-section-head .section-label { flex:1; }
+  .section-add-btn {
+    width:24px; height:24px; border:0; border-radius:6px; background:transparent;
+    color:var(--text-dim); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:19px; line-height:1; transition:background .12s, color .12s;
+  }
+  .section-add-btn:hover { background:var(--hover-navbtn); color:var(--text-tab-active); }
+  #sidebar.collapsed .site-section-head { justify-content:center; padding:0; }
+  #sidebar.collapsed .site-section-head .section-label { display:none; }
+  #sidebar.collapsed .section-add-btn { width:34px; height:34px; }
 
   .tab-item {
     display:flex; align-items:center; gap:12px;
@@ -595,7 +606,7 @@
     height:0; overflow:hidden;
     display:flex; align-items:center; justify-content:center; gap:12px;
     font-size:13px; font-weight:500;
-    background:linear-gradient(135deg, #4d6bfe, #6c8cff);
+    background:var(--accent);
     color:#fff;
     transition: height 0.3s cubic-bezier(0.4,0,0.2,1);
   }
@@ -632,54 +643,47 @@
   }
   #settings-close:hover { background:var(--hover-navbtn); }
 
-  /* ========== FLOATBALL CUSTOMIZATION ========== */
-  .fb-preview-wrap {
-    display:flex; justify-content:center; padding:12px 0 16px;
-    overflow:visible;
+  /* ========== SITE MANAGEMENT ========== */
+  .site-manage-list { display:flex; flex-direction:column; gap:6px; }
+  .site-manage-row {
+    display:flex; align-items:center; gap:10px; padding:10px 12px;
+    border:1px solid var(--border-btn); border-radius:9px; background:var(--bg-urlbar);
   }
-  .fb-preview-ball {
-    border-radius:50%;
-    position:relative; display:flex; align-items:center; justify-content:center;
-    transition:all 0.15s;
-    background:linear-gradient(135deg,rgba(77,107,254,0.65),rgba(108,140,255,0.45),rgba(255,255,255,0.15));
-    box-shadow:0 2px 16px rgba(77,107,254,0.35), 0 0 0 1.5px rgba(255,255,255,0.3), 0 0 40px 6px rgba(108,140,255,0.15);
+  .site-manage-dot { width:10px; height:10px; border-radius:50%; flex:0 0 auto; }
+  .site-manage-info { min-width:0; flex:1; }
+  .site-manage-name { color:var(--text-tab-active); font-size:12px; font-weight:600; }
+  .site-manage-domain { color:var(--text-dim); font-size:10px; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .site-manage-status { color:var(--text-dim); font-size:10px; white-space:nowrap; }
+  .site-manage-action {
+    border:1px solid var(--border-btn); border-radius:6px; padding:5px 8px;
+    background:transparent; color:var(--text-tab); cursor:pointer; font:inherit; font-size:10px; white-space:nowrap;
   }
-  .fb-preview-ball::before {
-    content:''; position:absolute; top:2px; left:2px; right:40%; bottom:40%;
-    border-radius:50%;
-    background:linear-gradient(135deg,rgba(255,255,255,0.5) 0%, transparent 60%);
-    pointer-events:none;
+  .site-manage-action:hover { background:var(--hover-navbtn); color:var(--text-tab-active); }
+  .site-manage-action.danger { color:#e02f2f; }
+  .site-manage-action.danger:hover { background:#e02f2f16; border-color:#e02f2f; }
+
+  #site-form-overlay {
+    position:fixed; inset:0; z-index:240; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.42); opacity:0; pointer-events:none; transition:opacity .2s;
   }
-  .fb-preview-ball svg { position:relative; z-index:1; opacity:0.9; pointer-events:none; }
-  .fb-preview-glow {
-    position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%;
-    pointer-events:none;
-    background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.35) 0%, transparent 60%);
-    transition:opacity 0.15s;
+  #site-form-overlay.show { opacity:1; pointer-events:auto; }
+  #site-form-dialog {
+    width:360px; max-width:90vw; padding:22px; border-radius:14px; background:var(--bg-content);
+    box-shadow:0 18px 58px rgba(0,0,0,.24);
   }
-  .fb-color-options { display:flex; gap:6px; margin-bottom:10px; }
-  .fb-color-btn {
-    width:26px; height:26px; border-radius:50%; border:2px solid transparent;
-    cursor:pointer; flex-shrink:0; transition:border-color 0.15s, transform 0.12s;
-    padding:0;
+  #site-form-dialog h3 { margin:0 0 16px; color:var(--text-tab-active); font-size:15px; }
+  .site-form-field { display:block; margin-bottom:12px; }
+  .site-form-field span { display:block; margin-bottom:5px; color:var(--text-dim); font-size:11px; }
+  .site-form-field input {
+    width:100%; height:34px; padding:0 10px; border:1px solid var(--border-btn); border-radius:8px;
+    background:var(--bg-urlbar); color:var(--text-tab-active); outline:none; font:inherit; font-size:12px;
   }
-  .fb-color-btn:hover { transform:scale(1.15); }
-  .fb-color-btn.active { border-color:#fff; box-shadow:0 0 0 1.5px var(--text-tab-active), 0 0 8px rgba(0,0,0,0.2); }
-  .fb-slider-row {
-    display:flex; align-items:center; gap:8px; margin-bottom:7px;
-    padding:0 2px;
-  }
-  .fb-slider-row label { font-size:11px; font-weight:600; color:var(--text-dim); min-width:48px; flex-shrink:0; }
-  .fb-slider-row input[type="range"] {
-    flex:1; height:4px; -webkit-appearance:none; appearance:none;
-    background:var(--border-btn); border-radius:2px; outline:none;
-  }
-  .fb-slider-row input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
-    background:#4d6bfe; cursor:pointer; border:2px solid #fff;
-    box-shadow:0 1px 4px rgba(0,0,0,0.2);
-  }
-  .fb-slider-val { font-size:12px; color:var(--text-tab); min-width:28px; text-align:right; font-variant-numeric:tabular-nums; }
+  .site-form-field input:focus { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
+  #site-form-error { min-height:16px; color:#e02f2f; font-size:11px; margin-bottom:8px; }
+  .site-form-actions { display:flex; justify-content:flex-end; gap:8px; }
+  .site-form-actions button { border:1px solid var(--border-btn); border-radius:8px; padding:7px 14px; cursor:pointer; font:inherit; font-size:12px; }
+  #site-form-cancel { background:transparent; color:var(--text-tab); }
+  #site-form-submit { border-color:var(--accent); background:var(--accent); color:#fff; }
 
   /* ========== CLOSE DIALOG ========== */
   #close-overlay {
@@ -720,7 +724,7 @@
   :root {
     --sidebar-w: 248px;
     --collapsed-w: 60px;
-    --accent: #10a37f;
+    --accent: #53616d;
     --site-accent: #4d6bfe;
     --accent-soft: #e6f5f1;
     --bg-titlebar: #f7f7f8;
@@ -823,11 +827,12 @@
     *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
   }
 </style>
+<link rel="stylesheet" href="beta.css">
 </head>
 <body>
 
 <div id="titlebar">
-  <span class="title">AI Chat Hub</span>
+  <span class="title">AI Chat Hub <span class="build-tag">BETA</span></span>
   <button class="win-btn" id="btn-min">&ndash;</button>
   <button class="win-btn" id="btn-max">&#x25A1;</button>
   <button class="win-btn" id="btn-close">&#x2715;</button>
@@ -850,65 +855,20 @@
         <img src="svg/logo.svg" class="logo-icon" alt="">
         <span class="logo-text">AI Chat Hub</span>
       </div>
-      <button class="collapse-btn" id="collapse-btn" title="收起侧栏">&#x2630;</button>
+      <button class="collapse-btn" id="collapse-btn" title="收起侧栏" aria-label="切换侧栏" aria-expanded="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
     </div>
 
     <div class="sidebar-nav">
-      <div class="section-label">AI 站点</div>
-
-      <button class="tab-item active" data-site="deepseek" title="DeepSeek">
-        <img class="favicon" alt="" style="display:none" data-src="https://chat.deepseek.com/favicon.ico">
-        <span class="favicon-placeholder" style="background:#4d6bfe">DS</span>
-        <span class="tab-text">DeepSeek</span>
-        <span class="indicator" style="background:#4d6bfe"></span>
-      </button>
-
-      <button class="tab-item" data-site="yuanbao" title="腾讯元宝">
-        <img class="favicon" alt="" style="display:none" data-src="https://yuanbao.tencent.com/chat/favicon.ico">
-        <span class="favicon-placeholder" style="background:#00b894">YB</span>
-        <span class="tab-text">腾讯元宝</span>
-        <span class="indicator" style="background:#00b894"></span>
-      </button>
-
-      <button class="tab-item" data-site="doubao" title="豆包">
-        <img class="favicon" alt="" style="display:none" data-src="https://www.doubao.com/chat/favicon.ico">
-        <span class="favicon-placeholder" style="background:#6366f1">DB</span>
-        <span class="tab-text">豆包</span>
-        <span class="indicator" style="background:#6366f1"></span>
-      </button>
-
-      <button class="tab-item" data-site="kimi" title="Kimi">
-        <img class="favicon" alt="" style="display:none" data-src="https://www.kimi.com/favicon.ico">
-        <span class="favicon-placeholder" style="background:#1a1a1a">KM</span>
-        <span class="tab-text">Kimi</span>
-        <span class="indicator" style="background:#888"></span>
-      </button>
-
-      <button class="tab-item" data-site="minimax" title="MiniMax">
-        <img class="favicon" alt="" style="display:none" data-src="https://agent.minimaxi.com/favicon.ico">
-        <span class="favicon-placeholder" style="background:#0ea5e9">MM</span>
-        <span class="tab-text">MiniMax</span>
-        <span class="indicator" style="background:#0ea5e9"></span>
-      </button>
-
-      <button class="tab-item" data-site="tongyi" title="千问">
-        <img class="favicon" alt="" style="display:none" data-src="https://www.tongyi.com/favicon.ico">
-        <span class="favicon-placeholder" style="background:#6b5ce7">QW</span>
-        <span class="tab-text">千问</span>
-        <span class="indicator" style="background:#6b5ce7"></span>
-      </button>
-
-      <button class="tab-item" data-site="chatglm" title="智谱清言">
-        <img class="favicon" alt="" style="display:none" data-src="https://chatglm.cn/favicon.ico">
-        <span class="favicon-placeholder" style="background:#8b5cf6">GLM</span>
-        <span class="tab-text">智谱清言</span>
-        <span class="indicator" style="background:#8b5cf6"></span>
-      </button>
+      <div class="site-section-head">
+        <div class="section-label">AI 站点</div>
+        <button class="section-add-btn" id="add-site-btn" type="button" title="添加 AI 站点" aria-label="添加 AI 站点">+</button>
+      </div>
     </div>
 
     <div class="sidebar-footer">
-      <button class="theme-btn" id="settings-btn" title="设置">
+      <button class="theme-btn" id="settings-btn" title="设置" aria-label="设置">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="settings-label">设置</span>
       </button>
     </div>
   </div>
@@ -970,30 +930,40 @@
     <div id="settings-body">
       <nav id="settings-nav">
         <button type="button" class="settings-nav-item active" data-panel="appearance">外观</button>
+        <button type="button" class="settings-nav-item" data-panel="sites">AI站点</button>
         <button type="button" class="settings-nav-item" data-panel="features">功能</button>
         <button type="button" class="settings-nav-item" data-panel="downloads">下载</button>
         <button type="button" class="settings-nav-item" data-panel="permissions">权限</button>
         <button type="button" class="settings-nav-item" data-panel="about">关于</button>
       </nav>
       <div id="settings-panels">
+        <section class="settings-panel" id="panel-sites">
+          <h3 class="panel-heading">AI站点管理</h3>
+          <div class="setting-hint" style="margin-bottom:10px;">隐藏的站点不会出现在侧边栏；自定义站点可以删除。</div>
+          <div class="site-manage-list" id="site-manage-list"></div>
+          <button class="site-manage-action" id="settings-add-site-btn" type="button" style="margin-top:10px;">＋ 添加站点</button>
+        </section>
         <section class="settings-panel active" id="panel-appearance">
           <h3 class="panel-heading">主题</h3>
-          <div class="radio-options horizontal" id="theme-options">
-            <div class="radio-option selected" data-theme="light">
+          <div class="radio-options horizontal" id="theme-options" role="radiogroup" aria-label="界面主题">
+            <div class="radio-option selected" data-theme="light" role="radio" tabindex="0" aria-checked="true">
+              <div class="theme-preview preview-light" aria-hidden="true"></div>
               <div class="radio-circle"></div>
               <div class="option-info">
                 <div class="option-name">浅色模式</div>
                 <div class="option-desc">亮色界面，适合日间使用</div>
               </div>
             </div>
-            <div class="radio-option" data-theme="dark">
+            <div class="radio-option" data-theme="dark" role="radio" tabindex="0" aria-checked="false">
+              <div class="theme-preview preview-dark" aria-hidden="true"></div>
               <div class="radio-circle"></div>
               <div class="option-info">
                 <div class="option-name">深色模式</div>
                 <div class="option-desc">暗色界面，减少眼部疲劳</div>
               </div>
             </div>
-            <div class="radio-option" data-theme="system">
+            <div class="radio-option" data-theme="system" role="radio" tabindex="0" aria-checked="false">
+              <div class="theme-preview preview-system" aria-hidden="true"></div>
               <div class="radio-circle"></div>
               <div class="option-info">
                 <div class="option-name">跟随系统</div>
@@ -1003,12 +973,12 @@
           </div>
           <h3 class="panel-heading">主题色</h3>
           <div class="accent-options" id="accent-options" aria-label="选择主题色">
+            <button class="accent-option" type="button" data-accent="#53616d" style="--color:#53616d" aria-label="石墨灰"></button>
             <button class="accent-option" type="button" data-accent="#10a37f" style="--color:#10a37f" aria-label="绿色"></button>
             <button class="accent-option" type="button" data-accent="#4d6bfe" style="--color:#4d6bfe" aria-label="蓝色"></button>
-            <button class="accent-option" type="button" data-accent="#8b5cf6" style="--color:#8b5cf6" aria-label="紫色"></button>
-            <button class="accent-option" type="button" data-accent="#e66a3c" style="--color:#e66a3c" aria-label="橙色"></button>
-            <button class="accent-option" type="button" data-accent="#e45b88" style="--color:#e45b88" aria-label="玫红色"></button>
+            <button class="accent-option" type="button" data-accent="#786c60" style="--color:#786c60" aria-label="暖灰色"></button>
           </div>
+          <div class="material-note"><strong>轻盈，有序</strong><p>半透明面板与细腻的毛玻璃层次，让内容保持清晰。外观随主题切换，动画跟随系统的减少动态效果设置。</p></div>
         </section>
         <section class="settings-panel" id="panel-features">
           <h3 class="panel-heading">快捷键</h3>
@@ -1017,7 +987,7 @@
             <button class="toggle-switch on" id="shortcut-toggle"></button>
           </div>
           <div class="shortcut-list" id="shortcut-list">
-            <div><kbd>Ctrl+1~7</kbd> 切换标签页</div>
+            <div><kbd>Ctrl+1~9</kbd> 切换标签页</div>
             <div><kbd>Ctrl+T</kbd> 新建页面</div>
             <div><kbd>Ctrl+W</kbd> 关闭当前页面</div>
             <div><kbd>Ctrl+L</kbd> 定位到地址栏</div>
@@ -1038,43 +1008,7 @@
             </div>
             <button id="fb-reset-position" type="button">恢复位置</button>
           </div>
-          <div class="collapse-row">
-            <span class="toggle-label">悬浮球外观</span>
-            <button class="collapse-btn-custom" id="fb-custom-toggle" type="button">展开</button>
-          </div>
-          <div id="fb-custom-section">
-            <div class="fb-preview-wrap">
-              <div class="fb-preview-ball" id="fb-preview">
-                <div class="fb-preview-glow"></div>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
-              </div>
-            </div>
-            <div class="fb-color-options" id="fb-color-options">
-              <button class="fb-color-btn active" data-color="blue" style="background:#4d6bfe" title="蓝色"></button>
-              <button class="fb-color-btn" data-color="purple" style="background:#9333ea" title="紫色"></button>
-              <button class="fb-color-btn" data-color="green" style="background:#10b981" title="绿色"></button>
-              <button class="fb-color-btn" data-color="orange" style="background:#f59e0b" title="橙色"></button>
-              <button class="fb-color-btn" data-color="pink" style="background:#ec4899" title="粉色"></button>
-              <button class="fb-color-btn" data-color="cyan" style="background:#06b6d4" title="青色"></button>
-            </div>
-            <div class="fb-slider-row">
-              <label>大小</label>
-              <input type="range" id="fb-size" min="32" max="80" value="44">
-              <span class="fb-slider-val" id="fb-size-val">44</span>
-            </div>
-            <div class="fb-slider-row">
-              <label>光晕</label>
-              <input type="range" id="fb-glow" min="0" max="100" value="100">
-              <span class="fb-slider-val" id="fb-glow-val">100</span>
-            </div>
-            <div class="fb-slider-row">
-              <label>高光</label>
-              <input type="range" id="fb-highlight" min="0" max="100" value="100">
-              <span class="fb-slider-val" id="fb-highlight-val">100</span>
-            </div>
-          </div>
+          <div class="setting-hint">悬浮入口采用圆角方形，颜色跟随外观中的主题色。</div>
           <h3 class="panel-heading">内存</h3>
           <div class="toggle-row">
             <span class="toggle-label">内存优化 <span class="beta-tag">Beta</span></span>
@@ -1118,6 +1052,25 @@
   </div>
 </div>
 
+<div id="site-form-overlay">
+  <form id="site-form-dialog">
+    <h3>添加 AI 站点</h3>
+    <label class="site-form-field">
+      <span>站点名称</span>
+      <input id="site-name-input" type="text" maxlength="30" placeholder="例如：Perplexity" autocomplete="off">
+    </label>
+    <label class="site-form-field">
+      <span>站点网址</span>
+      <input id="site-url-input" type="text" placeholder="https://example.com/" autocomplete="off">
+    </label>
+    <div id="site-form-error" role="alert"></div>
+    <div class="site-form-actions">
+      <button id="site-form-cancel" type="button">取消</button>
+      <button id="site-form-submit" type="submit">添加</button>
+    </div>
+  </form>
+</div>
+
 <div id="close-overlay">
   <div id="close-dialog">
     <h3>关闭窗口</h3>
@@ -1138,9 +1091,12 @@
   const sidebar = document.getElementById('sidebar');
   const collapseBtn = document.getElementById('collapse-btn');
   if (localStorage.getItem('aihub-sidebar-collapsed') === '1') sidebar.classList.add('collapsed');
+  collapseBtn.setAttribute('aria-expanded', String(!sidebar.classList.contains('collapsed')));
   collapseBtn.addEventListener('click', () => {
     const c = sidebar.classList.toggle('collapsed');
     localStorage.setItem('aihub-sidebar-collapsed', c ? '1' : '0');
+    collapseBtn.setAttribute('aria-expanded', String(!c));
+    collapseBtn.title = c ? '展开侧栏' : '收起侧栏';
   });
 
   // ======== 设置面板 ========
@@ -1157,13 +1113,6 @@
       document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.toggle('active', b === btn));
       document.querySelectorAll('.settings-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + btn.dataset.panel));
     });
-  });
-
-  // 悬浮球外观折叠
-  document.getElementById('fb-custom-toggle').addEventListener('click', () => {
-    const sec = document.getElementById('fb-custom-section');
-    const open = sec.classList.toggle('open');
-    document.getElementById('fb-custom-toggle').textContent = open ? '收起' : '展开';
   });
 
   // 内存优化（Beta）开关
@@ -1185,16 +1134,34 @@
     if (theme === 'light') return false;
     return systemDarkQuery.matches;
   }
+  function syncNewTabTheme(view) {
+    try {
+      const current = new URL(view.getURL());
+      const local = new URL('newtab.html', location.href);
+      if (current.protocol !== 'file:' || current.pathname !== local.pathname) return;
+      const dark = document.body.classList.contains('dark');
+      view.executeJavaScript(`document.body.classList.toggle('dark', ${dark})`).catch(() => {});
+    } catch (_) { /* The webview may not have attached yet. dom-ready retries. */ }
+  }
   function applyTheme(theme, skipSave) {
     if (!skipSave) localStorage.setItem('aihub-theme', theme);
     const dark = resolveDark(theme);
     document.body.classList.toggle('dark', dark);
-    themeOptions.forEach(o => o.classList.toggle('selected', o.dataset.theme === theme));
-    const accentColor = localStorage.getItem('aihub-accent') || '#10a37f';
+    document.querySelectorAll('webview').forEach(syncNewTabTheme);
+    themeOptions.forEach(o => {
+      o.classList.toggle('selected', o.dataset.theme === theme);
+      o.setAttribute('aria-checked', String(o.dataset.theme === theme));
+    });
+    const accentColor = localStorage.getItem('aihub-accent') || '#53616d';
     document.documentElement.style.setProperty('--accent-soft', accentColor + (dark ? '2b' : '1f'));
     window.app?.setTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
   }
-  themeOptions.forEach(opt => opt.addEventListener('click', () => applyTheme(opt.dataset.theme)));
+  themeOptions.forEach(opt => {
+    opt.addEventListener('click', () => applyTheme(opt.dataset.theme));
+    opt.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); opt.click(); }
+    });
+  });
   // 跟随系统时，系统主题变化自动同步
   systemDarkQuery.addEventListener('change', () => {
     if ((localStorage.getItem('aihub-theme') || 'light') === 'system') {
@@ -1213,7 +1180,7 @@
     window.app.setAccentColor(color);
   }
   accentOptions.forEach(option => option.addEventListener('click', () => applyAccentColor(option.dataset.accent)));
-  applyAccentColor(localStorage.getItem('aihub-accent') || '#10a37f');
+  applyAccentColor(localStorage.getItem('aihub-accent') || '#53616d');
 
   // 快捷键开关
   const shortcutToggle = document.getElementById('shortcut-toggle');
@@ -1248,95 +1215,6 @@
     window.app.resetFloatBallPosition();
   });
 
-  // 悬浮球自定义设置
-  const FB_COLORS = {
-    blue:{bg:'linear-gradient(135deg,rgba(77,107,254,0.65),rgba(108,140,255,0.45),rgba(255,255,255,0.15))',s:'77,107,254',se:'108,140,255'},
-    purple:{bg:'linear-gradient(135deg,rgba(147,51,234,0.65),rgba(168,85,247,0.45),rgba(255,255,255,0.15))',s:'147,51,234',se:'168,85,247'},
-    green:{bg:'linear-gradient(135deg,rgba(16,185,129,0.65),rgba(52,211,153,0.45),rgba(255,255,255,0.15))',s:'16,185,129',se:'52,211,153'},
-    orange:{bg:'linear-gradient(135deg,rgba(245,158,11,0.65),rgba(251,191,36,0.45),rgba(255,255,255,0.15))',s:'245,158,11',se:'251,191,36'},
-    pink:{bg:'linear-gradient(135deg,rgba(236,72,153,0.65),rgba(244,114,182,0.45),rgba(255,255,255,0.15))',s:'236,72,153',se:'244,114,182'},
-    cyan:{bg:'linear-gradient(135deg,rgba(6,182,212,0.65),rgba(34,211,238,0.45),rgba(255,255,255,0.15))',s:'6,182,212',se:'34,211,238'}
-  };
-
-  const fbPreview = document.getElementById('fb-preview');
-  const fbPreviewGlow = fbPreview.querySelector('.fb-preview-glow');
-
-  function loadFBS() {
-    try { return JSON.parse(localStorage.getItem('aihub-floatball-settings')) || {}; } catch(e) { return {}; }
-  }
-  function saveFBS(s) {
-    localStorage.setItem('aihub-floatball-settings', JSON.stringify(s));
-    window.app.updateFloatballSettings();
-  }
-
-  function applyFBPreview(s) {
-    const c = FB_COLORS[s.color] || FB_COLORS.blue;
-    const gf = (s.glow != null ? s.glow : 100) / 100;
-    const hf = (s.highlight != null ? s.highlight : 100) / 100;
-    const sz = s.size || 44;
-
-    fbPreview.style.width = sz + 'px';
-    fbPreview.style.height = sz + 'px';
-    fbPreview.style.background = c.bg;
-    fbPreview.style.boxShadow = '0 2px ' + Math.round(16*gf) + 'px rgba(' + c.s + ',' + (0.35*gf) + '),0 0 0 1.5px rgba(255,255,255,0.3),0 0 ' + Math.round(40*gf) + 'px 6px rgba(' + c.se + ',' + (0.15*gf) + ')';
-    fbPreviewGlow.style.opacity = hf;
-
-    const svg = fbPreview.querySelector('svg');
-    const svgSz = Math.round(sz * 0.5);
-    svg.style.width = svgSz + 'px';
-    svg.style.height = svgSz + 'px';
-
-    document.querySelectorAll('.fb-color-btn').forEach(function(b) {
-      b.classList.toggle('active', b.dataset.color === s.color);
-    });
-  }
-
-  function updateFBS(partial) {
-    const s = loadFBS();
-    for (const k in partial) s[k] = partial[k];
-    if (!s.color) s.color = 'blue';
-    saveFBS(s);
-    applyFBPreview(s);
-  }
-
-  // Init
-  let fbSettings = loadFBS();
-  if (!fbSettings.color) {
-    fbSettings = { color: 'blue', size: 44, glow: 100, highlight: 100 };
-    saveFBS(fbSettings);
-  }
-  applyFBPreview(fbSettings);
-
-  // Restore slider positions
-  document.getElementById('fb-size').value = fbSettings.size || 44;
-  document.getElementById('fb-size-val').textContent = fbSettings.size || 44;
-  document.getElementById('fb-glow').value = fbSettings.glow != null ? fbSettings.glow : 100;
-  document.getElementById('fb-glow-val').textContent = fbSettings.glow != null ? fbSettings.glow : 100;
-  document.getElementById('fb-highlight').value = fbSettings.highlight != null ? fbSettings.highlight : 100;
-  document.getElementById('fb-highlight-val').textContent = fbSettings.highlight != null ? fbSettings.highlight : 100;
-
-  // Events
-  document.querySelectorAll('.fb-color-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      updateFBS({ color: this.dataset.color });
-    });
-  });
-
-  document.getElementById('fb-size').addEventListener('input', function() {
-    document.getElementById('fb-size-val').textContent = this.value;
-    updateFBS({ size: parseInt(this.value) });
-  });
-
-  document.getElementById('fb-glow').addEventListener('input', function() {
-    document.getElementById('fb-glow-val').textContent = this.value;
-    updateFBS({ glow: parseInt(this.value) });
-  });
-
-  document.getElementById('fb-highlight').addEventListener('input', function() {
-    document.getElementById('fb-highlight-val').textContent = this.value;
-    updateFBS({ highlight: parseInt(this.value) });
-  });
-
   // GitHub 链接
   document.getElementById('repo-link').addEventListener('click', (e) => {
     e.preventDefault();
@@ -1353,19 +1231,97 @@
 
   const urlBar = document.getElementById('url-bar');
 
-  const SITES = {
-    deepseek:{name:'DeepSeek',    domain:'chat.deepseek.com',     url:'https://chat.deepseek.com/',        cls:'ds',  color:'#4d6bfe'},
-    yuanbao: {name:'腾讯元宝',     domain:'yuanbao.tencent.com',   url:'https://yuanbao.tencent.com/chat/', cls:'yb',  color:'#00b894'},
-    doubao:  {name:'豆包',        domain:'www.doubao.com',        url:'https://www.doubao.com/chat/',      cls:'db',  color:'#6366f1'},
-    kimi:    {name:'Kimi',        domain:'www.kimi.com',          url:'https://www.kimi.com/',             cls:'km',  color:'#4a4a4d'},
-    minimax: {name:'MiniMax',     domain:'agent.minimaxi.com',    url:'https://agent.minimaxi.com/',       cls:'mm',  color:'#0ea5e9'},
-    tongyi:  {name:'千问',        domain:'www.tongyi.com',        url:'https://www.tongyi.com/',           cls:'qw',  color:'#6b5ce7'},
-    chatglm: {name:'智谱清言',    domain:'chatglm.cn',            url:'https://chatglm.cn/',               cls:'glm', color:'#8b5cf6'}
+  const BUILTIN_SITES = {
+    deepseek:{name:'DeepSeek',    domain:'chat.deepseek.com',     url:'https://chat.deepseek.com/',        cls:'ds',   color:'#4d6bfe'},
+    yuanbao: {name:'腾讯元宝',     domain:'yuanbao.tencent.com',   url:'https://yuanbao.tencent.com/chat/', cls:'yb',   color:'#00b894'},
+    doubao:  {name:'豆包',        domain:'www.doubao.com',        url:'https://www.doubao.com/chat/',      cls:'db',   color:'#6366f1'},
+    kimi:    {name:'Kimi',        domain:'www.kimi.com',          url:'https://www.kimi.com/',             cls:'km',   color:'#4a4a4d'},
+    minimax: {name:'MiniMax',     domain:'agent.minimaxi.com',    url:'https://agent.minimaxi.com/',       cls:'mm',   color:'#0ea5e9'},
+    tongyi:  {name:'千问',        domain:'www.tongyi.com',        url:'https://www.tongyi.com/',           cls:'qw',   color:'#6b5ce7'},
+    chatglm: {name:'智谱清言',    domain:'chatglm.cn',            url:'https://chatglm.cn/',               cls:'glm',  color:'#8b5cf6'},
+    grok:    {name:'Grok',        domain:'grok.com',               url:'https://grok.com/',                 cls:'grok', color:'#111827'},
+    chatgpt: {name:'ChatGPT',     domain:'chatgpt.com',            url:'https://chatgpt.com/',              cls:'gpt',  color:'#10a37f'}
   };
-  let SITE_ORDER = JSON.parse(localStorage.getItem('aihub-site-order') ||
-    '["deepseek","yuanbao","doubao","kimi","minimax","tongyi","chatglm"]');
-  let activeSite = 'deepseek'; // 侧栏当前选中的 AI 站点
-  let activePage = 'deepseek'; // 当前显示的页面（站点主页面 或 附属页面 sp-N）
+  const CUSTOM_SITE_COLORS = ['#f97316', '#ec4899', '#14b8a6', '#a855f7', '#eab308', '#ef4444'];
+  const SITES = Object.assign({}, BUILTIN_SITES);
+  let CUSTOM_SITES = [];
+  try {
+    const saved = JSON.parse(localStorage.getItem('aihub-custom-sites') || '[]');
+    if (Array.isArray(saved)) {
+      CUSTOM_SITES = saved.filter(site => site && /^custom-[a-z0-9-]+$/i.test(site.id) && site.name && /^https?:\/\//i.test(site.url));
+      CUSTOM_SITES.forEach(site => { SITES[site.id] = Object.assign({}, site, { custom:true }); });
+    }
+  } catch (_) {}
+
+  const hiddenSiteIds = new Set();
+  try {
+    const savedHidden = JSON.parse(localStorage.getItem('aihub-hidden-sites') || '[]');
+    if (Array.isArray(savedHidden)) savedHidden.filter(site => SITES[site]).forEach(site => hiddenSiteIds.add(site));
+  } catch (_) {}
+  const savedSiteOrder = (() => {
+    try { return JSON.parse(localStorage.getItem('aihub-site-order') || '[]'); } catch (_) { return []; }
+  })();
+  let SITE_ORDER = (Array.isArray(savedSiteOrder) ? savedSiteOrder : [])
+    .filter((site, index, list) => SITES[site] && !hiddenSiteIds.has(site) && list.indexOf(site) === index);
+  Object.keys(SITES).forEach(site => {
+    if (!hiddenSiteIds.has(site) && !SITE_ORDER.includes(site)) SITE_ORDER.push(site);
+  });
+  localStorage.setItem('aihub-site-order', JSON.stringify(SITE_ORDER));
+  localStorage.setItem('aihub-hidden-sites', JSON.stringify([...hiddenSiteIds]));
+  window.app.updateSiteOrder(SITE_ORDER);
+
+  function siteInitials(name) {
+    const chars = String(name || '').replace(/\s+/g, '').slice(0, 3);
+    return chars || 'AI';
+  }
+
+  function saveSiteConfig() {
+    localStorage.setItem('aihub-custom-sites', JSON.stringify(CUSTOM_SITES));
+    localStorage.setItem('aihub-site-order', JSON.stringify(SITE_ORDER));
+    localStorage.setItem('aihub-hidden-sites', JSON.stringify([...hiddenSiteIds]));
+    window.app.updateSiteOrder(SITE_ORDER);
+  }
+
+  let tabItems = [];
+  function refreshTabItems() {
+    tabItems = Array.from(document.querySelectorAll('.tab-item'));
+  }
+
+  function renderSidebarSites() {
+    const nav = document.querySelector('.sidebar-nav');
+    if (!nav) return;
+    nav.querySelectorAll('.tab-item').forEach(btn => btn.remove());
+    SITE_ORDER.forEach(siteKey => {
+      const info = SITES[siteKey];
+      if (!info) return;
+      const btn = document.createElement('button');
+      btn.className = 'tab-item' + (siteKey === activeSite ? ' active' : '');
+      btn.dataset.site = siteKey;
+      btn.title = info.name;
+
+      const img = document.createElement('img');
+      img.className = 'favicon';
+      img.alt = '';
+      img.style.display = 'none';
+      img.dataset.src = info.favicon || info.url.replace(/\/$/, '') + '/favicon.ico';
+      const placeholder = document.createElement('span');
+      placeholder.className = 'favicon-placeholder';
+      placeholder.style.background = info.color;
+      placeholder.textContent = siteInitials(info.name);
+      const text = document.createElement('span');
+      text.className = 'tab-text';
+      text.textContent = info.name;
+      const indicator = document.createElement('span');
+      indicator.className = 'indicator';
+      indicator.style.background = info.color;
+      btn.append(img, placeholder, text, indicator);
+      nav.appendChild(btn);
+    });
+    refreshTabItems();
+  }
+  let activeSite = SITE_ORDER.includes('deepseek') ? 'deepseek' : (SITE_ORDER[0] || null); // 侧栏当前选中的 AI 站点
+  let activePage = activeSite; // 当前显示的页面（站点主页面 或 附属页面 sp-N）
+  renderSidebarSites();
   // ======== 附属页面管理模型 ========
   // 顶部标签栏用于展示当前站点打开的"附属页面"（AI 回复中点击链接等弹出的页面），
   // 切换站点时，标签组随站点切换而隐藏；附属页面共享所属站点的登录会话。
@@ -1396,7 +1352,6 @@
     });
   })(SITE_ORDER);
 
-  const tabItems = document.querySelectorAll('.tab-item');
   const loadedWebviews = new Set(['deepseek']);
 
   function getActiveWebview() { return document.getElementById('wv-' + activePage); }
@@ -1450,6 +1405,7 @@
       }
     });
     wv.addEventListener('dom-ready', () => {
+      syncNewTabTheme(wv);
       if (wv.classList.contains('visible')) { updateUrl(); updateNavState(); }
     });
     wv.addEventListener('page-title-updated', (e) => {
@@ -1602,6 +1558,147 @@
     updateIndicators();
   }
 
+  function clearActiveSiteView() {
+    activeSite = null;
+    activePage = null;
+    document.querySelectorAll('webview').forEach(w => w.classList.remove('visible'));
+    document.getElementById('no-page-placeholder').style.display = 'flex';
+    document.documentElement.style.setProperty('--site-accent', '#4d6bfe');
+    urlBar.value = '';
+    urlBar.classList.remove('loading');
+    navBack.classList.add('disabled');
+    navFwd.classList.add('disabled');
+    renderTopTabs();
+  }
+
+  function setSiteVisibility(siteId, hidden) {
+    if (!SITES[siteId]) return;
+    if (hidden) {
+      hiddenSiteIds.add(siteId);
+      SITE_ORDER = SITE_ORDER.filter(site => site !== siteId);
+      if (activeSite === siteId) {
+        if (SITE_ORDER[0]) switchSite(SITE_ORDER[0]);
+        else clearActiveSiteView();
+      }
+    } else {
+      hiddenSiteIds.delete(siteId);
+      if (!SITE_ORDER.includes(siteId)) SITE_ORDER.push(siteId);
+    }
+    saveSiteConfig();
+    renderSidebarSites();
+    bindSidebarItemEvents();
+    loadFavicons();
+    updateIndicators();
+    buildSiteManageUI();
+  }
+
+  function deleteCustomSite(siteId) {
+    const info = SITES[siteId];
+    if (!info || !info.custom) return;
+    if (activeSite === siteId) {
+      SITE_ORDER = SITE_ORDER.filter(site => site !== siteId);
+      if (SITE_ORDER[0]) switchSite(SITE_ORDER[0]);
+      else clearActiveSiteView();
+    }
+    closePage(siteId);
+    delete SITES[siteId];
+    CUSTOM_SITES = CUSTOM_SITES.filter(site => site.id !== siteId);
+    hiddenSiteIds.delete(siteId);
+    SITE_ORDER = SITE_ORDER.filter(site => site !== siteId);
+    saveSiteConfig();
+    renderSidebarSites();
+    bindSidebarItemEvents();
+    loadFavicons();
+    updateIndicators();
+    buildSiteManageUI();
+  }
+
+  function buildSiteManageUI() {
+    const list = document.getElementById('site-manage-list');
+    if (!list) return;
+    list.innerHTML = '';
+    Object.keys(SITES).forEach(siteId => {
+      const info = SITES[siteId];
+      const row = document.createElement('div');
+      row.className = 'site-manage-row';
+      const dot = document.createElement('span');
+      dot.className = 'site-manage-dot';
+      dot.style.background = info.color;
+      const infoWrap = document.createElement('div');
+      infoWrap.className = 'site-manage-info';
+      const name = document.createElement('div');
+      name.className = 'site-manage-name';
+      name.textContent = info.name;
+      const domain = document.createElement('div');
+      domain.className = 'site-manage-domain';
+      domain.textContent = info.domain || info.url;
+      infoWrap.append(name, domain);
+      const status = document.createElement('span');
+      status.className = 'site-manage-status';
+      status.textContent = hiddenSiteIds.has(siteId) ? '已隐藏' : '已显示';
+      const toggle = document.createElement('button');
+      toggle.className = 'site-manage-action';
+      toggle.type = 'button';
+      toggle.textContent = hiddenSiteIds.has(siteId) ? '显示' : '隐藏';
+      toggle.addEventListener('click', () => setSiteVisibility(siteId, !hiddenSiteIds.has(siteId)));
+      row.append(dot, infoWrap, status, toggle);
+      if (info.custom) {
+        const del = document.createElement('button');
+        del.className = 'site-manage-action danger';
+        del.type = 'button';
+        del.textContent = '删除';
+        del.addEventListener('click', () => deleteCustomSite(siteId));
+        row.appendChild(del);
+      }
+      list.appendChild(row);
+    });
+  }
+
+  const siteFormOverlay = document.getElementById('site-form-overlay');
+  const siteNameInput = document.getElementById('site-name-input');
+  const siteUrlInput = document.getElementById('site-url-input');
+  const siteFormError = document.getElementById('site-form-error');
+  function openSiteForm() {
+    siteFormError.textContent = '';
+    siteNameInput.value = '';
+    siteUrlInput.value = '';
+    siteFormOverlay.classList.add('show');
+    setTimeout(() => siteNameInput.focus(), 0);
+  }
+  function closeSiteForm() { siteFormOverlay.classList.remove('show'); }
+  document.getElementById('add-site-btn').addEventListener('click', openSiteForm);
+  document.getElementById('settings-add-site-btn').addEventListener('click', openSiteForm);
+  document.getElementById('site-form-cancel').addEventListener('click', closeSiteForm);
+  siteFormOverlay.addEventListener('click', e => { if (e.target === siteFormOverlay) closeSiteForm(); });
+  document.getElementById('site-form-dialog').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = siteNameInput.value.trim();
+    let url = siteUrlInput.value.trim();
+    if (!name) { siteFormError.textContent = '请输入站点名称'; return; }
+    if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) url = 'https://' + url;
+    let parsed;
+    try { parsed = new URL(url); } catch (_) { parsed = null; }
+    if (!parsed || !/^https?:$/.test(parsed.protocol)) { siteFormError.textContent = '请输入有效的 http 或 https 网址'; return; }
+    if (Object.values(SITES).some(site => site.url.replace(/\/$/, '') === url.replace(/\/$/, ''))) {
+      siteFormError.textContent = '该网址已经添加';
+      return;
+    }
+    const id = 'custom-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
+    const color = CUSTOM_SITE_COLORS[CUSTOM_SITES.length % CUSTOM_SITE_COLORS.length];
+    const site = { id, name, domain: parsed.host, url: parsed.href, color, custom:true };
+    CUSTOM_SITES.push(site);
+    SITES[id] = site;
+    SITE_ORDER.push(id);
+    saveSiteConfig();
+    renderSidebarSites();
+    bindSidebarItemEvents();
+    loadFavicons();
+    buildSiteManageUI();
+    closeSiteForm();
+    switchSite(id);
+  });
+  buildSiteManageUI();
+
   function renderTopTabs() {
     const container = document.getElementById('top-tabs');
     container.innerHTML = '';
@@ -1736,7 +1833,6 @@
     });
   }
 
-  tabItems.forEach(btn => btn.addEventListener('click', () => switchSite(btn.dataset.site)));
   window.app.onSwitchSite((site) => { switchSite(site); });
 
   // 侧栏标签右键菜单（关闭页面）
@@ -1746,26 +1842,70 @@
   tabCtxMenu.innerHTML = '<div id="ctx-unload" style="padding:8px 14px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text-tab);white-space:nowrap;">关闭此页</div>';
   document.body.appendChild(tabCtxMenu);
 
-  tabItems.forEach(btn => {
-    const indicator = btn.querySelector('.indicator');
-    if (indicator) {
-      indicator.addEventListener('click', (e) => {
-        e.stopPropagation();
-        closePage(btn.dataset.site);
+  let dragSite = null;
+  function bindSidebarItemEvents() {
+    refreshTabItems();
+    tabItems.forEach(btn => {
+      if (btn.dataset.eventsBound === '1') return;
+      btn.dataset.eventsBound = '1';
+      btn.addEventListener('click', () => switchSite(btn.dataset.site));
+      const indicator = btn.querySelector('.indicator');
+      if (indicator) {
+        indicator.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closePage(btn.dataset.site);
+        });
+      }
+      btn.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        contextMenuSite = btn.dataset.site;
+        const unloadable = loadedWebviews.has(contextMenuSite);
+        const item = document.getElementById('ctx-unload');
+        item.style.opacity = unloadable ? '1' : '0.35';
+        item.style.pointerEvents = unloadable ? 'auto' : 'none';
+        tabCtxMenu.style.display = 'block';
+        tabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 140) + 'px';
+        tabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 40) + 'px';
       });
-    }
-    btn.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      contextMenuSite = btn.dataset.site;
-      const unloadable = loadedWebviews.has(contextMenuSite);
-      const item = document.getElementById('ctx-unload');
-      item.style.opacity = unloadable ? '1' : '0.35';
-      item.style.pointerEvents = unloadable ? 'auto' : 'none';
-      tabCtxMenu.style.display = 'block';
-      tabCtxMenu.style.left = Math.min(e.clientX, window.innerWidth - 140) + 'px';
-      tabCtxMenu.style.top = Math.min(e.clientY, window.innerHeight - 40) + 'px';
+      btn.setAttribute('draggable', 'true');
+      btn.addEventListener('dragstart', (e) => {
+        dragSite = btn.dataset.site;
+        btn.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      btn.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (btn.dataset.site === dragSite) return;
+        const rect = btn.getBoundingClientRect();
+        const mid = (rect.top + rect.bottom) / 2;
+        btn.style.borderTop = e.clientY < mid ? '2px solid #4d6bfe' : '';
+        btn.style.borderBottom = e.clientY >= mid ? '2px solid #4d6bfe' : '';
+      });
+      btn.addEventListener('dragleave', () => {
+        btn.style.borderTop = '';
+        btn.style.borderBottom = '';
+      });
+      btn.addEventListener('drop', (e) => {
+        e.preventDefault();
+        btn.style.borderTop = '';
+        btn.style.borderBottom = '';
+        if (btn.dataset.site === dragSite) return;
+        const rect = btn.getBoundingClientRect();
+        const mid = (rect.top + rect.bottom) / 2;
+        const dragged = document.querySelector(`.tab-item[data-site="${dragSite}"]`);
+        if (e.clientY < mid) btn.parentNode.insertBefore(dragged, btn);
+        else btn.parentNode.insertBefore(dragged, btn.nextSibling);
+        SITE_ORDER = Array.from(document.querySelectorAll('.tab-item')).map(b => b.dataset.site);
+        saveSiteConfig();
+      });
+      btn.addEventListener('dragend', () => {
+        btn.classList.remove('dragging');
+        document.querySelectorAll('.tab-item').forEach(b => { b.style.borderTop = ''; b.style.borderBottom = ''; });
+      });
     });
-  });
+  }
+  bindSidebarItemEvents();
 
   // 顶部标签右键菜单
   let topTabMenuPage = null;
@@ -1810,51 +1950,6 @@
   document.getElementById('ctx-unload').addEventListener('click', () => {
     if (contextMenuSite) closePage(contextMenuSite);
     tabCtxMenu.style.display = 'none';
-  });
-
-  // 拖拽排序
-  let dragSite = null;
-  tabItems.forEach(btn => {
-    btn.setAttribute('draggable', 'true');
-    btn.addEventListener('dragstart', (e) => {
-      dragSite = btn.dataset.site;
-      btn.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-    btn.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      if (btn.dataset.site === dragSite) return;
-      const rect = btn.getBoundingClientRect();
-      const mid = (rect.top + rect.bottom) / 2;
-      btn.style.borderTop = e.clientY < mid ? '2px solid #4d6bfe' : '';
-      btn.style.borderBottom = e.clientY >= mid ? '2px solid #4d6bfe' : '';
-    });
-    btn.addEventListener('dragleave', () => {
-      btn.style.borderTop = '';
-      btn.style.borderBottom = '';
-    });
-    btn.addEventListener('drop', (e) => {
-      e.preventDefault();
-      btn.style.borderTop = '';
-      btn.style.borderBottom = '';
-      if (btn.dataset.site === dragSite) return;
-      const rect = btn.getBoundingClientRect();
-      const mid = (rect.top + rect.bottom) / 2;
-      const dragged = document.querySelector(`.tab-item[data-site="${dragSite}"]`);
-      if (e.clientY < mid) {
-        btn.parentNode.insertBefore(dragged, btn);
-      } else {
-        btn.parentNode.insertBefore(dragged, btn.nextSibling);
-      }
-      SITE_ORDER = Array.from(document.querySelectorAll('.tab-item')).map(b => b.dataset.site);
-      localStorage.setItem('aihub-site-order', JSON.stringify(SITE_ORDER));
-      window.app.updateSiteOrder(SITE_ORDER);
-    });
-    btn.addEventListener('dragend', () => {
-      btn.classList.remove('dragging');
-      document.querySelectorAll('.tab-item').forEach(b => { b.style.borderTop = ''; b.style.borderBottom = ''; });
-    });
   });
 
   const navBack = document.getElementById('nav-back');
@@ -1970,7 +2065,7 @@
 
   document.addEventListener('keydown', e => {
     if (!shortcutsEnabled) return;
-    if (e.ctrlKey && e.key >= '1' && e.key <= '7') {
+    if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
       e.preventDefault();
       const site = SITE_ORDER[parseInt(e.key) - 1];
       if (site) switchSite(site);
@@ -2044,29 +2139,35 @@
   });
 
   // 加载图标：有缓存直接用，无缓存则首次拉取并缓存
-  tabItems.forEach(btn => {
-    const site = btn.dataset.site;
-    const img = btn.querySelector('.favicon');
-    const placeholder = img.nextElementSibling;
-    const saved = localStorage.getItem('aihub-favicon-' + site);
-    if (saved) {
-      img.src = saved;
-      img.style.display = '';
-      placeholder.style.display = 'none';
-    } else if (img.dataset.src) {
-      img.src = img.dataset.src;
-      img.onload = () => {
+  function loadFavicons() {
+    refreshTabItems();
+    tabItems.forEach(btn => {
+      const site = btn.dataset.site;
+      const img = btn.querySelector('.favicon');
+      const placeholder = img.nextElementSibling;
+      const saved = localStorage.getItem('aihub-favicon-' + site);
+      if (saved) {
+        img.src = saved;
         img.style.display = '';
         placeholder.style.display = 'none';
-        try { localStorage.setItem('aihub-favicon-' + site, img.dataset.src); } catch(e) {}
-      };
-      img.onerror = () => {
-        img.style.display = 'none';
-        placeholder.style.display = 'flex';
-      };
-    }
-  });
+      } else if (img.dataset.src) {
+        img.src = img.dataset.src;
+        img.onload = () => {
+          img.style.display = '';
+          placeholder.style.display = 'none';
+          try { localStorage.setItem('aihub-favicon-' + site, img.dataset.src); } catch(e) {}
+        };
+        img.onerror = () => {
+          img.style.display = 'none';
+          placeholder.style.display = 'flex';
+        };
+      }
+    });
+  }
+  loadFavicons();
 
+  if (activeSite) switchSite(activeSite);
+  else clearActiveSiteView();
   updateIndicators();
   renderTopTabs();
   updateUrl();

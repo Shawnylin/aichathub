@@ -35,26 +35,53 @@
   .hint { margin-top:14px; font-size:12px; color:#9b9b9f; }
   body.dark .hint { color:#777; }
 </style>
+<link rel="stylesheet" href="beta.css">
+<style>
+  body { padding: 32px; }
+  .start-page { width: min(640px, 100%); }
+  .start-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+  .logo { width: 48px; height: 48px; border-radius: 12px; margin: 0; }
+  h1 { font-size: 24px; font-weight: 600; letter-spacing: -.5px; }
+  .subtitle { margin-top: 6px; font-size: 13px; color: var(--text-dim); }
+  .start-card { padding: 24px; border: 1px solid var(--glass-line); border-radius: 12px; background: var(--glass); backdrop-filter: blur(20px) saturate(.75); box-shadow: 0 8px 32px rgba(20,30,40,.05), inset 0 1px 0 var(--glass-line); }
+  .search-label { display: block; margin-bottom: 12px; font-size: 12px; color: var(--text-tab); }
+  .search, body.dark .search { width: 100%; height: 48px; border: 1px solid var(--border-btn); border-radius: 8px; background: var(--bg-urlbar); color: var(--text-tab-active); padding: 0 14px; }
+  .search:focus-within { border-color: var(--text-dim); box-shadow: 0 0 0 3px var(--hover-tab); }
+  .search input:focus-visible { outline: none; }
+  .search input::placeholder, .search svg { color: var(--text-dim); }
+  .search button { width: 28px; height: 28px; border: 0; border-radius: 5px; background: var(--hover-tab); color: var(--text-tab); cursor: pointer; flex-shrink: 0; }
+  .hint, body.dark .hint { margin-top: 12px; color: var(--text-dim); font-size: 11px; }
+  .start-footer { margin-top: 20px; display: flex; justify-content: space-between; color: var(--text-dim); font-size: 11px; }
+  kbd { font: inherit; padding: 2px 5px; border: 1px solid var(--border-btn); border-radius: 4px; }
+  @media (max-width: 480px) { body { padding: 20px; } .start-card { padding: 16px; } h1 { font-size: 20px; } .start-footer { gap: 12px; flex-wrap: wrap; } }
+</style>
 </head>
 <body>
-  <img class="logo" src="svg/logo.svg" alt="AI Chat Hub">
+  <main class="start-page">
+  <header class="start-header"><img class="logo" src="svg/hub-mark.svg" alt=""><div><h1>从这里开始</h1><p class="subtitle">搜索、浏览，继续你的思路。</p></div></header>
+  <form class="start-card" id="search-form">
+  <label class="search-label" for="q">搜索或打开网址</label>
   <div class="search">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-    <input id="q" type="text" placeholder="输入关键词，百度一下" autocomplete="off" spellcheck="false">
-    <span class="engine">百度</span>
+    <input id="q" type="text" placeholder="输入关键词或网址" autocomplete="off" spellcheck="false">
+    <button type="submit" aria-label="搜索或打开">→</button>
   </div>
-  <div class="hint">输入关键词搜索，或直接输入网址</div>
+  <div class="hint">关键词使用百度搜索，网址将直接打开</div>
+  </form>
+  <footer class="start-footer"><span>AI Chat Hub · Beta</span><span><kbd>Enter</kbd> 打开</span></footer>
+  </main>
   <script>
     // 跟随应用主题（?theme=dark）
     if (new URLSearchParams(location.search).get('theme') === 'dark') {
       document.body.classList.add('dark');
     }
     var input = document.getElementById('q');
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        var q = input.value.trim();
-        if (q) location.href = 'https://www.baidu.com/s?wd=' + encodeURIComponent(q);
-      }
+    document.getElementById('search-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var q = input.value.trim();
+      if (!q) return;
+      var target = /^https?:\/\//i.test(q) ? q : (/^(?:localhost|(?:[a-z0-9-]+\.)+[a-z]{2,})(?::\d+)?(?:[/?#]\S*)?$/i.test(q) ? 'https://' + q : null);
+      location.href = target || 'https://www.baidu.com/s?wd=' + encodeURIComponent(q);
     });
     setTimeout(function() { input.focus(); }, 100);
   </script>

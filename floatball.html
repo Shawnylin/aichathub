@@ -9,17 +9,17 @@
   html, body { width:120px; height:120px; margin:0; overflow:hidden; background:transparent; user-select:none; }
   body { display:grid; place-items:center; font-family:system-ui, -apple-system, "Segoe UI", sans-serif; }
   .float-launcher {
-    --float-color:#10a37f; --float-rgb:16, 163, 127;
-    width:54px; height:54px; padding:0; border:0; border-radius:50%;
+    --float-color:#53616d; --float-rgb:83, 97, 109;
+    width:54px; height:54px; padding:0; border:1px solid rgba(255,255,255,.28); border-radius:14px;
     display:grid; place-items:center; position:relative; cursor:grab; color:#fff;
-    background:linear-gradient(145deg, var(--float-color) 0%, color-mix(in srgb, var(--float-color) 82%, #000) 100%);
-    box-shadow:0 8px 22px rgba(var(--float-rgb),.36), 0 2px 5px rgba(0,0,0,.16);
+    background:color-mix(in srgb, var(--float-color) 88%, transparent);
+    backdrop-filter:blur(16px) saturate(.7);
+    box-shadow:0 6px 18px rgba(20,30,40,.2), inset 0 1px 0 rgba(255,255,255,.15);
     transition:transform 160ms ease, box-shadow 160ms ease, opacity 180ms ease;
     -webkit-app-region:no-drag;
   }
-  .float-launcher::after { content:""; position:absolute; width:9px; height:9px; top:8px; right:10px; border-radius:50%; background:rgba(255,255,255,.38); filter:blur(.4px); }
-  .float-launcher:hover { transform:scale(1.05); box-shadow:0 8px 24px rgba(var(--float-rgb),.42), 0 3px 8px rgba(0,0,0,.18); }
-  .float-launcher:active, .float-launcher.is-dragging { cursor:grabbing; transform:scale(.94); }
+  .float-launcher:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(20,30,40,.24); }
+  .float-launcher:active, .float-launcher.is-dragging { cursor:grabbing; transform:scale(.97); }
   .float-launcher.is-hidden { opacity:0; pointer-events:none; }
   svg { width:23px; height:23px; position:relative; z-index:1; pointer-events:none; }
   @media (prefers-reduced-motion: reduce) { .float-launcher { transition:none; } }

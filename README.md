@@ -10,6 +10,9 @@
 - **Kimi** — www.kimi.com
 - **MiniMax** — agent.minimaxi.com
 - **千问** — www.tongyi.com
+- **智谱清言** — chatglm.cn
+- **Grok** — grok.com
+- **ChatGPT** — chatgpt.com
 
 ## 功能
 
@@ -18,14 +21,15 @@
 - 默认新建页：本地简洁新标签页，logo 居中 + 百度搜索框（后续可切换其他搜索引擎）
 - 侧栏红点关闭：加载中的站点显示彩色指示点，悬停放大为关闭按钮
 - 可编辑地址栏：输入网址或搜索关键词，回车跳转到任意网页
-- 侧栏站点一键切换，快捷键 `Ctrl+1~7`
+- 侧栏站点一键切换，快捷键 `Ctrl+1~9`
+- “AI 站点”右侧可添加自定义站点；设置 → AI站点可新增、隐藏或删除自定义站点
 - 侧栏标签拖拽排序，顺序自动保存
 - 内存策略（设置 → 功能 → 内存优化，Beta）：所有已打开的 AI 站点保持加载、切换即时恢复；隐藏页面空闲 15 分钟自动释放（标签保留、点击重新加载），附属页面全局最多保留 8 个，按 LRU 自动释放；可在设置中关闭
 - 关闭窗口最小化到系统托盘常驻
 - 托盘右键菜单快捷切换站点
 - 桌面悬浮球，窗口隐藏时点击唤出
 - 页面内右键菜单（返回 / 前进 / 刷新 / 复制 / 粘贴 / 全选）
-- 分类导航设置面板：外观 / 功能 / 下载 / 权限 / 关于
+- 分类导航设置面板：外观 / AI站点 / 功能 / 下载 / 权限 / 关于
 - 亮色 / 深色 / 跟随系统主题切换
 - 悬浮球开关、快捷键开关
 - 无边框窗口，自定义标题栏
@@ -39,6 +43,23 @@ npm start        # 启动应用
 npm run icon     # 生成图标文件
 npm run build    # 打包安装包
 ```
+
+## 1.4 Beta 界面预览
+
+主窗口、设置、新标签页和悬浮入口采用中性色毛玻璃、统一圆角及间距；支持浅色、深色与减少动态效果。悬浮入口颜色跟随主题色，移除了原来仅改变预览、未连接实际悬浮窗口的光晕及高光控件。
+
+```powershell
+Set-Location F:\mycode\aichathub
+npm start
+# 生成本地 beta 安装包，不发布到 GitHub
+npm run build:beta
+# 独立配置、阻止外网的 Electron 界面验证（会短暂显示预览窗口）
+.\node_modules\electron\dist\electron.exe .\scripts\check-beta-ui.cjs
+```
+
+Beta 安装包输出到 `dist/beta`；界面检查结果和截图输出到 `dist/beta-ui-check`。`npm run build:release` 会发布版本，不用于本地 beta 验证。
+
+若本机全局 npm 启动器报 `npm-cli.js` 缺失，已安装依赖时可直接运行 `node .\node_modules\electron-builder\cli.js --win --publish never '--config.directories.output=dist/beta'` 打包，或 `.\node_modules\electron\dist\electron.exe .` 启动。
 
 ## 修改图标
 
