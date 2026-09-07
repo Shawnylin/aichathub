@@ -1,5 +1,13 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+contextBridge.exposeInMainWorld('tasks', {
+  read: () => ipcRenderer.invoke('tasks:read'),
+  change: request => ipcRenderer.invoke('tasks:change', request),
+  recover: () => ipcRenderer.invoke('tasks:recover'),
+  copy: text => ipcRenderer.invoke('tasks:copy', text),
+  onCapture: callback => { const listener = (_, snapshot) => callback(snapshot); ipcRenderer.on('tasks:capture', listener); return () => ipcRenderer.removeListener('tasks:capture', listener); }
+});
+
 contextBridge.exposeInMainWorld('app', {
   minimize: () => ipcRenderer.send('window-minimize'),
   maximize: () => ipcRenderer.send('window-maximize'),
@@ -12,13 +20,16 @@ contextBridge.exposeInMainWorld('app', {
   setFloatBall: (enabled) => ipcRenderer.send('set-float-ball', enabled),
   getFloatBallEnabled: () => ipcRenderer.invoke('get-float-ball-enabled'),
   onFloatBallEnabledChange: (cb) => ipcRenderer.on('float-ball-enabled-change', (_, enabled) => cb(enabled)),
-  showContextMenu: () => ipcRenderer.send('show-context-menu', 'normal'),
+  showContextMenu: snapshot => ipcRenderer.send('show-context-menu', snapshot || 'normal'),
   updateSiteOrder: (order) => ipcRenderer.send('update-site-order', order),
   updateFloatballSettings: () => ipcRenderer.send('update-floatball-settings'),
   resetFloatBallPosition: () => ipcRenderer.send('reset-float-ball-position'),
   onContextMenuAction: (cb) => ipcRenderer.on('context-menu-action', (_, action) => cb(action)),
   setTheme: (theme) => ipcRenderer.send('set-theme', theme),
   setAccentColor: (color) => ipcRenderer.send('set-accent-color', color),
+  setGlassTransparency: value => ipcRenderer.send('set-glass-transparency', value),
+  getMicaState: () => ipcRenderer.invoke('get-mica-state'),
+  setMicaEnabled: enabled => ipcRenderer.invoke('set-mica-enabled', enabled),
 
   // ======== 版本更新 API ========
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),

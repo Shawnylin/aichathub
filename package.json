@@ -1,6 +1,6 @@
 {
   "name": "AIchatHub",
-  "version": "1.4.0-beta.1",
+  "version": "1.4.1",
   "description": "AI Chat Hub - 多平台 AI 助手聚合客户端",
   "main": "main.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "build": "node scripts/build.js",
     "build:release": "npx electron-builder --win --publish always",
     "icon": "node scripts/make-icon.js",
-    "build:beta": "electron-builder --win --publish never --config.directories.output=dist/beta"
+    "build:local": "electron-builder --win --publish never --config.directories.output=dist/1.4.1",
+    "test:tasks": "node --test tests/*.test.cjs"
   },
   "keywords": [],
   "author": "AI Chat Hub",
@@ -39,7 +40,9 @@
       "assets/icon.ico",
       "assets/icon.png",
       "assets/icon-512.png",
-      "assets/tray-icon.png"
+      "assets/tray-icon.png",
+      "main/**/*",
+      "renderer/**/*"
     ],
     "win": {
       "icon": "assets/icon.ico",

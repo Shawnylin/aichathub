@@ -827,7 +827,9 @@
     *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
   }
 </style>
-<link rel="stylesheet" href="beta.css">
+<link rel="stylesheet" href="renderer/task-panel.css">
+<link rel="stylesheet" href="renderer/settings-refresh.css">
+<link rel="stylesheet" href="renderer/glass-navigation.css">
 </head>
 <body>
 
@@ -978,6 +980,14 @@
             <button class="accent-option" type="button" data-accent="#4d6bfe" style="--color:#4d6bfe" aria-label="蓝色"></button>
             <button class="accent-option" type="button" data-accent="#786c60" style="--color:#786c60" aria-label="暖灰色"></button>
           </div>
+          <h3 class="panel-heading">窗口材质</h3>
+          <div class="toggle-row mica-setting-row is-unsupported" id="mica-setting-row">
+            <div class="toggle-copy">
+              <span class="toggle-label">启用云母背景材质</span>
+              <span class="setting-hint" id="mica-description">正在检测系统支持情况...</span>
+            </div>
+            <button class="toggle-switch" id="mica-toggle" type="button" role="switch" aria-checked="false" aria-describedby="mica-description" aria-label="启用云母背景材质" disabled></button>
+          </div>
           <div class="material-note"><strong>轻盈，有序</strong><p>半透明面板与细腻的毛玻璃层次，让内容保持清晰。外观随主题切换，动画跟随系统的减少动态效果设置。</p></div>
         </section>
         <section class="settings-panel" id="panel-features">
@@ -1001,7 +1011,7 @@
             <button class="toggle-switch on" id="floatball-toggle"></button>
           </div>
           <div class="fb-quick-access">
-            <div class="fb-quick-icon" aria-hidden="true">✦</div>
+            <div class="fb-quick-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 4v16"/></svg></div>
             <div class="fb-quick-copy">
               <strong>桌面快速入口</strong>
               <span>拖动后会自动贴边；单击即可回到当前会话。</span>
@@ -1036,7 +1046,7 @@
         </section>
         <section class="settings-panel" id="panel-about">
           <h3 class="panel-heading">关于</h3>
-          <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.3.0</span></div>
+          <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.4.1</span></div>
           <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
           <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
           <div class="about-update-row">
@@ -1087,6 +1097,7 @@
 
 
 
+<script src="renderer/source-route.js"></script>
 <script>
   const sidebar = document.getElementById('sidebar');
   const collapseBtn = document.getElementById('collapse-btn');
@@ -1181,6 +1192,43 @@
   }
   accentOptions.forEach(option => option.addEventListener('click', () => applyAccentColor(option.dataset.accent)));
   applyAccentColor(localStorage.getItem('aihub-accent') || '#53616d');
+
+  // 云母背景材质
+  const micaSettingRow = document.getElementById('mica-setting-row');
+  const micaToggle = document.getElementById('mica-toggle');
+  const micaDescription = document.getElementById('mica-description');
+  let micaState = { supported: false, enabled: false };
+  function renderMicaState(state) {
+    micaState = state || { supported: false, enabled: false };
+    const supported = !!micaState.supported;
+    const enabled = supported && !!micaState.enabled;
+    micaToggle.disabled = !supported;
+    micaToggle.classList.toggle('on', enabled);
+    micaToggle.setAttribute('aria-checked', String(enabled));
+    micaSettingRow.classList.toggle('is-unsupported', !supported);
+    micaDescription.textContent = micaState.reason || (supported
+      ? 'Windows 11 22H2 或更高版本支持实时切换，默认关闭。'
+      : '当前系统不支持此效果');
+    micaToggle.title = supported ? '切换云母背景材质' : micaDescription.textContent;
+    document.body.classList.toggle('mica-enabled', enabled);
+  }
+  micaToggle.addEventListener('click', async () => {
+    if (micaToggle.disabled) return;
+    micaToggle.disabled = true;
+    try {
+      const nextState = await window.app.setMicaEnabled(!micaState.enabled);
+      renderMicaState(nextState);
+    } catch (_) {
+      renderMicaState({ ...micaState, reason: '云母材质暂时无法应用，请稍后重试。' });
+    }
+  });
+  if (typeof window.app.getMicaState === 'function') {
+    window.app.getMicaState().then(renderMicaState).catch(() => {
+      renderMicaState({ supported: false, enabled: false, reason: '当前系统不支持此效果' });
+    });
+  } else {
+    renderMicaState({ supported: false, enabled: false, reason: '当前系统不支持此效果' });
+  }
 
   // 快捷键开关
   const shortcutToggle = document.getElementById('shortcut-toggle');
@@ -1449,7 +1497,8 @@
     } catch(e) {}
     wv.addEventListener('context-menu', (e) => {
       e.preventDefault();
-      window.app.showContextMenu();
+      const site = SITES[parentSiteOf(pageId)];
+      window.app.showContextMenu({ text: e.params?.selectionText || '', url: wv.getURL(), title: wv.getTitle(), siteName: site?.name || '网页', siteId: parentSiteOf(pageId) });
     });
   }
 
@@ -1706,17 +1755,19 @@
     // 当前 AI 站点主页面标签（固定在首位，点击回到站点主页）
     const siteInfo = SITES[activeSite];
     const siteTab = document.createElement('div');
-    siteTab.className = 'top-tab' + (activePage === activeSite ? ' active' : '');
+    siteTab.className = 'top-tab site-tab' + (activePage === activeSite ? ' active' : '');
     siteTab.dataset.page = activeSite;
     siteTab.title = siteInfo.name + ' · ' + siteInfo.domain;
     let siteFavicon = null;
     try { siteFavicon = localStorage.getItem('aihub-favicon-' + activeSite); } catch(e) {}
-    siteTab.innerHTML = (siteFavicon
+    siteTab.innerHTML = '<button class="site-nav-trigger" type="button" aria-label="网页导航：后退、前进和刷新" aria-expanded="false" aria-controls="nav-capsule">' + (siteFavicon
       ? '<img class="tt-favicon" src="' + siteFavicon + '" alt="">'
       : '<span class="tt-favicon-ph">' + siteInfo.name.slice(0, 2) + '</span>')
-      + '<span class="tt-text"></span>';
+      + '</button><span class="tt-text"></span>';
     siteTab.querySelector('.tt-text').textContent = siteInfo.name;
-    siteTab.addEventListener('click', () => switchSite(activeSite));
+    siteTab.addEventListener('click', event => {
+      if (!event.target.closest('.site-nav-trigger')) switchSite(activeSite);
+    });
     siteTab.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       topTabMenuPage = activeSite;
@@ -1823,6 +1874,12 @@
     switchPage(pageId);
     return pageId;
   }
+
+  // Source pages reuse their original site's session partition, never the current site's.
+  window.hubNavigation = Object.freeze({ openSource(source) {
+    const route = window.resolveSourceRoute(source, SITES);
+    return newSubPage(route.url, route.siteId);
+  } });
 
   function updateIndicators() {
     tabItems.forEach(btn => {
@@ -2603,5 +2660,8 @@
       buildPermissionUI();
     });
   });</script>
+<script src="renderer/floating-navigation.js"></script>
+<script src="renderer/glass-appearance.js"></script>
+<script src="renderer/task-panel.js"></script>
 </body>
 </html>

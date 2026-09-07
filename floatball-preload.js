@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('float', {
   showContextMenu: () => ipcRenderer.send('float-ball-context-menu'),
   onFadeOut: (cb) => ipcRenderer.on('float-ball-fade-out', () => cb()),
   onFadeIn: (cb) => ipcRenderer.on('float-ball-fade-in', () => cb()),
-  onAccentChange: (cb) => ipcRenderer.on('float-ball-accent-change', (_, color) => cb(color))
+  onAccentChange: (cb) => ipcRenderer.on('float-ball-accent-change', (_, color) => cb(color)),
+  onGlassChange: (cb) => ipcRenderer.on('float-ball-glass-change', (_, value) => cb(value))
 });

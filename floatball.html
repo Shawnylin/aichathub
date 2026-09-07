@@ -12,7 +12,7 @@
     --float-color:#53616d; --float-rgb:83, 97, 109;
     width:54px; height:54px; padding:0; border:1px solid rgba(255,255,255,.28); border-radius:14px;
     display:grid; place-items:center; position:relative; cursor:grab; color:#fff;
-    background:color-mix(in srgb, var(--float-color) 88%, transparent);
+    background:rgba(var(--float-rgb), var(--glass-alpha, .8));
     backdrop-filter:blur(16px) saturate(.7);
     box-shadow:0 6px 18px rgba(20,30,40,.2), inset 0 1px 0 rgba(255,255,255,.15);
     transition:transform 160ms ease, box-shadow 160ms ease, opacity 180ms ease;
@@ -84,6 +84,9 @@
     window.float.onFadeOut(() => launcher.classList.add('is-hidden'));
     window.float.onFadeIn(() => launcher.classList.remove('is-hidden'));
     window.float.onAccentChange(applyAccentColor);
+    window.float.onGlassChange(value => {
+      if (Number.isFinite(value)) launcher.style.setProperty('--glass-alpha', String(1 - Math.max(0, Math.min(70, value)) / 100));
+    });
   })();
 </script>
 </body>
