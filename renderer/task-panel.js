@@ -1,12 +1,12 @@
 (() => {
   const button = document.createElement('button');
   button.id = 'task-workspace-button'; button.type = 'button'; button.title = '任务工作台'; button.setAttribute('aria-label', '任务工作台');
-  button.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>任务</span>';
+  button.innerHTML = '<svg class="sf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3" width="17" height="18" rx="3"/><path d="M7.5 8h9M7.5 12h9M7.5 16h6"/></svg><span class="sf-label">任务</span>';
   document.querySelector('.sidebar-footer').prepend(button);
   const panel = document.createElement('dialog');
   panel.id = 'task-workspace'; panel.setAttribute('aria-labelledby', 'task-workspace-title');
   panel.innerHTML = `
-    <header class="task-head"><div><h2 id="task-workspace-title">任务工作台 <small>1.4.1</small></h2><p>选中 AI 回答 → 右键保存到任务 → 随时查看或一键复制。</p></div><button type="button" id="task-close" aria-label="关闭任务工作台">×</button></header>
+    <header class="task-head"><div><h2 id="task-workspace-title">任务工作台</h2><p>选中 AI 回答 → 右键保存到任务 → 随时查看或一键复制。</p></div><button type="button" id="task-close" aria-label="关闭任务工作台">×</button></header>
     <div class="task-feedback" role="status" aria-live="polite" id="task-feedback">正在读取…</div>
     <button id="task-pending" type="button" hidden>保存已收集片段</button>
     <div id="task-recovery" hidden><p>数据读取失败，原文件未修改。</p><button id="task-retry">重新载入</button><button id="task-recover">从本地备份恢复</button></div>

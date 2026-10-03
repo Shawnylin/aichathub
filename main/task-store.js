@@ -44,6 +44,8 @@ class TaskStore {
     this.backup = path.join(directory, 'workspace.backup.json');
     this.io = io;
     this.queue = Promise.resolve();
+    this.validate = validate;
+    this.initial = () => ({ schemaVersion: 1, revision: 0, tasks: [] });
   }
   serial(action) {
     const pending = this.queue.then(action);
@@ -56,7 +58,7 @@ class TaskStore {
     let data;
     try { data = JSON.parse(await this.io.readFile(file, 'utf8')); }
     catch (error) { if (error instanceof SyntaxError) throw fail('任务数据无法解析，原文件未修改。', 'CORRUPT'); throw error; }
-    return validate(data);
+    return this.validate(data);
   }
   async load() {
     if (this.data) return this.data;
@@ -67,14 +69,18 @@ class TaskStore {
       try { await this.io.access(this.backup); }
       catch (missing) {
         if (missing.code !== 'ENOENT') throw missing;
-        this.data = { schemaVersion: 1, revision: 0, tasks: [] };
+        this.data = this.initial();
         return this.data;
       }
       throw fail('主任务文件缺失，可以从本地备份恢复。', 'CORRUPT');
     }
     return this.data;
   }
-  read() { return this.serial(async () => structuredClone(await this.load())); }
+  async loadForChange() {
+    if (this.data?.revision > 0) this.data = await this.readFile(this.file);
+    return this.load();
+  }
+  read() { return this.serial(async () => structuredClone(await this.loadForChange())); }
   async atomic(file, data) {
     const temp = file + '.' + randomUUID() + '.tmp';
     let handle;
@@ -91,7 +97,7 @@ class TaskStore {
   }
   change(request) {
     return this.serial(async () => {
-      const current = await this.load();
+      const current = await this.loadForChange();
       if (!plain(request) || request.revision !== current.revision) throw fail('任务已发生变化，请先复制未保存内容，再重新载入。', 'CONFLICT');
       const next = structuredClone(current);
       const now = new Date().toISOString();
@@ -148,7 +154,9 @@ class TaskStore {
       const preserved = this.file + '.preserved-' + randomUUID();
       try { await this.io.copyFile(this.file, preserved); }
       catch (error) { if (error.code !== 'ENOENT') throw error; }
-      backup.revision++;
+      let primaryRevision = 0;
+      try { primaryRevision = (await this.readFile(this.file)).revision; } catch (_) { /* Preserved above; explicit recovery can replace damaged primary. */ }
+      backup.revision = Math.max(backup.revision, this.data?.revision || 0, primaryRevision) + 1;
       await this.atomic(this.file, JSON.stringify(backup, null, 2));
       this.data = backup;
       return structuredClone(backup);

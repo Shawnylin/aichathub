@@ -1,0 +1,70 @@
+/* Shared GrokBot palette. Keep the web pages themselves outside this system. */
+:root {
+  --gb-accent: var(--accent, #53616d);
+  --gb-on-accent: #fff;
+  --gb-radius: 16px;
+  --gb-radius-lg: 24px;
+  --gb-motion-fast: 140ms;
+  --gb-motion-normal: 240ms;
+  --gb-motion-slow: 320ms;
+  --gb-ease: cubic-bezier(.2, 0, 0, 1);
+  --gb-ease-exit: cubic-bezier(.4, 0, 1, 1);
+}
+body {
+  color-scheme: light;
+  --gb-canvas: #f2f3f1;
+  --gb-surface: #fcfcfa;
+  --gb-surface-muted: #eff1ef;
+  --gb-text: #262d31;
+  --gb-muted: #687176;
+  --gb-line: #dce1de;
+  --gb-hover: #e8ece9;
+  --gb-shadow: 0 16px 48px #202a321a, 0 2px 8px #202a3208;
+  --gb-scrim: #17202738;
+  --glass-rgb: 247, 248, 246;
+}
+body.dark {
+  color-scheme: dark;
+  --gb-canvas: #1c2124;
+  --gb-surface: #272d31;
+  --gb-surface-muted: #22282c;
+  --gb-text: #eef1ef;
+  --gb-muted: #abb4b8;
+  --gb-line: #3d464b;
+  --gb-hover: #343d42;
+  --gb-shadow: 0 16px 48px #0004, 0 2px 8px #0002;
+  --gb-scrim: #090f1466;
+  --glass-rgb: 39, 45, 49;
+}
+body, body.dark {
+  --gb-accent-soft: color-mix(in srgb, var(--gb-accent) 12%, var(--gb-surface));
+  --gb-accent-text: color-mix(in srgb, var(--gb-accent) 64%, var(--gb-text));
+  --glass-edge: var(--gb-line);
+  --bg-titlebar: var(--gb-canvas);
+  --bg-sidebar: var(--gb-canvas);
+  --bg-content: var(--gb-surface);
+  --bg-navbar: var(--gb-canvas);
+  --bg-urlbar: var(--gb-surface-muted);
+  --bg-webview: var(--gb-surface);
+  --border-sidebar: var(--gb-line);
+  --border-nav: var(--gb-line);
+  --border-btn: var(--gb-line);
+  --text-title: var(--gb-muted);
+  --text-tab: var(--gb-muted);
+  --text-tab-active: var(--gb-text);
+  --text-dim: var(--gb-muted);
+  --text-url: var(--gb-muted);
+  --text-url-domain: var(--gb-text);
+  --hover-tab: var(--gb-hover);
+  --hover-navbtn: var(--gb-hover);
+  --active-tab-bg: var(--gb-accent-soft);
+  --win-hover: var(--gb-hover);
+  --btn-hover: var(--gb-hover);
+  --footer-text: var(--gb-muted);
+  --section-label: var(--gb-muted);
+  color: var(--gb-text);
+  background: var(--gb-canvas);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --gb-motion-fast: 0ms; --gb-motion-normal: 0ms; --gb-motion-slow: 0ms; }
+}

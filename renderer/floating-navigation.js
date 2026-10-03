@@ -73,7 +73,7 @@
     if (!event.target.closest('.site-nav-trigger')) return;
     if (event.key === 'ArrowDown') {
       event.preventDefault(); toggle(nav, true);
-      requestAnimationFrame(() => { if (nav.classList.contains('is-open')) nav.querySelector('button:not(:disabled)')?.focus(); });
+      requestAnimationFrame(() => requestAnimationFrame(() => { if (nav.classList.contains('is-open')) nav.querySelector('button:not(:disabled)')?.focus(); }));
     }
     if (event.key === 'Escape') { event.preventDefault(); toggle(nav, false); }
   });

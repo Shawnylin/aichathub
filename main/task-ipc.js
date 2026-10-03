@@ -16,7 +16,7 @@ function registerTaskIpc({ ipcMain, dialog, clipboard, shell, getWindow, store, 
   register('tasks:read', () => store.read());
   register('tasks:change', request => store.change(request));
   register('tasks:copy', value => {
-    if (typeof value !== 'string' || value.length > 2000000) throw new Error('复制内容超出限制');
+    if (typeof value !== 'string' || value.length > 20 * 1024 * 1024) throw new Error('复制内容超出限制');
     clipboard.writeText(value);
     return true;
   });

@@ -8,7 +8,16 @@ contextBridge.exposeInMainWorld('tasks', {
   onCapture: callback => { const listener = (_, snapshot) => callback(snapshot); ipcRenderer.on('tasks:capture', listener); return () => ipcRenderer.removeListener('tasks:capture', listener); }
 });
 
+contextBridge.exposeInMainWorld('comparison', {
+  setActive:value=>ipcRenderer.invoke('comparison:active',value),
+  onShortcut:cb=>ipcRenderer.on('comparison:shortcut',(_,value)=>cb(value)),
+  read:()=>ipcRenderer.invoke('comparison:read'), save:request=>ipcRenderer.invoke('comparison:save',request),
+  recover:()=>ipcRenderer.invoke('comparison:recover'), export:text=>ipcRenderer.invoke('comparison:export',text),
+  onCapture:cb=>{const fn=(_,value)=>cb(value);ipcRenderer.on('comparison:capture',fn);return ()=>ipcRenderer.removeListener('comparison:capture',fn);}
+});
 contextBridge.exposeInMainWorld('app', {
+  syncSites:sites=>ipcRenderer.invoke('sites:sync',sites),
+  onGuestPopup:cb=>ipcRenderer.on('guest-popup',(_,data)=>cb(data)),
   minimize: () => ipcRenderer.send('window-minimize'),
   maximize: () => ipcRenderer.send('window-maximize'),
   close: () => ipcRenderer.send('window-close'),
@@ -19,6 +28,11 @@ contextBridge.exposeInMainWorld('app', {
   onSwitchSite: (cb) => ipcRenderer.on('switch-site', (_, site) => cb(site)),
   setFloatBall: (enabled) => ipcRenderer.send('set-float-ball', enabled),
   getFloatBallEnabled: () => ipcRenderer.invoke('get-float-ball-enabled'),
+  getFloatballSettings: () => ipcRenderer.invoke('get-floatball-settings'),
+  setFloatballSettings: settings => ipcRenderer.invoke('set-floatball-settings', settings),
+  onFloatballSettingsChange: cb => ipcRenderer.on('floatball-settings-change', (_, value) => cb(value)),
+  onCompanionArrival: cb => ipcRenderer.on('companion-arrival', () => cb()),
+  onOpenSettingsPanel: cb => ipcRenderer.on('open-settings-panel', (_, panel) => cb(panel)),
   onFloatBallEnabledChange: (cb) => ipcRenderer.on('float-ball-enabled-change', (_, enabled) => cb(enabled)),
   showContextMenu: snapshot => ipcRenderer.send('show-context-menu', snapshot || 'normal'),
   updateSiteOrder: (order) => ipcRenderer.send('update-site-order', order),

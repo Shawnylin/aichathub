@@ -8,6 +8,15 @@ const log = require('electron-log');
 const { TaskStore } = require('./main/task-store');
 const { registerTaskIpc, trusted } = require('./main/task-ipc');
 const { captureMenuItem } = require('./main/task-capture');
+const { ComparisonStore } = require('./main/comparison-store');
+const { registerComparisonIpc, comparisonMenuItem } = require('./main/comparison-ipc');
+const { SiteRegistry } = require('./main/site-registry');
+const { guardedIpc, installNavigationGuard } = require('./main/ipc-security');
+const { pathToFileURL } = require('node:url');
+const FloatballConfig = require('./renderer/floatball-config');
+const { NativeFloatballDrag, facingForPosition } = require('./main/floatball-motion');
+let siteRegistry;
+let comparisonActive=false;
 
 // ======== 日志配置 ========
 log.transports.file.level = 'info';
@@ -82,6 +91,9 @@ let floatBall = null;
 let isQuitting = false;
 let floatBallEnabled = true;
 let floatBallPos = null;
+let floatBallSettings = FloatballConfig.normalize();
+let floatDrag = null;
+let floatFacingAt = 0;
 let appAccentColor = '#53616d';
 let glassTransparency = 20;
 let micaEnabled = false;
@@ -105,6 +117,7 @@ function loadConfig() {
         floatBallPos = cfg.floatBallPosition;
       }
       if (typeof cfg.floatBallEnabled === 'boolean') floatBallEnabled = cfg.floatBallEnabled;
+      floatBallSettings = FloatballConfig.normalize(cfg.floatBallSettings);
       if (typeof cfg.appAccentColor === 'string' && /^#[0-9a-f]{6}$/i.test(cfg.appAccentColor)) appAccentColor = cfg.appAccentColor;
       if (Number.isFinite(cfg.glassTransparency)) glassTransparency = Math.max(0, Math.min(70, cfg.glassTransparency));
       if (typeof cfg.micaEnabled === 'boolean') micaEnabled = cfg.micaEnabled;
@@ -117,8 +130,17 @@ function saveConfig(key, value) {
     let cfg = {};
     if (fs.existsSync(configPath)) cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     cfg[key] = value;
-    fs.writeFileSync(configPath, JSON.stringify(cfg, null, 2));
-  } catch (e) { log.warn('Failed to save config:', e.message); }
+    const temporary = configPath + '.' + require('node:crypto').randomUUID() + '.tmp';
+    const backupTemp = temporary + '.backup';
+    try {
+      if (fs.existsSync(configPath)) { fs.copyFileSync(configPath, backupTemp); fs.renameSync(backupTemp, configPath + '.backup'); }
+      fs.writeFileSync(temporary, JSON.stringify(cfg, null, 2), { encoding: 'utf8', flag: 'wx' });
+      fs.renameSync(temporary, configPath);
+    } finally {
+      for (const file of [temporary, backupTemp]) if (fs.existsSync(file)) fs.unlinkSync(file);
+    }
+    return true;
+  } catch (e) { log.warn('Failed to save config:', e.message); return false; }
 }
 
 function getWindowsBuildNumber() {
@@ -183,7 +205,7 @@ function sendDownloadUpdate(dl) {
 function setupDownloadHandler(ses) {
   ses.on('will-download', (event, item) => {
     const id = ++downloadIdCounter;
-    const filename = item.getFilename();
+    const filename = path.basename(item.getFilename()).replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').slice(0,180).replace(/[. ]+$/g, '') || 'download';
     let savePath = path.join(downloadPath, filename);
 
     // 处理重名文件
@@ -281,7 +303,8 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile('index.html');
+  installNavigationGuard(mainWindow, siteRegistry, pathToFileURL(path.join(__dirname,'newtab.html')).href,()=>comparisonActive);
+  mainWindow.loadFile(path.join(__dirname,'index.html'));
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setIcon(path.join(__dirname, 'assets', 'icon.ico'));
 
@@ -340,12 +363,37 @@ function createWindow() {
 
 // ======== IPC 注册（仅执行一次）========
 function registerIpcHandlers() {
+  const secure = guardedIpc(ipcMain, {getWindow:()=>mainWindow,getFloat:()=>floatBall,indexFile:path.join(__dirname,'index.html'),floatFile:path.join(__dirname,'floatball.html'),validArgs(channel,args) {
+    const [a,b,c]=args;
+    if(channel==='set-theme') return ['system','light','dark'].includes(a);
+    if(channel==='set-floatball-settings') return args.length===1 && FloatballConfig.validPatch(a);
+    if(['set-float-ball','set-mica-enabled'].includes(channel)) return typeof a==='boolean';
+    if(channel==='set-accent-color') return typeof a==='string' && /^#[0-9a-f]{6}$/i.test(a);
+    if(channel==='set-glass-transparency') return Number.isFinite(a) && a>=0 && a<=70;
+    if(channel==='update-site-order') return Array.isArray(a) && a.length<=109 && new Set(a).size===a.length && a.every(id=>siteRegistry.sites.has(id));
+    if(channel==='open-external') {try {require('./main/comparison-store').safeURL(a);return true;} catch(_){return false;}}
+    if(channel==='open-download-file') return typeof a==='string' && downloads.some(d=>d.savePath===a);
+    if(['pause-download','resume-download','cancel-download','delete-download','remove-download-record'].includes(channel)) return Number.isSafeInteger(a) && a>0;
+    if(channel==='set-permission') return siteRegistry.sites.has(a) && ['media','geolocation','notifications'].includes(b) && typeof c==='boolean';
+    if(channel==='float-ball-drag-start') return args.length===2 && Number.isFinite(a) && Number.isFinite(b) && Math.abs(a)<1000000 && Math.abs(b)<1000000;
+    if(channel==='show-context-menu') return ['normal','selection'].includes(a) || (a && typeof a==='object' && typeof a.text==='string' && a.text.length<=100001 && typeof a.url==='string' && a.url.length<=8192 && typeof a.title==='string' && a.title.length<=10000 && siteRegistry.sites.has(a.siteId));
+    return args.length===0;
+  }});
+  registerComparisonIpc({ipcMain,dialog,getWindow:()=>mainWindow,indexFile:path.join(__dirname,'index.html'),store:new ComparisonStore(path.join(app.getPath('userData'),'comparison-workspace'))});
+  ipcMain.handle('comparison:active',(event,value)=>{
+    if(!trusted(event,mainWindow,path.join(__dirname,'index.html')) || typeof value!=='boolean')return false;
+    comparisonActive=value;return true;
+  });
+  ipcMain.handle('sites:sync', async(event,custom)=>{
+    if(!trusted(event,mainWindow,path.join(__dirname,'index.html')))return {ok:false,error:'来源无效'};
+    try {const value=siteRegistry.sync(custom); saveConfig('customSites',custom); if(tray)buildTrayMenu(); return {ok:true,value};}catch(e){return {ok:false,error:e.message};}
+  });
   registerTaskIpc({ ipcMain, dialog, clipboard, shell, getWindow: () => mainWindow,
     store: new TaskStore(path.join(app.getPath('userData'), 'task-workspace')),
     indexFile: path.join(__dirname, 'index.html') });
   // 窗口管理
-  ipcMain.on('window-minimize', () => { if (mainWindow) mainWindow.minimize(); });
-  ipcMain.on('window-maximize', () => {
+  secure.on('window-minimize', () => { if (mainWindow) mainWindow.minimize(); });
+  secure.on('window-maximize', () => {
     if (!mainWindow) return;
     if (mainWindow.isFullScreen()) {
       mainWindow.setFullScreen(false);
@@ -355,13 +403,13 @@ function registerIpcHandlers() {
       mainWindow.maximize();
     }
   });
-  ipcMain.on('window-close', () => { if (mainWindow) mainWindow.hide(); });
-  ipcMain.on('app-quit', () => {
+  secure.on('window-close', () => { if (mainWindow) mainWindow.hide(); });
+  secure.on('app-quit', () => {
     isQuitting = true;
     app.quit();
   });
-  ipcMain.handle('window-is-maximized', () => mainWindow && mainWindow.isMaximized());
-  ipcMain.handle('open-external', (_, url) => {
+  secure.handle('window-is-maximized', () => mainWindow && mainWindow.isMaximized());
+  secure.handle('open-external', (_, url) => {
     try {
       const u = new URL(url);
       if (u.protocol === 'http:' || u.protocol === 'https:') {
@@ -371,34 +419,38 @@ function registerIpcHandlers() {
   });
 
   // 悬浮球
-  ipcMain.on('set-float-ball', (_, enabled) => {
+  secure.on('set-float-ball', (_, enabled) => {
     setFloatBallEnabled(enabled);
   });
 
-  ipcMain.handle('get-float-ball-enabled', () => floatBallEnabled);
+  secure.handle('get-float-ball-enabled', () => floatBallEnabled);
+  secure.handle('get-floatball-settings', () => getFloatballSettings());
+  secure.handle('float-ball-get-settings', () => getFloatballSettings());
+  secure.handle('set-floatball-settings', (_, patch) => updateFloatballSettings(patch));
 
-  ipcMain.on('reset-float-ball-position', () => {
+  secure.on('reset-float-ball-position', () => {
     resetFloatBallPosition();
   });
 
-  ipcMain.on('update-site-order', (_, order) => {
+  secure.on('update-site-order', (_, order) => {
     SITE_ORDER = order;
     if (tray) buildTrayMenu();
   });
 
-  ipcMain.on('set-theme', (_, theme) => {
+  secure.on('set-theme', (_, theme) => {
     nativeTheme.themeSource = theme;
   });
 
-  ipcMain.on('set-accent-color', (_, color) => {
+  secure.on('set-accent-color', (_, color) => {
     if (typeof color !== 'string' || !/^#[0-9a-f]{6}$/i.test(color)) return;
     appAccentColor = color;
     saveConfig('appAccentColor', appAccentColor);
     if (floatBall && !floatBall.isDestroyed()) {
       floatBall.webContents.send('float-ball-accent-change', appAccentColor);
     }
+    broadcastFloatballSettings();
   });
-  ipcMain.on('set-glass-transparency', (event, value) => {
+  secure.on('set-glass-transparency', (event, value) => {
     if (!trusted(event, mainWindow, path.join(__dirname, 'index.html')) || !Number.isFinite(value) || value < 0 || value > 70) return;
     glassTransparency = value;
     saveConfig('glassTransparency', value);
@@ -406,14 +458,14 @@ function registerIpcHandlers() {
   });
 
   // 云母背景材质
-  ipcMain.handle('get-mica-state', (event) => {
+  secure.handle('get-mica-state', (event) => {
     if (!trusted(event, mainWindow, path.join(__dirname, 'index.html'))) {
       return { supported: false, enabled: false, reason: '不允许访问窗口材质设置' };
     }
     return getMicaState();
   });
 
-  ipcMain.handle('set-mica-enabled', (event, enabled) => {
+  secure.handle('set-mica-enabled', (event, enabled) => {
     if (!trusted(event, mainWindow, path.join(__dirname, 'index.html'))) {
       return { supported: false, enabled: false, applied: false, reason: '不允许访问窗口材质设置' };
     }
@@ -427,7 +479,7 @@ function registerIpcHandlers() {
     return { ...getMicaState(), applied: true };
   });
 
-  ipcMain.on('show-context-menu', (event, action) => {
+  secure.on('show-context-menu', (event, action) => {
     if (!trusted(event, mainWindow, path.join(__dirname, 'index.html'))) return;
     const wv = mainWindow.webContents;
     const menuItems = [
@@ -442,6 +494,7 @@ function registerIpcHandlers() {
 
     if (action && typeof action === 'object') {
       menuItems.unshift(captureMenuItem(action, snapshot => wv.send('tasks:capture', snapshot)), { type: 'separator' });
+      if(action.comparison === true) menuItems.unshift(comparisonMenuItem(action,snapshot=>wv.send('comparison:capture',snapshot)));
     }
 
     if (action === 'selection') {
@@ -456,7 +509,7 @@ function registerIpcHandlers() {
   });
 
   // ======== 自动更新 IPC ========
-  ipcMain.handle('check-for-updates', () => {
+  secure.handle('check-for-updates', () => {
     if (app.isPackaged) {
       autoUpdater.checkForUpdates();
     } else {
@@ -465,32 +518,34 @@ function registerIpcHandlers() {
     return true;
   });
 
-  ipcMain.handle('download-update', () => {
+  secure.handle('download-update', () => {
     autoUpdater.downloadUpdate();
     return true;
   });
 
-  ipcMain.handle('install-update', () => {
+  secure.handle('install-update', () => {
     autoUpdater.quitAndInstall();
     return true;
   });
 
-  ipcMain.handle('get-app-version', () => app.getVersion());
+  secure.handle('get-app-version', () => app.getVersion());
 
-  ipcMain.on('open-releases-page', () => {
+  secure.on('open-releases-page', () => {
     shell.openExternal('https://github.com/Shawnylin/aichathub/releases');
   });
 
   // ======== 悬浮球 IPC ========
-  ipcMain.on('float-ball-click', () => {
+  secure.on('float-ball-click', () => {
     if (mainWindow) {
       destroyFloatBall();
+      if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.show();
       mainWindow.focus();
+      mainWindow.webContents.send('companion-arrival');
     }
   });
 
-  ipcMain.on('float-ball-context-menu', () => {
+  secure.on('float-ball-context-menu', () => {
     if (!floatBall) return;
     const menu = Menu.buildFromTemplate([
       {
@@ -501,6 +556,22 @@ function registerIpcHandlers() {
             mainWindow.focus();
           }
         }
+      },
+      {
+        label: '自定义悬浮伙伴…',
+        click: () => {
+          if (!mainWindow) return;
+          if (mainWindow.isMinimized()) mainWindow.restore();
+          mainWindow.show(); mainWindow.focus();
+          mainWindow.webContents.send('open-settings-panel', 'floatball');
+        }
+      },
+      {
+        label: '互动模式',
+        submenu: [['normal','活力模式'],['low','低精力模式'],['static','静止模式']].map(([mode,label]) => ({
+          label, type:'radio', checked:floatBallSettings.mode===mode,
+          click:()=>updateFloatballSettings({mode})
+        }))
       },
       {
         label: '恢复默认位置',
@@ -517,29 +588,38 @@ function registerIpcHandlers() {
     menu.popup({ window: floatBall });
   });
 
-  ipcMain.on('float-ball-drag', (_, dx, dy) => {
-    if (floatBall && Number.isFinite(dx) && Number.isFinite(dy)) {
-      const [x, y] = floatBall.getPosition();
-      const position = clampFloatBallPosition({ x: x + dx, y: y + dy });
-      floatBall.setPosition(position.x, position.y);
-      floatBallPos = position;
-    }
+  secure.on('float-ball-drag-start', (_, pointerX, pointerY) => {
+    if (!floatBall || floatBall.isDestroyed()) return;
+    const [x,y] = floatBall.getPosition();
+    floatDrag?.stop();
+    floatDrag = new NativeFloatballDrag({
+      getCursor: () => screen.getCursorScreenPoint(),
+      getAreas: () => screen.getAllDisplays().map(display => display.workArea),
+      move: position => {
+        if (!floatBall || floatBall.isDestroyed()) { floatDrag?.stop(); return; }
+        floatBall.setPosition(position.x,position.y,false); floatBallPos=position;
+      },
+      changed: () => { if (Date.now()-floatFacingAt>100) sendFloatBallFacing(); }
+    });
+    floatDrag.start({x,y},{x:pointerX,y:pointerY});
   });
 
-  ipcMain.on('float-ball-drag-end', () => {
+  secure.on('float-ball-drag-end', () => {
+    floatDrag?.stop(); floatDrag=null;
     if (!floatBall || floatBall.isDestroyed()) return;
     const [x, y] = floatBall.getPosition();
     floatBallPos = snapFloatBallPosition({ x, y });
     floatBall.setPosition(floatBallPos.x, floatBallPos.y);
     saveConfig('floatBallPosition', floatBallPos);
+    sendFloatBallFacing();
   });
 
   // ======== 下载管理 IPC ========
-  ipcMain.handle('get-downloads', () => downloads.slice(0, 50));
+  secure.handle('get-downloads', () => downloads.slice(0, 50));
 
-  ipcMain.handle('get-download-path', () => downloadPath);
+  secure.handle('get-download-path', () => downloadPath);
 
-  ipcMain.handle('set-download-path', async () => {
+  secure.handle('set-download-path', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
       title: '选择下载目录',
       defaultPath: downloadPath,
@@ -554,11 +634,11 @@ function registerIpcHandlers() {
     return null;
   });
 
-  ipcMain.on('open-download-file', (_, filePath) => {
+  secure.on('open-download-file', (_, filePath) => {
     shell.showItemInFolder(filePath);
   });
 
-  ipcMain.on('pause-download', (_, id) => {
+  secure.on('pause-download', (_, id) => {
     const item = downloadItems.get(id);
     if (item && !item.isPaused()) {
       try {
@@ -573,7 +653,7 @@ function registerIpcHandlers() {
     }
   });
 
-  ipcMain.on('resume-download', (_, id) => {
+  secure.on('resume-download', (_, id) => {
     const item = downloadItems.get(id);
     if (item && item.isPaused()) {
       try {
@@ -588,7 +668,7 @@ function registerIpcHandlers() {
     }
   });
 
-  ipcMain.on('cancel-download', (_, id) => {
+  secure.on('cancel-download', (_, id) => {
     const item = downloadItems.get(id);
     if (item) {
       try {
@@ -603,7 +683,7 @@ function registerIpcHandlers() {
     }
   });
 
-  ipcMain.on('delete-download', (_, id) => {
+  secure.on('delete-download', (_, id) => {
     const dl = downloads.find(d => d.id === id);
     if (dl && dl.state === 'completed' && fs.existsSync(dl.savePath)) {
       try {
@@ -617,18 +697,18 @@ function registerIpcHandlers() {
     }
   });
 
-  ipcMain.on('remove-download-record', (_, id) => {
+  secure.on('remove-download-record', (_, id) => {
     downloads = downloads.filter(d => d.id !== id);
   });
 
-  ipcMain.on('clear-downloads', () => {
+  secure.on('clear-downloads', () => {
     downloads = [];
   });
 
   // ======== 权限管理 IPC ========
-  ipcMain.handle('get-permissions', () => permissionConfig);
+  secure.handle('get-permissions', () => permissionConfig);
 
-  ipcMain.handle('set-permission', (_, site, permission, value) => {
+  secure.handle('set-permission', (_, site, permission, value) => {
     if (!permissionConfig[site]) permissionConfig[site] = {};
     permissionConfig[site][permission] = value;
     saveConfig('permissions', permissionConfig);
@@ -705,26 +785,58 @@ function createFloatBall() {
     webPreferences: {
       preload: path.join(__dirname, 'floatball-preload.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      backgroundThrottling: false
     }
   });
 
-  floatBall.loadFile(path.join(__dirname, 'floatball.html'));
+  const createdBall = floatBall;
   floatBall.webContents.once('did-finish-load', () => {
-    if (floatBall && !floatBall.isDestroyed()) {
-      floatBall.webContents.send('float-ball-accent-change', appAccentColor);
-      floatBall.webContents.send('float-ball-glass-change', glassTransparency);
+    if (!createdBall.isDestroyed()) {
+      createdBall.webContents.send('float-ball-accent-change', appAccentColor);
+      createdBall.webContents.send('float-ball-glass-change', glassTransparency);
+      createdBall.webContents.send('float-ball-settings-change', getFloatballSettings());
     }
   });
+  floatBall.webContents.on('will-navigate', event => event.preventDefault());
+  floatBall.webContents.setWindowOpenHandler(() => ({ action:'deny' }));
+  floatBall.loadFile(path.join(__dirname, 'floatball.html'));
   floatBall.setAlwaysOnTop(true, 'floating');
-  floatBall.on('closed', () => { floatBall = null; });
+  floatBall.on('closed', () => {
+    if (floatBall === createdBall) { floatDrag?.stop(); floatDrag=null; floatBall = null; }
+  });
 }
 
 function destroyFloatBall() {
+  floatDrag?.stop(); floatDrag=null;
   if (floatBall) {
     floatBall.close();
     floatBall = null;
   }
+}
+
+function getFloatballSettings() {
+  return { settings:{...floatBallSettings}, accent:appAccentColor, facing:getFloatBallFacing() };
+}
+function getFloatBallFacing() {
+  const position=floatBallPos || getDefaultFloatBallPosition();
+  const {workArea}=screen.getDisplayNearestPoint({x:position.x+FLOAT_BALL_SIZE/2,y:position.y+FLOAT_BALL_SIZE/2});
+  return facingForPosition(position,workArea,FLOAT_BALL_SIZE);
+}
+function sendFloatBallFacing() {
+  floatFacingAt=Date.now();
+  if(floatBall && !floatBall.isDestroyed())floatBall.webContents.send('float-ball-facing-change',getFloatBallFacing());
+}
+function broadcastFloatballSettings() {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('floatball-settings-change',getFloatballSettings());
+  if (floatBall && !floatBall.isDestroyed()) floatBall.webContents.send('float-ball-settings-change',getFloatballSettings());
+}
+function updateFloatballSettings(patch) {
+  if (!FloatballConfig.validPatch(patch)) return {ok:false,error:'设置内容无效'};
+  const next=FloatballConfig.normalize({...floatBallSettings,...patch});
+  if (!saveConfig('floatBallSettings',next)) return {ok:false,error:'无法保存到本机，请检查配置目录是否可写并重试'};
+  floatBallSettings=next; broadcastFloatballSettings();
+  return {ok:true,...getFloatballSettings()};
 }
 
 function getDefaultFloatBallPosition() {
@@ -764,10 +876,12 @@ function snapFloatBallPosition(position) {
 }
 
 function resetFloatBallPosition() {
+  floatDrag?.stop();floatDrag=null;
   floatBallPos = getDefaultFloatBallPosition();
   saveConfig('floatBallPosition', floatBallPos);
   if (floatBall && !floatBall.isDestroyed()) {
     floatBall.setPosition(floatBallPos.x, floatBallPos.y);
+    sendFloatBallFacing();
   }
 }
 
@@ -803,8 +917,8 @@ function createTray() {
 }
 
 function buildTrayMenu() {
-  const siteItems = SITE_ORDER.filter(site => SITE_NAMES[site]).map(site => ({
-    label: SITE_NAMES[site],
+  const siteItems = SITE_ORDER.filter(site => siteRegistry.sites.has(site)).map(site => ({
+    label: siteRegistry.sites.get(site).name,
     click: () => {
       if (mainWindow) {
         mainWindow.show();
@@ -851,27 +965,8 @@ function buildTrayMenu() {
 
 // ======== 启动 ========
 app.whenReady().then(() => {
-  const sites = ['deepseek', 'yuanbao', 'doubao', 'kimi', 'minimax', 'tongyi', 'chatglm', 'grok', 'chatgpt'];
-  sites.forEach(site => {
-    const ses = session.fromPartition(`persist:${site}`);
-    ses.setPermissionRequestHandler((webContents, permission, callback) => {
-      const allowed = ['clipboard-sanitized-write', 'clipboard-read'];
-      if (allowed.includes(permission)) {
-        callback(true);
-        return;
-      }
-      const perms = permissionConfig[site] || {};
-      if (permission === 'media') {
-        callback(!!perms.media);
-      } else if (permission === 'geolocation') {
-        callback(!!perms.geolocation);
-      } else {
-        callback(false);
-      }
-    });
-    setupDownloadHandler(ses);
-  });
-
+  siteRegistry = new SiteRegistry({session,setupDownload:setupDownloadHandler,permissions:()=>permissionConfig,builtins:Object.fromEntries(Object.entries(SITE_NAMES).map(([id,name])=>[id,{name}]))});
+  try { const cfg=JSON.parse(fs.readFileSync(configPath,'utf8')); if(cfg.customSites)siteRegistry.sync(cfg.customSites); } catch(e) { if(e.code!=='ENOENT')log.warn('站点注册读取失败',e.message); }
   registerIpcHandlers();
   createWindow();
   createTray();

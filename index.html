@@ -132,8 +132,8 @@
   /* 选中态与悬浮态使用同一整行背景，位置完全一致 */
   .tab-item.active { color:#111; font-weight:500; background:var(--active-tab-bg); }
   #sidebar.collapsed .tab-item {
-    min-height:42px; padding:9px 13px; gap:0;
-    align-self:stretch; justify-content:flex-start;
+    min-height:42px; padding:9px 0; gap:0;
+    align-self:stretch; justify-content:center;
   }
   .tab-item .favicon,
   .tab-item .favicon-placeholder { width:22px; height:22px; border-radius:5px; object-fit:contain; flex-shrink:0; }
@@ -150,7 +150,7 @@
   }
   .tab-item .indicator.loaded { opacity:1; }
   .tab-item .indicator:hover {
-    transform:scale(3);
+    transform:none;
     border-radius:0;
     background-image:url('svg/close-btn.svg') !important;
     background-repeat:no-repeat !important;
@@ -161,23 +161,15 @@
   #sidebar.collapsed .tab-item .indicator { display:none; }
   .tab-item.dragging { opacity:0.5; }
 
-  .sidebar-footer {
-    padding:10px 14px;
-    border-top:1px solid var(--border-sidebar);
-    display:flex; align-items:center; gap:10px;
-    transition: padding 0.25s, border-color 0.3s;
-    overflow:hidden;
-    min-height:52px;
-  }
-  #sidebar.collapsed .sidebar-footer { justify-content:center; gap:0; }
+  /* 侧栏底部操作区（对比 / 任务 / 设置 / 下载）的尺寸、图标规格与收起对齐
+     统一由 renderer/sidebar-actions.css 定义，这里只保留按钮自身的外观。 */
   .theme-btn {
-    width:34px; height:34px; border-radius:7px; border:none;
+    border:none; border-radius:8px;
     background:transparent; cursor:pointer; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
     color:var(--text-dim);
     transition: background 0.12s, color 0.12s;
   }
-  .theme-btn svg { width:18px; height:18px; }
   .theme-btn:hover { background:var(--btn-hover); color:var(--text-tab-active); }
 
   /* ========== CONTENT ========== */
@@ -247,7 +239,7 @@
   .nav-btn svg { width:18px; height:18px; fill:var(--text-tab); transition: fill 0.15s; }
   .nav-btn:hover { background:var(--hover-navbtn); border-color:#bbb; }
   .nav-btn:hover svg { fill:#333; }
-  .nav-btn:active { transform:scale(0.95); }
+  .nav-btn:active { background:var(--hover-navbtn); }
   .nav-btn.disabled { opacity:0.3; pointer-events:none; }
   #url-bar {
     flex:1; height:30px; min-width:60px; border:1px solid var(--border-btn); border-radius:6px;
@@ -259,17 +251,8 @@
   #url-bar::placeholder { color:var(--text-dim); }
   #url-bar.loading { opacity:0.5; }
 
-  /* Download button */
-  .dl-btn {
-    width:36px; height:32px; border:1.5px solid var(--border-btn); border-radius:8px;
-    background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; position:relative; transition: all 0.15s;
-  }
-  .dl-btn svg { width:18px; height:18px; fill:var(--text-tab); transition: fill 0.15s; }
-  .dl-btn:hover { background:var(--hover-navbtn); border-color:#bbb; }
-  .dl-btn:hover svg { fill:#333; }
+  /* 下载入口已移入侧栏底部，按钮本体样式见 renderer/sidebar-actions.css，这里只保留数量角标。 */
   .dl-btn .dl-badge {
-    position:absolute; top:-4px; right:-4px;
     min-width:16px; height:16px; border-radius:8px;
     background:#4d6bfe; color:#fff; font-size:10px; font-weight:700;
     display:flex; align-items:center; justify-content:center;
@@ -349,35 +332,14 @@
     color:var(--text-dim); transition:background 0.12s, color 0.12s;
   }
   .dl-item-actions button:hover { background:var(--btn-hover); color:var(--text-tab-active); }
-  .dl-item-actions button svg { width:14px; height:14px; }
+  .dl-item-actions button svg { width:16px; height:16px; }
   .dl-empty {
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     height:100%; color:var(--text-dim); font-size:13px; gap:8px;
   }
   .dl-empty-icon { font-size:36px; opacity:0.25; }
 
-  /* 入场动画 */
-  @keyframes dlSlideIn {
-    from { opacity:0; transform:translateX(40px) scale(0.95); }
-    to   { opacity:1; transform:translateX(0) scale(1); }
-  }
-  @keyframes dlBounce {
-    0%   { transform:scale(1); }
-    30%  { transform:scale(1.04); }
-    60%  { transform:scale(0.98); }
-    100% { transform:scale(1); }
-  }
-  @keyframes dlGlow {
-    0%   { box-shadow:0 0 0 0 rgba(77,107,254,0.5); }
-    70%  { box-shadow:0 0 0 8px rgba(77,107,254,0); }
-    100% { box-shadow:0 0 0 0 rgba(77,107,254,0); }
-  }
-  .dl-item.new {
-    animation: dlSlideIn 0.35s cubic-bezier(0.2,0,0,1), dlGlow 1.2s ease-out;
-  }
-  .dl-item.completed-flash {
-    animation: dlBounce 0.4s ease-out;
-  }
+  /* Download feedback is shared with the rest of the app in grokbot-shell.css. */
 
   /* 按钮 hover 颜色提示 */
   .dl-item-actions button[data-action="pause"]:hover   { color:#f59e0b; }
@@ -413,7 +375,7 @@
   }
   body.dark .tab-item.active { color:#f0f0f0; }
   body.dark .tab-item .indicator:hover {
-    transform:scale(3);
+    transform:none;
     border-radius:0;
     background-image:url('svg/close-btn.svg') !important;
     background-repeat:no-repeat !important;
@@ -422,7 +384,6 @@
     background-color:transparent !important;
   }
   body.dark .nav-btn:hover svg { fill:#ddd; }
-  body.dark .dl-btn:hover svg { fill:#ddd; }
   body.dark #download-panel { box-shadow:-4px 0 20px rgba(0,0,0,0.3); }
 
   /* ========== SETTINGS MODAL ========== */
@@ -549,7 +510,7 @@
     background:transparent; color:var(--text-dim); cursor:pointer;
     font-size:10px; font-family:inherit; transition:all 0.15s; white-space:nowrap;
   }
-  .perm-toggle-btn svg { width:12px; height:12px; }
+  .perm-toggle-btn svg { width:14px; height:14px; }
   .perm-toggle-btn.on {
     background:rgba(77,107,254,0.1); border-color:#4d6bfe; color:#4d6bfe;
   }
@@ -785,12 +746,11 @@
   .sidebar-nav { padding: 8px; gap: 3px; }
   .sidebar-nav .section-label { padding: 10px 8px 5px; font-size: 10px; letter-spacing: .08em; }
   .tab-item { min-height: 42px; padding: 9px 13px; border-radius: 9px; gap: 11px; }
-  .tab-item:active { transform: scale(.985); }
-  .sidebar-footer { padding: 10px 12px 14px; border-top: 0; }
+  .tab-item:active { background: var(--hover-tab); }
   .theme-btn, .collapse-btn { border-radius: 8px; }
   #navbar { height: 52px; padding: 0 14px; gap: 4px; }
-  .nav-btn, .dl-btn { width: 34px; height: 34px; border: 0; border-radius: 8px; }
-  .nav-btn:hover, .dl-btn:hover { border-color: transparent; }
+  .nav-btn { width: 34px; height: 34px; border: 0; border-radius: 8px; }
+  .nav-btn:hover { border-color: transparent; }
   #url-bar { height: 34px; border: 0; border-radius: 9px; padding: 0 12px; }
   #download-panel { width: 380px; border-left: 1px solid var(--border-nav); box-shadow: -16px 0 42px rgba(0,0,0,.08); }
   #settings-overlay, #close-overlay { backdrop-filter: blur(5px); }
@@ -821,23 +781,25 @@
     width:26px; height:26px; padding:0; border:2px solid transparent; border-radius:50%;
     background:var(--color); cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;
   }
-  .accent-option:hover { transform:scale(1.12); }
+  .accent-option:hover { box-shadow:0 0 0 3px var(--border-nav); }
   .accent-option.active { border-color:var(--bg-content); box-shadow:0 0 0 2px var(--accent), 0 2px 7px rgba(0,0,0,.18); }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
   }
 </style>
-<link rel="stylesheet" href="renderer/task-panel.css">
-<link rel="stylesheet" href="renderer/settings-refresh.css">
+<link rel="stylesheet" href="renderer/grokbot-theme.css">
 <link rel="stylesheet" href="renderer/glass-navigation.css">
+<link rel="stylesheet" href="renderer/task-panel.css">
+<link rel="stylesheet" href="renderer/floatball-settings.css">
+<link rel="stylesheet" href="renderer/settings-refresh.css">
 </head>
 <body>
 
 <div id="titlebar">
-  <span class="title">AI Chat Hub <span class="build-tag">BETA</span></span>
-  <button class="win-btn" id="btn-min">&ndash;</button>
-  <button class="win-btn" id="btn-max">&#x25A1;</button>
-  <button class="win-btn" id="btn-close">&#x2715;</button>
+  <span class="title">AI Chat Hub</span>
+  <button class="win-btn" id="btn-min" aria-label="最小化">&ndash;</button>
+  <button class="win-btn" id="btn-max" aria-label="最大化或还原">&#x25A1;</button>
+  <button class="win-btn" id="btn-close" aria-label="关闭窗口">&#x2715;</button>
 </div>
 
 <div id="update-bar">
@@ -854,10 +816,10 @@
   <div id="sidebar">
     <div class="sidebar-header">
       <div class="logo-area">
-        <img src="svg/logo.svg" class="logo-icon" alt="">
-        <span class="logo-text">AI Chat Hub</span>
+        <img src="svg/grokbot-mark.svg" class="logo-icon" alt="">
+        <span class="brand-copy"><span class="logo-text">AI Chat Hub</span><small>你的 AI 工作空间</small></span>
       </div>
-      <button class="collapse-btn" id="collapse-btn" title="收起侧栏" aria-label="切换侧栏" aria-expanded="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
+      <button class="collapse-btn" id="collapse-btn" title="收起侧栏" aria-label="切换侧栏" aria-expanded="true"><svg class="sf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
     </div>
 
     <div class="sidebar-nav">
@@ -867,10 +829,11 @@
       </div>
     </div>
 
+    <div id="sidebar-companion-slot" aria-label="GrokBot"></div>
     <div class="sidebar-footer">
       <button class="theme-btn" id="settings-btn" title="设置" aria-label="设置">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-        <span class="settings-label">设置</span>
+        <svg class="sf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g transform="translate(12 12) scale(0.82) translate(-12 -12)" stroke-width="1.95122"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></g></svg>
+        <span class="sf-label">设置</span>
       </button>
     </div>
   </div>
@@ -891,8 +854,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
       </button>
       <input id="url-bar" type="text" spellcheck="false" autocomplete="off" placeholder="输入网址，回车跳转">
-      <button class="dl-btn" id="dl-btn" title="下载管理">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-320 280-520l56-56 104 104v-288h80v288l104-104 56 56-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>
+      <button class="dl-btn" id="dl-btn" title="下载管理" aria-label="下载管理">
+        <svg class="sf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 3v12"/></svg>
+        <span class="sf-label">下载</span>
         <span class="dl-badge" id="dl-badge">0</span>
       </button>
     </div>
@@ -900,8 +864,8 @@
     <div id="webview-container">
       <webview id="wv-deepseek" src="https://chat.deepseek.com/" partition="persist:deepseek" class="visible"></webview>
       <div id="no-page-placeholder" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; flex-direction:column; align-items:center; justify-content:center; color:var(--text-dim);">
-        <div style="font-size:40px; margin-bottom:12px; opacity:0.25; line-height:1;">—</div>
-        <div style="font-size:13px;">输入网址或点击左侧站点打开页面</div>
+        <img class="empty-bot" src="svg/grokbot-mark.svg" alt="">
+        <div class="empty-page-copy"><strong>继续你的思路</strong><p>选择左侧 AI，或打开新页面开始探索。</p></div>
       </div>
     </div>
 
@@ -916,7 +880,7 @@
       </div>
       <div class="dl-list" id="dl-list">
         <div class="dl-empty" id="dl-empty">
-          <div class="dl-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+          <div class="dl-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 3v12"/></svg></div>
           <span>暂无下载</span>
         </div>
       </div>
@@ -925,15 +889,16 @@
 </div>
 
 <div id="settings-overlay">
-  <div id="settings-dialog">
+  <div id="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title" tabindex="-1">
     <div id="settings-head">
-      <h2>设置</h2>
+      <div><h2 id="settings-title">设置</h2><p>让这个工作空间更合你的习惯。</p></div>
     </div>
     <div id="settings-body">
       <nav id="settings-nav">
         <button type="button" class="settings-nav-item active" data-panel="appearance">外观</button>
         <button type="button" class="settings-nav-item" data-panel="sites">AI站点</button>
         <button type="button" class="settings-nav-item" data-panel="features">功能</button>
+        <button type="button" class="settings-nav-item" data-panel="floatball">悬浮伙伴</button>
         <button type="button" class="settings-nav-item" data-panel="downloads">下载</button>
         <button type="button" class="settings-nav-item" data-panel="permissions">权限</button>
         <button type="button" class="settings-nav-item" data-panel="about">关于</button>
@@ -988,7 +953,7 @@
             </div>
             <button class="toggle-switch" id="mica-toggle" type="button" role="switch" aria-checked="false" aria-describedby="mica-description" aria-label="启用云母背景材质" disabled></button>
           </div>
-          <div class="material-note"><strong>轻盈，有序</strong><p>半透明面板与细腻的毛玻璃层次，让内容保持清晰。外观随主题切换，动画跟随系统的减少动态效果设置。</p></div>
+          <div class="material-note"><strong>温和，专注</strong><p>石墨色与圆润轮廓呼应悬浮伙伴。面板自然开合，控件用颜色回应操作；开启系统“减少动态效果”后，界面会暂停过渡。</p></div>
         </section>
         <section class="settings-panel" id="panel-features">
           <h3 class="panel-heading">快捷键</h3>
@@ -1005,20 +970,6 @@
             <div><kbd>Ctrl+B</kbd> 收起/展开侧栏</div>
             <div><kbd>Ctrl+D</kbd> 切换深色模式</div>
           </div>
-          <h3 class="panel-heading">悬浮球</h3>
-          <div class="toggle-row">
-            <span class="toggle-label">窗口隐藏时显示悬浮球</span>
-            <button class="toggle-switch on" id="floatball-toggle"></button>
-          </div>
-          <div class="fb-quick-access">
-            <div class="fb-quick-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 4v16"/></svg></div>
-            <div class="fb-quick-copy">
-              <strong>桌面快速入口</strong>
-              <span>拖动后会自动贴边；单击即可回到当前会话。</span>
-            </div>
-            <button id="fb-reset-position" type="button">恢复位置</button>
-          </div>
-          <div class="setting-hint">悬浮入口采用圆角方形，颜色跟随外观中的主题色。</div>
           <h3 class="panel-heading">内存</h3>
           <div class="toggle-row">
             <span class="toggle-label">内存优化 <span class="beta-tag">Beta</span></span>
@@ -1030,6 +981,45 @@
             <span class="toggle-label">关闭窗口时显示确认对话框</span>
             <button class="toggle-switch on" id="close-confirm-toggle"></button>
           </div>
+        </section>
+        <section class="settings-panel" id="panel-floatball">
+          <div class="fb-page-heading"><div><h3>你的桌面小伙伴</h3><p>一个眼神，一点陪伴。随你的喜好变化。</p></div><button type="button" id="fb-reset-style">恢复默认</button></div>
+          <div class="toggle-row"><span class="toggle-label">窗口隐藏时显示悬浮球</span><button class="toggle-switch on" id="floatball-toggle" type="button" role="switch" aria-label="窗口隐藏时显示悬浮球" aria-checked="true"></button></div>
+          <div class="fb-preview-card">
+            <div id="fb-preview" aria-label="GrokBot 预览"></div>
+            <div class="fb-preview-copy"><strong id="fb-preview-title">你好，我在这里</strong><span id="fb-mode-description"></span></div>
+          </div>
+          <div class="fb-mode-options" role="group" aria-label="互动模式">
+            <button type="button" data-fb-mode="normal"><strong>活力模式</strong><span>表情活跃，会自己变形</span></button>
+            <button type="button" data-fb-mode="low"><strong>低精力模式</strong><span>安静休息，偶尔自己玩</span></button>
+            <button type="button" data-fb-mode="static"><strong>静止模式</strong><span>仅单击和右击时回应</span></button>
+          </div>
+          <h3 class="panel-heading">外形与表情</h3>
+          <div class="fb-choice-grid" id="fb-shapes" aria-label="悬浮球形状"></div>
+          <label class="fb-field">常态表情<select id="fb-expression" data-fb-key="expression"></select></label>
+          <label class="fb-field">表情朝向<select id="fb-orientation" data-fb-key="orientation"><option value="center">面向屏幕中心</option><option value="front">正面居中（对称）</option></select></label>
+          <h3 class="panel-heading">颜色与尺寸</h3>
+          <label class="fb-check"><input type="checkbox" id="fb-follow-accent" data-fb-key="followAccent">跟随应用主题色</label>
+          <div class="fb-colors" id="fb-colors" aria-label="预设颜色"></div>
+          <div class="fb-color-custom"><label for="fb-color">自选颜色</label><input type="color" id="fb-color" data-fb-key="color"><input type="text" id="fb-color-hex" maxlength="7" aria-label="十六进制颜色" placeholder="#53616d"><button type="button" id="fb-color-apply">应用颜色</button></div>
+          <label class="fb-field" for="fb-size">大小<output id="fb-size-value"></output><input type="range" id="fb-size" data-fb-key="size" min="48" max="84" step="2"></label>
+          <label class="fb-field" for="fb-opacity">不透明度<output id="fb-opacity-value"></output><input type="range" id="fb-opacity" data-fb-key="opacity" min="35" max="100" step="5"></label>
+          <h3 class="panel-heading">互动偏好</h3>
+          <label class="fb-check"><input type="checkbox" id="fb-follow-pointer" data-fb-key="followPointer">眼神跟随鼠标</label>
+          <label class="fb-check"><input type="checkbox" id="fb-reactions" data-fb-key="reactions">开启互动表情</label>
+          <label class="fb-check"><input type="checkbox" id="fb-idle" data-fb-key="idle">待机时自己玩</label>
+          <h3 class="panel-heading">动作预览</h3>
+          <div id="fb-animation-buttons" class="fb-animation-grid" role="group" aria-label="动作预览"></div>
+          <label class="fb-field" for="fb-intensity">眼神互动幅度<output id="fb-intensity-value"></output><input type="range" id="fb-intensity" data-fb-key="intensity" min="0.5" max="1.5" step="0.1"></label>
+          <div class="fb-reaction-grid">
+            <label class="fb-field">单击表情<select id="fb-click-expression" data-fb-key="clickExpression"></select></label>
+            <label class="fb-field">右击表情<select id="fb-context-expression" data-fb-key="contextExpression"></select></label>
+            <label class="fb-field">悬停表情<select id="fb-hover-expression" data-fb-key="hoverExpression"></select></label>
+            <label class="fb-field">拖动表情<select id="fb-drag-expression" data-fb-key="dragExpression"></select></label>
+          </div>
+          <div class="fb-page-actions"><button type="button" id="fb-random">随机搭配</button><button type="button" id="fb-test-drag">试试拖动表情</button><button type="button" id="fb-reset-position">恢复位置</button></div>
+          <p id="fb-save-status" role="status" aria-live="polite">正在读取设置…</p><button type="button" id="fb-save-retry" hidden>重试保存</button>
+          <p class="fb-credits">动画核心源自 <a href="#" id="fb-source-link">bloub · Jérémy Perret</a>（MIT）</p>
         </section>
         <section class="settings-panel" id="panel-downloads">
           <h3 class="panel-heading">下载</h3>
@@ -1046,7 +1036,7 @@
         </section>
         <section class="settings-panel" id="panel-about">
           <h3 class="panel-heading">关于</h3>
-          <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.4.1</span></div>
+          <div class="about-row"><span class="about-label">版本</span><span class="about-value" id="version-display">1.5.2</span></div>
           <div class="about-row"><span class="about-label">许可协议</span><span class="about-value">ISC</span></div>
           <div class="about-row"><span class="about-label">GitHub</span><span class="about-value"><a href="#" id="repo-link">github.com/Shawnylin/aichathub</a></span></div>
           <div class="about-update-row">
@@ -1063,8 +1053,8 @@
 </div>
 
 <div id="site-form-overlay">
-  <form id="site-form-dialog">
-    <h3>添加 AI 站点</h3>
+  <form id="site-form-dialog" role="dialog" aria-modal="true" aria-labelledby="site-form-title" tabindex="-1">
+    <h3 id="site-form-title">添加 AI 站点</h3>
     <label class="site-form-field">
       <span>站点名称</span>
       <input id="site-name-input" type="text" maxlength="30" placeholder="例如：Perplexity" autocomplete="off">
@@ -1082,8 +1072,8 @@
 </div>
 
 <div id="close-overlay">
-  <div id="close-dialog">
-    <h3>关闭窗口</h3>
+  <div id="close-dialog" role="dialog" aria-modal="true" aria-labelledby="close-dialog-title" tabindex="-1">
+    <h3 id="close-dialog-title">关闭窗口</h3>
     <div class="close-btns">
       <button id="close-hide-btn">最小化到托盘</button>
       <button id="close-quit-btn">完全退出</button>
@@ -1151,7 +1141,8 @@
       const local = new URL('newtab.html', location.href);
       if (current.protocol !== 'file:' || current.pathname !== local.pathname) return;
       const dark = document.body.classList.contains('dark');
-      view.executeJavaScript(`document.body.classList.toggle('dark', ${dark})`).catch(() => {});
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#53616d';
+      view.executeJavaScript(`document.body.classList.toggle('dark', ${dark});document.documentElement.style.setProperty('--accent', ${JSON.stringify(accent)})`).catch(() => {});
     } catch (_) { /* The webview may not have attached yet. dom-ready retries. */ }
   }
   function applyTheme(theme, skipSave) {
@@ -1183,11 +1174,16 @@
 
   const accentOptions = document.querySelectorAll('.accent-option');
   function applyAccentColor(color) {
+    if (!/^#[0-9a-f]{6}$/i.test(color)) color = '#53616d';
     const isDark = document.body.classList.contains('dark');
     document.documentElement.style.setProperty('--accent', color);
     document.documentElement.style.setProperty('--accent-soft', color + (isDark ? '2b' : '1f'));
-    accentOptions.forEach(option => option.classList.toggle('active', option.dataset.accent === color));
+    accentOptions.forEach(option => {
+      option.classList.toggle('active', option.dataset.accent === color);
+      option.setAttribute('aria-pressed', String(option.dataset.accent === color));
+    });
     localStorage.setItem('aihub-accent', color);
+    document.querySelectorAll('webview').forEach(syncNewTabTheme);
     window.app.setAccentColor(color);
   }
   accentOptions.forEach(option => option.addEventListener('click', () => applyAccentColor(option.dataset.accent)));
@@ -1247,6 +1243,7 @@
   function applyFloatBallState(enabled) {
     floatBallEnabled = !!enabled;
     floatballToggle.classList.toggle('on', floatBallEnabled);
+    floatballToggle.setAttribute('aria-checked',String(floatBallEnabled));
     localStorage.setItem('aihub-floatball', floatBallEnabled ? '1' : '0');
   }
   floatballToggle.addEventListener('click', () => {
@@ -1279,6 +1276,7 @@
 
   const urlBar = document.getElementById('url-bar');
 
+  function safeNavigationURL(value) {try {const u = new URL(value);return typeof value === 'string' && value.length <= 8192 && ['http:','https:'].includes(u.protocol) && !u.username && !u.password;}catch(_){return false;}}
   const BUILTIN_SITES = {
     deepseek:{name:'DeepSeek',    domain:'chat.deepseek.com',     url:'https://chat.deepseek.com/',        cls:'ds',   color:'#4d6bfe'},
     yuanbao: {name:'腾讯元宝',     domain:'yuanbao.tencent.com',   url:'https://yuanbao.tencent.com/chat/', cls:'yb',   color:'#00b894'},
@@ -1296,7 +1294,7 @@
   try {
     const saved = JSON.parse(localStorage.getItem('aihub-custom-sites') || '[]');
     if (Array.isArray(saved)) {
-      CUSTOM_SITES = saved.filter(site => site && /^custom-[a-z0-9-]+$/i.test(site.id) && site.name && /^https?:\/\//i.test(site.url));
+      CUSTOM_SITES = saved.filter(site => site && /^custom-[a-z0-9-]{1,57}$/i.test(site.id) && typeof site.name === 'string' && site.name.length <= 120 && safeNavigationURL(site.url)).slice(0,100);
       CUSTOM_SITES.forEach(site => { SITES[site.id] = Object.assign({}, site, { custom:true }); });
     }
   } catch (_) {}
@@ -1323,7 +1321,10 @@
     return chars || 'AI';
   }
 
+  let registryReady = window.app.syncSites(CUSTOM_SITES);
   function saveSiteConfig() {
+    registryReady = window.app.syncSites(CUSTOM_SITES);
+    registryReady.then(result => {if(result?.ok === false) alert(result.error); else window.app.updateSiteOrder(SITE_ORDER);});
     localStorage.setItem('aihub-custom-sites', JSON.stringify(CUSTOM_SITES));
     localStorage.setItem('aihub-site-order', JSON.stringify(SITE_ORDER));
     localStorage.setItem('aihub-hidden-sites', JSON.stringify([...hiddenSiteIds]));
@@ -1401,8 +1402,9 @@
   })(SITE_ORDER);
 
   const loadedWebviews = new Set(['deepseek']);
+  const pendingWebviews = new Map();
 
-  function getActiveWebview() { return document.getElementById('wv-' + activePage); }
+  function getActiveWebview() { return window.comparisonWorkbench?.activeWebview() || document.getElementById('wv-' + activePage); }
 
   function getPageInfo(pageId) {
     return SITES[pageId] || subPageInfo.get(pageId) || null;
@@ -1415,17 +1417,11 @@
     return sp ? sp.site : activeSite;
   }
 
-  // 弹窗链接分流：blob:/javascript: 等依赖原页面的 URL 只能在原 webview 中打开，
-  // 其余链接在顶部标签栏中作为附属页面打开
+  // 仅允许 HTTP/HTTPS 弹窗链接，在所属站点的附属标签页中打开。
   function handlePopupUrl(url, pageId) {
+    if(window.comparisonWorkbench?.isOpen()){window.comparisonWorkbench.close().then(ok=>{if(ok)handlePopupUrl(url,pageId);});return;}
     if (!url) return;
-    if (/^(blob:|javascript:)/i.test(url)) {
-      const wv = document.getElementById('wv-' + pageId);
-      if (wv) {
-        try { const p = wv.loadURL(url); if (p && p.catch) p.catch(() => {}); } catch(_) {}
-      }
-      return;
-    }
+    if (!safeNavigationURL(url)) return;
     newSubPage(url, parentSiteOf(pageId));
   }
 
@@ -1465,7 +1461,7 @@
     });
     wv.addEventListener('page-favicon-updated', (e) => {
       const favs = e.favicons;
-      if (favs && favs.length > 0) {
+      if (favs && favs.length > 0 && safeNavigationURL(favs[0])) {
         const info = subPageInfo.get(pageId);
         if (info) {
           info.favicon = favs[0];
@@ -1497,13 +1493,14 @@
     } catch(e) {}
     wv.addEventListener('context-menu', (e) => {
       e.preventDefault();
+      window.comparisonWorkbench?.selectSite(parentSiteOf(pageId));
       const site = SITES[parentSiteOf(pageId)];
-      window.app.showContextMenu({ text: e.params?.selectionText || '', url: wv.getURL(), title: wv.getTitle(), siteName: site?.name || '网页', siteId: parentSiteOf(pageId) });
+      window.app.showContextMenu({ text: e.params?.selectionText || '', url: wv.getURL(), title: wv.getTitle(), siteName: site?.name || '网页', siteId: parentSiteOf(pageId), comparison: window.comparisonWorkbench?.contains(parentSiteOf(pageId)) || false, ...window.comparisonWorkbench?.captureContext() });
     });
   }
 
-  function getOrCreateWebview(pageId) {
-    let wv = document.getElementById('wv-' + pageId);
+  function getOrCreateWebview(pageId, initialURL) {
+    let wv = document.getElementById('wv-' + pageId) || pendingWebviews.get(pageId);
     if (!wv) {
       const info = getPageInfo(pageId);
       if (!info) return null;
@@ -1511,10 +1508,11 @@
       const site = isSite ? pageId : info.site;
       wv = document.createElement('webview');
       wv.id = 'wv-' + pageId;
-      wv.setAttribute('src', info.url);
+      wv.setAttribute('src', safeNavigationURL(initialURL) ? initialURL : info.url);
       // 附属页面与所属站点共享同一个持久化分区（继承登录态）
       wv.setAttribute('partition', 'persist:' + site);
-      document.getElementById('webview-container').appendChild(wv);
+      if (SITES[site]?.custom) {pendingWebviews.set(pageId,wv);registryReady.then(result => {pendingWebviews.delete(pageId);if(result?.ok !== false && loadedWebviews.has(pageId))document.getElementById('webview-container').appendChild(wv);});}
+      else document.getElementById('webview-container').appendChild(wv);
       setupWebviewListeners(wv, pageId);
       loadedWebviews.add(pageId);
       lastUsed[pageId] = Date.now();
@@ -1545,6 +1543,7 @@
     if (!memoryOptEnabled) return;
     const now = Date.now();
     [...loadedWebviews].forEach(id => {
+      if (window.comparisonWorkbench?.contains(id)) return;
       if (id === activePage) return;                       // 当前显示页不回收
       if (SITES[id] && id === activeSite) return;          // 当前站点主页面不回收
       if (now - (lastUsed[id] || 0) > IDLE_UNLOAD_MS) {
@@ -1727,7 +1726,7 @@
     if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) url = 'https://' + url;
     let parsed;
     try { parsed = new URL(url); } catch (_) { parsed = null; }
-    if (!parsed || !/^https?:$/.test(parsed.protocol)) { siteFormError.textContent = '请输入有效的 http 或 https 网址'; return; }
+    if (!safeNavigationURL(url) || name.length > 120 || CUSTOM_SITES.length >= 100) { siteFormError.textContent = '请输入有效的 http 或 https 网址'; return; }
     if (Object.values(SITES).some(site => site.url.replace(/\/$/, '') === url.replace(/\/$/, ''))) {
       siteFormError.textContent = '该网址已经添加';
       return;
@@ -1760,10 +1759,11 @@
     siteTab.title = siteInfo.name + ' · ' + siteInfo.domain;
     let siteFavicon = null;
     try { siteFavicon = localStorage.getItem('aihub-favicon-' + activeSite); } catch(e) {}
-    siteTab.innerHTML = '<button class="site-nav-trigger" type="button" aria-label="网页导航：后退、前进和刷新" aria-expanded="false" aria-controls="nav-capsule">' + (siteFavicon
-      ? '<img class="tt-favicon" src="' + siteFavicon + '" alt="">'
-      : '<span class="tt-favicon-ph">' + siteInfo.name.slice(0, 2) + '</span>')
-      + '</button><span class="tt-text"></span>';
+    siteTab.innerHTML = '<button class="site-nav-trigger" type="button" aria-label="网页导航：后退、前进和刷新" aria-expanded="false" aria-controls="nav-capsule"></button><span class="tt-text"></span>';
+    const siteIcon = document.createElement(safeNavigationURL(siteFavicon) ? 'img' : 'span');
+    siteIcon.className = safeNavigationURL(siteFavicon) ? 'tt-favicon' : 'tt-favicon-ph';
+    if(safeNavigationURL(siteFavicon)) {siteIcon.src=siteFavicon;siteIcon.alt='';} else siteIcon.textContent=siteInfo.name.slice(0,2);
+    siteTab.querySelector('button').append(siteIcon);
     siteTab.querySelector('.tt-text').textContent = siteInfo.name;
     siteTab.addEventListener('click', event => {
       if (!event.target.closest('.site-nav-trigger')) switchSite(activeSite);
@@ -1786,13 +1786,11 @@
       tab.dataset.page = pageId;
       tab.title = info.title || info.url || '附属页面';
       const label = info.title || (function() { try { return new URL(info.url).hostname; } catch(e) { return '新页面'; } })();
-      let favHtml = '';
-      if (info.favicon) {
-        favHtml = '<img class="tt-favicon" src="' + info.favicon + '" alt="">';
-      } else {
-        favHtml = '<span class="tt-favicon-ph">页</span>';
-      }
-      tab.innerHTML = favHtml + '<span class="tt-text"></span><button class="tt-close" title="关闭页面">&#x2715;</button>';
+      tab.innerHTML = '<span class="tt-text"></span><button class="tt-close" title="关闭页面">×</button>';
+      const icon = document.createElement(safeNavigationURL(info.favicon) ? 'img' : 'span');
+      icon.className = safeNavigationURL(info.favicon) ? 'tt-favicon' : 'tt-favicon-ph';
+      if(safeNavigationURL(info.favicon)) {icon.src=info.favicon;icon.alt='';} else icon.textContent='页';
+      tab.prepend(icon);
       tab.querySelector('.tt-text').textContent = label;
       tab.querySelector('.tt-close').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1816,6 +1814,7 @@
 
   // 侧栏/托盘切换站点：显示站点主页面，附属页面标签组随站点切换
   function switchSite(siteId) {
+    if (window.comparisonWorkbench?.isOpen()) { window.comparisonWorkbench.close().then(ok=>{if(ok)switchSite(siteId);}); return; }
     if (!SITES[siteId]) return;
     activeSite = siteId;
     activePage = siteId;
@@ -1853,9 +1852,10 @@
   function newSubPage(url, site) {
     site = site || activeSite;
     if (!SITES[site]) return null;
+    if (url && url !== 'newtab.html' && url !== 'about:blank' && !safeNavigationURL(url)) return null;
     const isBlank = !url || /^about:blank/.test(url) || url === 'newtab.html';
     const target = isBlank
-      ? 'newtab.html?theme=' + (document.body.classList.contains('dark') ? 'dark' : 'light')
+      ? 'newtab.html?theme=' + (document.body.classList.contains('dark') ? 'dark' : 'light') + '&accent=' + encodeURIComponent(localStorage.getItem('aihub-accent') || '#53616d')
       : url;
     if (!isBlank) {
       for (const [id, sp] of subPageInfo) {
@@ -2068,6 +2068,7 @@
       }
       s = 'https://' + s;
     }
+    if (!safeNavigationURL(s)) return null;
     try { return new URL(s).href; } catch(e) {}
     return 'https://www.baidu.com/s?wd=' + encodeURIComponent(input.trim());
   }
@@ -2122,6 +2123,11 @@
 
   document.addEventListener('keydown', e => {
     if (!shortcutsEnabled) return;
+    if (e.ctrlKey && /^(?:[1-9]|t|w|l|r|b|d)$/i.test(e.key) &&
+        document.querySelector('#settings-overlay.show, #site-form-overlay.show, #close-overlay.show, dialog:modal')) {
+      e.preventDefault();
+      return;
+    }
     if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
       e.preventDefault();
       const site = SITE_ORDER[parseInt(e.key) - 1];
@@ -2203,12 +2209,12 @@
       const img = btn.querySelector('.favicon');
       const placeholder = img.nextElementSibling;
       const saved = localStorage.getItem('aihub-favicon-' + site);
-      if (saved) {
+      if (safeNavigationURL(saved)) {
         img.src = saved;
         img.style.display = '';
         placeholder.style.display = 'none';
       } else if (img.dataset.src) {
-        img.src = img.dataset.src;
+        if (safeNavigationURL(img.dataset.src)) img.src = img.dataset.src;
         img.onload = () => {
           img.style.display = '';
           placeholder.style.display = 'none';
@@ -2360,13 +2366,14 @@
     }
   }
 
-  // SVG icons
+  // SVG icons —— 全程序统一的线性图标规格：
+  // viewBox 24 网格 / fill=none / stroke=currentColor / stroke-width 1.6 / 圆头圆角
   const ICONS = {
-    pause:   '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
-    resume:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
-    cancel:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
-    delete:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
-    folder:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>'
+    pause:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="3.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="3.5" height="14" rx="1.2"/></svg>',
+    resume:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 5.2 19 12 7.5 18.8z"/></svg>',
+    cancel:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    delete:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
+    folder:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>'
   };
 
   function buildActionsHtml(dl) {
@@ -2396,17 +2403,17 @@
   function getStateIconSvg(state) {
     switch(state) {
       case 'completed':
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
       case 'failed':
       case 'cancelled':
       case 'deleted':
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
       case 'paused':
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="3.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="3.5" height="14" rx="1.2"/></svg>';
       case 'interrupted':
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg>';
       default:
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 3v12"/></svg>';
     }
   }
 
@@ -2434,12 +2441,14 @@
     el.innerHTML =
       '<div class="dl-item-icon ' + stateClass + '">' + iconSvg + '</div>' +
       '<div class="dl-item-info">' +
-        '<div class="dl-item-name" title="' + dl.savePath + '">' + dl.filename + '</div>' +
+        '<div class="dl-item-name"></div>' +
         '<div class="dl-item-status">' + getStatusText(dl) + '</div>' +
         '<div class="dl-item-progress"><div class="dl-item-progress-fill ' + stateClass + '" style="width:' + dl.progress + '%"></div></div>' +
       '</div>' +
       '<div class="dl-item-actions">' + buildActionsHtml(dl) + '</div>';
 
+    el.querySelector('.dl-item-name').textContent = dl.filename;
+    el.querySelector('.dl-item-name').title = dl.savePath;
     bindActionHandlers(el, dl);
     return el;
   }
@@ -2459,16 +2468,9 @@
             break;
           case 'folder': window.app.openDownloadFile(dl.savePath); break;
           case 'remove':
-            el.style.transition = 'opacity 0.25s, transform 0.25s, max-height 0.3s, margin 0.3s, padding 0.3s';
-            el.style.overflow = 'hidden';
             el.style.maxHeight = el.offsetHeight + 'px';
             requestAnimationFrame(() => {
-              el.style.opacity = '0';
-              el.style.transform = 'translateX(40px)';
-              el.style.maxHeight = '0';
-              el.style.marginBottom = '0';
-              el.style.paddingTop = '0';
-              el.style.paddingBottom = '0';
+              el.classList.add('is-removing');
             });
             setTimeout(() => {
               delete dlMap[dl.id];
@@ -2477,7 +2479,7 @@
                 dlList.appendChild(dlEmpty);
                 dlEmpty.style.display = '';
               }
-            }, 320);
+            }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 260);
             window.app.removeDownloadRecord(dl.id);
             return;
         }
@@ -2563,7 +2565,7 @@
     const emptyEl = document.createElement('div');
     emptyEl.className = 'dl-empty';
     emptyEl.id = 'dl-empty';
-    emptyEl.innerHTML = '<div class="dl-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><span>暂无下载</span>';
+    emptyEl.innerHTML = '<div class="dl-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 3v12"/></svg></div><span>暂无下载</span>';
     dlList.appendChild(emptyEl);
   });
 
@@ -2590,8 +2592,8 @@
   };
 
   const PERM_SVG = {
-    media: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
-    geolocation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+    media: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg>',
+    geolocation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'
   };
 
   let permState = {};
@@ -2663,5 +2665,17 @@
 <script src="renderer/floating-navigation.js"></script>
 <script src="renderer/glass-appearance.js"></script>
 <script src="renderer/task-panel.js"></script>
+<link rel="stylesheet" href="renderer/comparison-workbench.css">
+<link rel="stylesheet" href="renderer/sidebar-actions.css">
+<link rel="stylesheet" href="renderer/grokbot-shell.css">
+<script src="renderer/comparison-model.js"></script>
+<script src="renderer/comparison-workbench.js"></script>
+<script src="renderer/floatball-config.js"></script>
+<script src="renderer/bloub.js"></script>
+<script src="renderer/floatball-avatar.js"></script>
+<link rel="stylesheet" href="renderer/companion.css">
+<script src="renderer/companion.js"></script>
+<script src="renderer/floatball-settings.js"></script>
+<script src="renderer/grokbot-ui.js"></script>
 </body>
 </html>

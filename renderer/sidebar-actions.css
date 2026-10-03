@@ -1,0 +1,112 @@
+/* 侧栏操作区：收起 / 对比 / 任务 / 设置 / 下载 共用尺寸、图标规格与对齐方式。
+   这是该区域唯一样式来源，index.html 与 comparison-workbench.css 不再定义冲突规则。
+   图标规格统一为：24 网格 / 1.6 描边 / 圆头圆角 / 18px 显示尺寸。 */
+
+#sidebar {
+  --sidebar-icon-size: 18px;
+  --sidebar-icon-stroke: 1.6;
+  --sidebar-control-size: 34px;
+}
+
+.sidebar-footer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 6px;
+  padding: 10px 12px 14px;
+  border-top: 0;
+  min-height: 0;
+  overflow: visible;
+  transition: padding 0.25s, border-color 0.3s;
+}
+
+/* 收起态：单列、按钮等宽等高、水平居中 */
+#sidebar.collapsed .sidebar-footer {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 0 14px;
+}
+
+.sidebar-footer > button,
+#sidebar #collapse-btn {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: var(--sidebar-control-size);
+  min-width: 0;
+  padding: 0 10px;
+  border: 1px solid var(--border-btn);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-tab);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.sidebar-footer > button:hover,
+#sidebar #collapse-btn:hover {
+  background: var(--hover-navbtn);
+  color: var(--text-tab-active);
+}
+
+.sidebar-footer > button:focus-visible,
+#sidebar #collapse-btn:focus-visible {
+  outline: 2px solid var(--accent, #53616d);
+  outline-offset: 2px;
+}
+
+/* 收起按钮与底部四个入口共用唯一的图标尺寸规则。 */
+.sidebar-footer > button .sf-icon,
+#sidebar #collapse-btn .sf-icon {
+  display: block;
+  flex: 0 0 var(--sidebar-icon-size);
+  width: var(--sidebar-icon-size);
+  height: var(--sidebar-icon-size);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--sidebar-icon-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+#sidebar #collapse-btn {
+  width: var(--sidebar-control-size);
+  padding: 0;
+  gap: 0;
+  flex: 0 0 var(--sidebar-control-size);
+}
+
+.sidebar-footer > button .sf-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* 收起态：只留图标，按钮保持 34×34 正方形并居中 */
+#sidebar.collapsed .sidebar-footer > button {
+  width: var(--sidebar-control-size);
+  height: var(--sidebar-control-size);
+  padding: 0;
+  gap: 0;
+}
+
+#sidebar.collapsed .sidebar-footer > button .sf-label {
+  display: none;
+}
+
+/* 下载数量角标贴在按钮右上角，收起态同样对齐 */
+.sidebar-footer > button .dl-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+}

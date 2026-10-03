@@ -4,7 +4,7 @@
 })(typeof window === 'undefined' ? globalThis : window, () => function resolveSourceRoute(source, sites) {
   if (!source || typeof source.url !== 'string' || source.url.length > 8192) throw new Error('来源网址无效。');
   const url = new URL(source.url);
-  if (!['http:', 'https:'].includes(url.protocol)) throw new Error('来源仅支持 HTTP 或 HTTPS 网页。');
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error('来源仅支持 HTTP 或 HTTPS 网页。');
   let siteId = Object.hasOwn(sites, source.siteId || '') ? source.siteId : null;
   if (!siteId) siteId = Object.keys(sites).find(id => sites[id].name === source.siteName);
   if (!siteId) siteId = Object.keys(sites).find(id => {

@@ -37,7 +37,7 @@ app.whenReady().then(async () => {
   const fill = (selector, value) => js(`{const input = document.querySelector(${JSON.stringify(selector)}); input.value = ${JSON.stringify(value)}; input.dispatchEvent(new Event('input', {bubbles:true}));}`);
   async function waitFor(code) {
     for (let count = 0; count < 60; count++) { if (await js(code)) return; await delay(100); }
-    throw new Error('Timed out: ' + code + '\n' + await js(`document.querySelector('#task-feedback')?.textContent`));
+    throw new Error('Timed out: ' + code + '\n' + await js(`JSON.stringify({feedback:document.querySelector('#task-feedback')?.textContent,active:document.activeElement?.id,navOpen:document.querySelector('#nav-capsule')?.classList.contains('is-open'),buttons:[...document.querySelectorAll('#nav-capsule button')].map(n=>({id:n.id,disabled:n.disabled}))})`));
   }
   const saved = () => waitFor(`document.querySelector('#task-feedback').textContent === '已保存到本机'`);
   const shot = async name => { await delay(350); fs.writeFileSync(path.join(output, name + '.png'), (await win.webContents.capturePage()).toPNG()); };
@@ -123,9 +123,18 @@ app.whenReady().then(async () => {
   await textClick('打开来源'); await delay(800);
   assert.equal(opened, '');
   assert.equal(await js(`document.querySelector('#task-workspace').open`), false);
+  // The source tab is created on demand; wait for its first navigation to commit before reading it back.
+  await waitFor(`document.querySelector('webview.visible').getURL() === ${JSON.stringify(sourceUrl)}`);
   const sourceGuest = webContents.fromId(await js(`document.querySelector('webview.visible').getWebContentsId()`));
   assert.equal(sourceGuest.session, session.fromPartition('persist:deepseek'));
-  assert.equal(sourceGuest.getURL(), sourceUrl);
+  assert.equal(
+    sourceGuest.getURL(),
+    sourceUrl,
+    'visible webview: ' +
+      (await js(
+        `JSON.stringify([...document.querySelectorAll('webview')].map(w=>({id:w.id,visible:w.classList.contains('visible'),partition:w.getAttribute('partition'),src:w.getAttribute('src')})))`,
+      )),
+  );
   assert.ok((await sourceGuest.executeJavaScript('document.cookie')).includes('source_session=original'));
   assert.equal(await js(`document.querySelector('#navbar') === null`), true);
   const bounds = () => js(`JSON.stringify(document.querySelector('#webview-container').getBoundingClientRect().toJSON())`);
